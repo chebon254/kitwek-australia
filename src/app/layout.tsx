@@ -9,9 +9,9 @@ const ubuntu = Ubuntu({
 });
 
 export const metadata: Metadata = {
-  title: "Kitwek South Australia - Strengthening the Kalenjin Community",
+  title: "Kitwek Victoria - Strengthening the Kalenjin Community",
   description:
-    "Kitwek South Australia fosters cultural preservation, social empowerment, and economic advancement for the Kalenjin community in Victoria, Australia. Join us in promoting heritage, education, and integration within Australian society.",
+    "Kitwek Victoria fosters cultural preservation, social empowerment, and economic advancement for the Kalenjin community in Victoria, Australia. Join us in promoting heritage, education, and integration within Australian society.",
 };
 
 export default function RootLayout({
@@ -38,7 +38,9 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Kitwek Australia" />
         <link rel="manifest" href="/favicon/site.webmanifest" />
       </head>
-      <body  className={`${ubuntu.variable} antialiased`}>{children}</body>
+      <body  className={`${ubuntu.variable} w-full`}>
+        {children}
+        </body>
     </html>
   );
 }
