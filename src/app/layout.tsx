@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import { Ubuntu } from "next/font/google";
+import { Lora, Ubuntu } from "next/font/google";
 import "./globals.css";
 
 const ubuntu = Ubuntu({
   variable: "--font-ubuntu-sans",
   subsets: ["latin"],
   weight: ["300", "400", "500", "700"]
+});
+
+const lora = Lora({
+  variable: "--font-lora-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "700"]
 });
 
 export const metadata: Metadata = {
@@ -38,7 +44,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Kitwek Australia" />
         <link rel="manifest" href="/favicon/site.webmanifest" />
       </head>
-      <body  className={`${ubuntu.variable} w-full`}>
+      <body  className={`${ubuntu.variable} ${lora.variable} w-full`}>
         {children}
         </body>
     </html>
