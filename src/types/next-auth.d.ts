@@ -12,7 +12,7 @@ declare module "next-auth" {
     user: User & {
       membershipStatus: string;
     };
-    update: (data?: any) => Promise<void>; // Add the update function
+    update: (data?: Partial<User>) => Promise<void>; // Specify a more restrictive type
   }
 }
 
