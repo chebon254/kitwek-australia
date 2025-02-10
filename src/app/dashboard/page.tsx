@@ -2,26 +2,32 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 
-export default function Dashboard() {
-  const { data: session, update } = useSession();
-  const router = useRouter();
+function SearchParamsHandler() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
+  const { update } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     const checkAndUpdateSession = async () => {
       if (sessionId) {
-        // Add a small delay to allow webhook processing
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        await update(); // Refresh the session
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for webhook processing
+        await update();
         router.replace("/dashboard");
       }
     };
 
     checkAndUpdateSession();
   }, [sessionId, update, router]);
+
+  return null; // No UI needed
+}
+
+export default function Dashboard() {
+  const { data: session } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     if (!session?.user?.membershipStatus || session.user.membershipStatus !== "ACTIVE") {
@@ -36,6 +42,9 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Suspense fallback={<div>Loading...</div>}>
+        <SearchParamsHandler />
+      </Suspense>
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="bg-white overflow-hidden shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
