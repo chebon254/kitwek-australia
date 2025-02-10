@@ -3,7 +3,8 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import NextAuth from "next-auth/next";
+import NextAuth from "next-auth";
+import { NextResponse } from "next/server";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -20,20 +21,14 @@ export const authOptions: NextAuthOptions = {
         }
 
         const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email
-          }
+          where: { email: credentials.email }
         });
 
         if (!user || !user?.password) {
           throw new Error("Invalid credentials");
         }
 
-        const isCorrectPassword = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-
+        const isCorrectPassword = await bcrypt.compare(credentials.password, user.password);
         if (!isCorrectPassword) {
           throw new Error("Invalid credentials");
         }
@@ -50,10 +45,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        return {
-          ...token,
-          membershipStatus: user.membershipStatus
-        };
+        return { ...token, membershipStatus: user.membershipStatus };
       }
       return token;
     },
@@ -76,5 +68,13 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 };
 
+// Fix: Use correct Next.js App Router API route handlers
 const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+
+export const GET = async (req: Request) => {
+  return handler(req as any, {} as any);
+};
+
+export const POST = async (req: Request) => {
+  return handler(req as any, {} as any);
+};
