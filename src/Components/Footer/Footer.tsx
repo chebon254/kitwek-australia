@@ -96,7 +96,7 @@ function Footer() {
             <h2 className="font-bold text-xl leading-6 text-black mb-2">Membership</h2>
             <div className="bg-[#ED6868] rounded-lg p-10 w-[312px]">
               <h3 className="text-white font-bold text-xl leading-6 mb-4">Thinking of being a member?</h3>
-              <Link href={"/signup"} className="bg-white rounded-lg h-14 w-60 outline-none text-xl text-black leading-6 font-bold">
+              <Link href={"/signup"} className="bg-white rounded-lg h-14 px-10 py-4 mt-4 w-60 outline-none text-xl text-black leading-6 font-bold">
                 Join us today
               </Link>
             </div>

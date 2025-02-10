@@ -1,15 +1,31 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Dashboard() {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get("session_id");
 
   useEffect(() => {
-    if (session?.user?.membershipStatus !== "ACTIVE") {
+    const checkAndUpdateSession = async () => {
+      if (sessionId) {
+        // Add a small delay to allow webhook processing
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await update(); // Refresh the session
+        router.replace("/dashboard");
+      }
+    };
+
+    checkAndUpdateSession();
+  }, [sessionId, update, router]);
+
+  useEffect(() => {
+    if (!session?.user?.membershipStatus || session.user.membershipStatus !== "ACTIVE") {
+      console.log("Redirecting to membership page");
       router.push("/dashboard/membership");
     }
   }, [session, router]);

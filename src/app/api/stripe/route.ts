@@ -24,23 +24,9 @@ export async function POST() {
       return new NextResponse("User not found", { status: 404 });
     }
 
-    // Create or get Stripe customer
-    let customerId = user.stripeCustomerId;
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
-        name: user.name,
-      });
-      customerId = customer.id;
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { stripeCustomerId: customerId },
-      });
-    }
-
     // Create Stripe checkout session
     const checkoutSession = await stripe.checkout.sessions.create({
-      customer: customerId,
+      customer: user.stripeCustomerId || undefined,
       line_items: [
         {
           price_data: {
@@ -55,7 +41,7 @@ export async function POST() {
         },
       ],
       mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?success=true`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/membership?canceled=true`,
     });
 
