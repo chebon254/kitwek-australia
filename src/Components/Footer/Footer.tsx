@@ -53,7 +53,7 @@ function Footer() {
             <div className="h-[312px] w-[320px] rounded-lg bg-[url(/ui-assets/radio-image.png)] bg-cover bg-no-repeat overflow-hidden">
               <div className="bg-[#ed6868cb] h-full w-full p-4 ">
                 <h1 className="text-white font-bold text-xl leading-6 mb-4">Kalenjin Radio</h1>
-                <p className="text-white font-bold text-xl leading-6 mb-4">Tune in every Sunday 10:30 PM to Midnight</p>
+                <p className="text-white font-bold text-base leading-6 mb-4 font-[family-name:var(--font-lora-sans)]">Tune in every Sunday 10:30 PM to Midnight</p>
                 <div className="w-full flex items-center justify-center h-48">
                   <Image
                     src={"/ui-assets/play-button.png"}
@@ -93,18 +93,18 @@ function Footer() {
             </div>
           </div>
           <div className="m-1">
-            <h2 className="font-bold text-xl leading-6 text-black mb-2">Programs</h2>
+            <h2 className="font-bold text-xl leading-6 text-black mb-2">Membership</h2>
             <div className="bg-[#ED6868] rounded-lg p-10 w-[312px]">
               <h3 className="text-white font-bold text-xl leading-6 mb-4">Thinking of being a member?</h3>
-              <button className="bg-white rounded-lg h-14 w-60 outline-none text-xl text-black leading-6 font-bold">
+              <Link href={"/signup"} className="bg-white rounded-lg h-14 w-60 outline-none text-xl text-black leading-6 font-bold">
                 Join us today
-              </button>
+              </Link>
             </div>
           </div>
         </div>
         <div className="text-left w-full py-8">
           <p className="w-full font-bold text-base text-left leading-5 font-[family-name:var(--font-lora-sans)]">
-            KitwekSA @2023 Production. All Rights Reserved
+            Kitwek Victoria @2025 Production. All Rights Reserved
           </p>
         </div>
       </div>
