@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
 import { Lora, Ubuntu } from "next/font/google";
 import "./globals.css";
+import Providers from "./providers";
 
 const ubuntu = Ubuntu({
   variable: "--font-ubuntu-sans",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700"]
+  weight: ["300", "400", "500", "700"],
 });
 
 const lora = Lora({
   variable: "--font-lora-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "700"]
+  weight: ["400", "500", "700"],
 });
 
 export const metadata: Metadata = {
@@ -20,11 +21,7 @@ export const metadata: Metadata = {
     "Kitwek Victoria fosters cultural preservation, social empowerment, and economic advancement for the Kalenjin community in Victoria, Australia. Join us in promoting heritage, education, and integration within Australian society.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
@@ -44,9 +41,11 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Kitwek Australia" />
         <link rel="manifest" href="/favicon/site.webmanifest" />
       </head>
-      <body  className={`${ubuntu.variable} ${lora.variable} w-full`}>
-        {children}
-        </body>
+      <body className={`${ubuntu.variable} ${lora.variable} w-full`}>
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }
