@@ -1,10 +1,8 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import NextAuth from "next-auth";
-import { NextResponse } from "next/server";
+import NextAuth, { NextAuthOptions } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -24,7 +22,7 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email }
         });
 
-        if (!user || !user?.password) {
+        if (!user || !user.password) {
           throw new Error("Invalid credentials");
         }
 
@@ -68,13 +66,6 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 };
 
-// Fix: Use correct Next.js App Router API route handlers
+// Correctly handling Next.js API routes with NextAuth in App Router
 const handler = NextAuth(authOptions);
-
-export const GET = async (req: Request) => {
-  return handler(req as any, {} as any);
-};
-
-export const POST = async (req: Request) => {
-  return handler(req as any, {} as any);
-};
+export { handler as GET, handler as POST };
