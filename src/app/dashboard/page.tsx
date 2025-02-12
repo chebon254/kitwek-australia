@@ -2,11 +2,17 @@
 
 import { useEffect, useState } from 'react';
 
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  createdAt: string;
+}
+
 export default function DashboardPage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    // Fetch user data
     fetch('/api/user')
       .then(res => res.json())
       .then(data => setUser(data));

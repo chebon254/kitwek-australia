@@ -6,7 +6,7 @@ import { Prisma } from '@prisma/client';
 
 export async function POST(request: Request) {
   try {
-    const { name, email, phone, country, password, firebaseUid } = await request.json();
+    const { name, email, phone, country, password} = await request.json();
 
     // Hash password
     const hashedPassword = await hash(password, 12);

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { sendPaymentConfirmation } from '@/lib/mail';
+import Stripe from 'stripe';
 
 export async function POST(request: Request) {
   const body = await request.text();
@@ -16,18 +17,16 @@ export async function POST(request: Request) {
     );
 
     if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as any;
+      const session = event.data.object as Stripe.Checkout.Session;
       
-      // Update user membership status
       const user = await prisma.user.update({
-        where: { email: session.customer_email },
+        where: { email: session.customer_email ?? '' },
         data: { 
           membershipStatus: 'ACTIVE',
-          stripeCustomerId: session.customer
+          stripeCustomerId: session.customer as string
         },
       });
 
-      // Send confirmation email
       await sendPaymentConfirmation(user.email, user.name);
     }
 
