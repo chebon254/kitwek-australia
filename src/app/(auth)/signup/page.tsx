@@ -116,8 +116,8 @@ export default function SignupPage() {
                   <p className="text-sm text-red-700">
                     {error}
                     {error.includes('try logging in') && (
-                      <Link href="/login" className="ml-1 text-red-700 underline hover:text-red-800">
-                        Go to login
+                      <Link href="/signin" className="ml-1 text-red-700 underline hover:text-red-800">
+                        Go to Sign in
                       </Link>
                     )}
                   </p>

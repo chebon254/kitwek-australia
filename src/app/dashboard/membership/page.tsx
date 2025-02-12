@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
+import { CheckCircle } from 'lucide-react';
 
 interface User {
   id: string;
   email: string;
   name: string;
+  membershipStatus: string;
 }
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
@@ -50,6 +52,26 @@ export default function MembershipPage() {
 
   if (!user) return <div>Loading...</div>;
 
+  if (user.membershipStatus === 'ACTIVE') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <div className="text-center">
+              <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
+              <h2 className="mt-4 text-2xl font-bold text-gray-900">
+                Active Membership
+              </h2>
+              <p className="mt-2 text-sm text-gray-600">
+                Your membership is active and you have full access to all features.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -68,21 +90,15 @@ export default function MembershipPage() {
               <h3 className="text-lg font-medium text-gray-900">Membership Benefits</h3>
               <ul className="mt-4 space-y-2">
                 <li className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M5 13l4 4L19 7"></path>
-                  </svg>
+                  <CheckCircle className="h-5 w-5 text-green-500" />
                   <span className="ml-2">Full access to all features</span>
                 </li>
                 <li className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M5 13l4 4L19 7"></path>
-                  </svg>
+                  <CheckCircle className="h-5 w-5 text-green-500" />
                   <span className="ml-2">Priority support</span>
                 </li>
                 <li className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M5 13l4 4L19 7"></path>
-                  </svg>
+                  <CheckCircle className="h-5 w-5 text-green-500" />
                   <span className="ml-2">Exclusive content</span>
                 </li>
               </ul>
