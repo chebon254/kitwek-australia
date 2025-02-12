@@ -9,6 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { FirebaseError } from 'firebase/app'; 
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -25,41 +26,45 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      setLoading(true);
-      setError('');
 
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
-      );
+const onSubmit = async (data: LoginFormData) => {
+  try {
+    setLoading(true);
+    setError('');
 
-      const idToken = await userCredential.user.getIdToken();
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      data.email,
+      data.password
+    );
 
-      const sessionResponse = await fetch('/api/auth/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      });
+    const idToken = await userCredential.user.getIdToken();
 
-      if (!sessionResponse.ok) {
-        throw new Error('Failed to create session');
-      }
+    const sessionResponse = await fetch('/api/auth/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
 
-      router.push('/dashboard');
-    } catch (error: any) {
-      console.error('Login error:', error);
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-        setError('Invalid email or password');
-      } else {
-        setError('Failed to log in. Please try again.');
-      }
-    } finally {
-      setLoading(false);
+    if (!sessionResponse.ok) {
+      throw new Error('Failed to create session');
     }
-  };
+
+    router.push('/dashboard');
+  } catch (error: unknown) {  // Specify the error as 'unknown'
+    console.error('Login error:', error);
+    if (error instanceof FirebaseError && (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password')) {
+      setError('Invalid email or password');
+    } else if (error instanceof Error) {
+      setError(error.message || 'Failed to log in. Please try again.');
+    } else {
+      setError('An unknown error occurred. Please try again.');
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
