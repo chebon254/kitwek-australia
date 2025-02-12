@@ -9,6 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { FirebaseError } from 'firebase/app';  // Import FirebaseError
 
 const signupSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -32,14 +33,14 @@ export default function SignupPage() {
     try {
       setLoading(true);
       setError('');
-
+  
       // First, check if user exists in our database
       const checkUserResponse = await fetch('/api/auth/check-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: data.email }),
       });
-
+  
       const checkUserData = await checkUserResponse.json();
       
       if (checkUserData.exists) {
@@ -53,21 +54,21 @@ export default function SignupPage() {
         data.email,
         data.password
       );
-
+  
       // Get the ID token
       const idToken = await userCredential.user.getIdToken();
-
+  
       // Create session
       const sessionResponse = await fetch('/api/auth/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken }),
       });
-
+  
       if (!sessionResponse.ok) {
         throw new Error('Failed to create session');
       }
-
+  
       // Create user in database
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -77,25 +78,27 @@ export default function SignupPage() {
           firebaseUid: userCredential.user.uid,
         }),
       });
-
+  
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.error || 'Signup failed');
       }
-
+  
       router.push('/dashboard/membership');
-    } catch (error: any) {
+    } catch (error: unknown) {  // Specify 'unknown' type here
       console.error('Signup error:', error);
-      if (error.code === 'auth/email-already-in-use') {
+      if (error instanceof FirebaseError && error.code === 'auth/email-already-in-use') {
         setError('This email is already registered. Please try logging in instead.');
-      } else {
+      } else if (error instanceof Error) {
         setError(error.message || 'Failed to create account. Please try again.');
+      } else {
+        setError('An unknown error occurred. Please try again.');
       }
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
