@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 interface User {
@@ -46,15 +47,17 @@ export default function DashboardPage() {
                 Quick Actions
               </h2>
               <div className="space-y-2">
-                <button className="w-full text-left px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors">
+                <Link href={"/dashboard/account"} className="w-full text-left px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors">
                   View Profile Settings
-                </button>
-                <button className="w-full text-left px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors">
+                </Link>
+                <br />
+                <Link href={"/dashboard/membership"} className="w-full text-left px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors">
                   Billing History
-                </button>
-                <button className="w-full text-left px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors">
-                  Support
-                </button>
+                </Link>
+                <br />
+                <Link href={"/dashboard/members"} className="w-full text-left px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors">
+                  Members
+                </Link>
               </div>
             </div>
           </div>
