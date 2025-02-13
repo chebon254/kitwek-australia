@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -28,13 +28,6 @@ export default function AccountPage() {
     resolver: zodResolver(profileSchema),
   });
 
-  useEffect(() => {
-    fetch('/api/user')
-      .then(res => res.json())
-      .then(data => setUser(data))
-      .catch(error => console.error('Error fetching user:', error));
-  }, []);
-
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -42,47 +35,25 @@ export default function AccountPage() {
     try {
       setUploadingImage(true);
 
-      // Get presigned URL
-      const response = await fetch('/api/upload-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fileName: `${Date.now()}-${file.name}`,
-          contentType: file.type,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get upload URL');
-      }
-
-      const { uploadUrl, publicUrl } = await response.json();
-
-      // Create a FormData object
       const formData = new FormData();
       formData.append('file', file);
 
-      // Upload to DigitalOcean Spaces
-      const uploadResponse = await fetch(uploadUrl, {
-        method: 'PUT',
-        body: file,
-        headers: {
-          'Content-Type': file.type,
-          'x-amz-acl': 'public-read',
-          'Access-Control-Allow-Origin': '*',
-        },
+      const response = await fetch('/api/upload-url', {
+        method: 'POST',
+        body: formData,
       });
-      
-      if (!uploadResponse.ok) {
-        const error = await uploadResponse.text();
-        throw new Error(`Failed to upload image: ${error}`);
-      }      
+
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+
+      const { imageUrl } = await response.json();
 
       // Update user profile with new image URL
       const updateResponse = await fetch('/api/user/update', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profileImage: publicUrl }),
+        body: JSON.stringify({ profileImage: imageUrl }),
       });
 
       if (!updateResponse.ok) {
@@ -94,7 +65,7 @@ export default function AccountPage() {
       alert('Profile photo updated successfully!');
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert(`Failed to upload image. Please try again.${error}`);
+      alert('Failed to upload image. Please try again.');
     } finally {
       setUploadingImage(false);
     }
@@ -122,10 +93,6 @@ export default function AccountPage() {
     }
   };
 
-  if (!user) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
@@ -134,13 +101,13 @@ export default function AccountPage() {
         <div className="bg-white shadow rounded-lg p-6 mb-6">
           <div className="flex items-center space-x-4 mb-6">
             <Avatar className="h-20 w-20">
-              <AvatarImage src={user.profileImage || undefined} alt={user.name} />
-              <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+              <AvatarImage src={user?.profileImage || undefined} alt={user?.name} />
+              <AvatarFallback>{user?.name?.substring(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="text-xl font-semibold">{user.name}</h2>
+              <h2 className="text-xl font-semibold">{user?.name}</h2>
               <label className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 cursor-pointer">
-                {uploadingImage ? 'Uploading...' : 'Change Photo'}
+                Change Photo
                 <input
                   type="file"
                   className="hidden"
@@ -157,7 +124,6 @@ export default function AccountPage() {
               <label className="block text-sm font-medium text-gray-700">Bio</label>
               <textarea
                 {...register('bio')}
-                defaultValue={user.bio || ''}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 rows={4}
               />
@@ -170,7 +136,6 @@ export default function AccountPage() {
               <label className="block text-sm font-medium text-gray-700">Profession</label>
               <input
                 {...register('profession')}
-                defaultValue={user.profession || ''}
                 type="text"
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               />
@@ -186,7 +151,6 @@ export default function AccountPage() {
                   <label className="block text-sm font-medium text-gray-700">Twitter</label>
                   <input
                     {...register('twitter')}
-                    defaultValue={user.twitter || ''}
                     type="url"
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   />
@@ -199,7 +163,6 @@ export default function AccountPage() {
                   <label className="block text-sm font-medium text-gray-700">Instagram</label>
                   <input
                     {...register('instagram')}
-                    defaultValue={user.instagram || ''}
                     type="url"
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   />
@@ -212,7 +175,6 @@ export default function AccountPage() {
                   <label className="block text-sm font-medium text-gray-700">Facebook</label>
                   <input
                     {...register('facebook')}
-                    defaultValue={user.facebook || ''}
                     type="url"
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   />
@@ -225,7 +187,6 @@ export default function AccountPage() {
                   <label className="block text-sm font-medium text-gray-700">YouTube</label>
                   <input
                     {...register('youtube')}
-                    defaultValue={user.youtube || ''}
                     type="url"
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   />
@@ -238,7 +199,6 @@ export default function AccountPage() {
                   <label className="block text-sm font-medium text-gray-700">LinkedIn</label>
                   <input
                     {...register('linkedin')}
-                    defaultValue={user.linkedin || ''}
                     type="url"
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   />

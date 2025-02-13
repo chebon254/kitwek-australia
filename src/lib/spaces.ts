@@ -1,27 +1,30 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { v4 as uuidv4 } from 'uuid';
 
 const s3Client = new S3Client({
-  endpoint: `https://${process.env.SPACES_ENDPOINT}`,
-  region: 'us-east-1',
+  endpoint: process.env.SPACES_ENDPOINT,
+  region: 'blr1', // Update this to match your DigitalOcean region
   credentials: {
     accessKeyId: process.env.SPACES_KEY!,
     secretAccessKey: process.env.SPACES_SECRET!,
   },
 });
 
-export const generateUploadUrl = async (fileName: string, contentType: string) => {
-  const key = `profile-images/${fileName}`;
-  
-  const command = new PutObjectCommand({
-    Bucket: process.env.SPACES_BUCKET!,
-    Key: key,
-    ContentType: contentType,
-    ACL: 'public-read',
-  });
+export const generateUploadUrl = async (file: Buffer, originalFilename: string): Promise<string> =>{
+  const extension = originalFilename.split('.').pop();
+  const filename = `${uuidv4()}.${extension}`;
+  const key = `profile-images/${filename}`;
 
-  const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
-  const publicUrl = `https://${process.env.SPACES_BUCKET}.${process.env.SPACES_ENDPOINT}/${key}`;
+  await s3Client.send(
+    new PutObjectCommand({
+      Bucket: process.env.SPACES_BUCKET,
+      Key: key,
+      Body: file,
+      ACL: "public-read",
+      ContentType: `image/${extension}`
+    })
+  );
 
-  return { uploadUrl, publicUrl };
-};
+  return `https://${process.env.SPACES_BUCKET}.${process.env.SPACES_ENDPOINT}/${key}`;
+}

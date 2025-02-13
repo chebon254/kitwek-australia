@@ -3,14 +3,24 @@ import { generateUploadUrl } from '@/lib/spaces';
 
 export async function POST(request: Request) {
   try {
-    const { fileName, contentType } = await request.json();
-    const { uploadUrl, publicUrl } = await generateUploadUrl(fileName, contentType);
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
     
-    return NextResponse.json({ uploadUrl, publicUrl });
+    if (!file) {
+      return NextResponse.json(
+        { error: 'No file provided' },
+        { status: 400 }
+      );
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const imageUrl = await generateUploadUrl(buffer, file.name);
+    
+    return NextResponse.json({ imageUrl });
   } catch (error) {
-    console.error('Error generating upload URL:', error);
+    console.error('Error uploading image:', error);
     return NextResponse.json(
-      { error: 'Failed to generate upload URL' },
+      { error: 'Failed to upload image' },
       { status: 500 }
     );
   }
