@@ -3,7 +3,6 @@ import Navbar from "@/Components/Navbar/Navbar";
 import ProgramSlider from "@/Components/Slides/ProgramSlider";
 import Image from "next/image";
 import React from "react";
-import { Check } from "lucide-react";
 
 const objectives = [
   {
