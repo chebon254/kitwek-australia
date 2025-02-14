@@ -32,13 +32,13 @@ const ProgramSlider = () => {
     }
   ];
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev === programs.length - 1 ? 0 : prev + 1));
-  };
+  // const nextSlide = () => {
+  //   setCurrentSlide((prev) => (prev === programs.length - 1 ? 0 : prev + 1));
+  // };
 
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev === 0 ? programs.length - 1 : prev - 1));
-  };
+  // const prevSlide = () => {
+  //   setCurrentSlide((prev) => (prev === 0 ? programs.length - 1 : prev - 1));
+  // };
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
