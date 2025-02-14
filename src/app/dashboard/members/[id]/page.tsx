@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { User } from '@prisma/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
+import Image from 'next/image';
 import {
   Twitter,
   Instagram,
@@ -158,9 +159,11 @@ export default function MemberDetailPage() {
             >
               <X className="w-8 h-8 text-black" />
             </button>
-            <img
+            <Image
               src={member.profileImage}
               alt={member.name}
+              height={600}
+              width={500}
               className="w-full h-auto rounded-lg"
             />
           </div>
