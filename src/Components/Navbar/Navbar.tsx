@@ -12,10 +12,10 @@ export default function Navbar({ className }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const navigation = [
-    { name: "Home", href: "#" },
-    { name: "About Us", href: "#" },
-    { name: "Events", href: "#" },
-    { name: "Contact Us", href: "#" },
+    { name: "Home", href: "/" },
+    { name: "About Us", href: "about-us" },
+    { name: "Events", href: "events" },
+    { name: "Contact Us", href: "contact-us" },
   ];
 
   return (
