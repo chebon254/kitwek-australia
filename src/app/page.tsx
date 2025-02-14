@@ -6,9 +6,17 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <main>
+      <main className="relative z-10">
         {/* Banner */}
-        <div className="w-full h-screen bg-[url(/ui-assets/cover.png)] bg-center bg-cover bg-no-repeat"></div>
+        <div className="w-full h-screen bg-[url(/ui-assets/cover.png)] bg-center bg-cover bg-no-repeat">
+          <div className="w-full h-screen bg-[#00000055]">
+            <div className="w-full h-screen max-w-7xl mx-auto relative">
+                <div className="py-40 absolute bottom-0 left-0 text-left">
+                  <h1 className="font-bold text-8xl leading-[120px] text-[#F3F3F3] max-w-[560px] w-full">Welcome to Kitwek</h1>
+                </div>
+            </div>
+          </div>
+        </div>
 
         {/* Missions */}
         <div className="w-full bg-white pb-100 relative">

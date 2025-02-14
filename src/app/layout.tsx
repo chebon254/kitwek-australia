@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-title" content="Kitwek Australia" />
         <link rel="manifest" href="/favicon/site.webmanifest" />
       </head>
-      <body className={`${ubuntu.variable} ${lora.variable} w-full`}>
+      <body className={`${ubuntu.variable} ${lora.variable} w-full relative z-0`}>
           {children}
       </body>
     </html>

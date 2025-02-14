@@ -19,12 +19,12 @@ export default function Navbar({ className }: NavbarProps) {
   ];
 
   return (
-    <nav className={`w-full bg-[#2C2C2C] fixed top-0 ${className || ""}`}>
+    <nav className={`w-full bg-[#00000077] z-20 fixed top-0 ${className || ""}`}>
       <div className="mx-auto max-w-7xl px-4">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link href="/" className="flex items-center font-bold text-[#B3B3B3] text-2xl">
+            <Link href="/" className="flex items-center font-bold text-[#ffffff] text-2xl">
               KITWEK VICTORIA
             </Link>
           </div>
