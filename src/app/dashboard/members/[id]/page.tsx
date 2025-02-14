@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { User } from '@prisma/client';
-import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
-import Image from 'next/image';
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { User } from "@prisma/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
+import Image from "next/image";
 import {
   Twitter,
   Instagram,
@@ -14,8 +14,8 @@ import {
   Mail,
   Phone,
   Maximize2,
-  X
-} from 'lucide-react';
+  X,
+} from "lucide-react";
 
 export default function MemberDetailPage() {
   const params = useParams();
@@ -25,13 +25,13 @@ export default function MemberDetailPage() {
 
   useEffect(() => {
     fetch(`/api/members/${params.id}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setMember(data);
         setLoading(false);
       })
-      .catch(error => {
-        console.error('Error fetching member:', error);
+      .catch((error) => {
+        console.error("Error fetching member:", error);
         setLoading(false);
       });
   }, [params.id]);
@@ -47,9 +47,17 @@ export default function MemberDetailPage() {
             <div className="p-6">
               <div className="flex items-center space-x-4">
                 <div className="relative group">
-                  <Avatar className="h-24 w-24 cursor-pointer" onClick={() => setShowFullImage(true)}>
-                    <AvatarImage src={member.profileImage || undefined} alt={member.name} />
-                    <AvatarFallback>{member.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                  <Avatar
+                    className="h-24 w-24 cursor-pointer"
+                    onClick={() => setShowFullImage(true)}
+                  >
+                    <AvatarImage
+                      src={member.profileImage || undefined}
+                      alt={member.name}
+                    />
+                    <AvatarFallback>
+                      {member.name.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                   {member.profileImage && (
                     <button
@@ -61,7 +69,9 @@ export default function MemberDetailPage() {
                   )}
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">{member.name}</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    {member.name}
+                  </h1>
                   {member.profession && (
                     <p className="text-gray-500">{member.profession}</p>
                   )}
@@ -90,7 +100,9 @@ export default function MemberDetailPage() {
               </div>
 
               <div className="mt-6">
-                <h2 className="text-lg font-semibold text-gray-900">Social Media</h2>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Social Media
+                </h2>
                 <div className="mt-2 flex space-x-4">
                   {member.twitter && (
                     <a

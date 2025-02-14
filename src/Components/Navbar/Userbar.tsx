@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Menu, X, ChevronDown } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
-import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Menu, X, ChevronDown } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 interface User {
   id: string;
@@ -23,28 +23,28 @@ export default function Navbar() {
   const pathname = usePathname();
 
   useEffect(() => {
-    fetch('/api/user')
-      .then(res => res.json())
-      .then(data => setUser(data))
+    fetch("/api/user")
+      .then((res) => res.json())
+      .then((data) => setUser(data))
       .catch(console.error);
   }, []);
 
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      window.location.href = '/signin';
+      window.location.href = "/signin";
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error("Error signing out:", error);
     }
   };
 
   const isActive = (path: string) => pathname === path;
 
   const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/events', label: 'Events' },
-    { href: '/donations', label: 'Donations' },
-    { href: '/forums', label: 'Forums' },
+    { href: "/", label: "Home" },
+    { href: "/events", label: "Events" },
+    { href: "/donations", label: "Donations" },
+    { href: "/forums", label: "Forums" },
   ];
 
   return (
@@ -60,14 +60,14 @@ export default function Navbar() {
 
             {/* Desktop Navigation */}
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              {navLinks.map(link => (
+              {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
                     isActive(link.href)
-                      ? 'border-indigo-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                      ? "border-indigo-500 text-gray-900"
+                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                   }`}
                 >
                   {link.label}
@@ -84,10 +84,14 @@ export default function Navbar() {
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   className="flex items-center space-x-3 focus:outline-none"
                 >
-                <span className="text-sm font-medium text-gray-700">{user.name}</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    {user.name}
+                  </span>
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={user.profileImage} alt={user.name} />
-                    <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>
+                      {user.name.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                   <ChevronDown className="h-4 w-4 text-gray-500" />
                 </button>
@@ -118,7 +122,7 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
-                <div></div>
+              <div></div>
             )}
           </div>
 
@@ -143,14 +147,14 @@ export default function Navbar() {
       {isOpen && (
         <div className="sm:hidden">
           <div className="pt-2 pb-3 space-y-1">
-            {navLinks.map(link => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
                   isActive(link.href)
-                    ? 'border-indigo-500 text-indigo-700 bg-indigo-50'
-                    : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'
+                    ? "border-indigo-500 text-indigo-700 bg-indigo-50"
+                    : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
                 }`}
                 onClick={() => setIsOpen(false)}
               >
@@ -164,12 +168,18 @@ export default function Navbar() {
                 <div className="flex-shrink-0">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={user.profileImage} alt={user.name} />
-                    <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>
+                      {user.name.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium text-gray-800">{user.name}</div>
-                  <div className="text-sm font-medium text-gray-500">{user.email}</div>
+                  <div className="text-base font-medium text-gray-800">
+                    {user.name}
+                  </div>
+                  <div className="text-sm font-medium text-gray-500">
+                    {user.email}
+                  </div>
                 </div>
               </div>
               <div className="mt-3 space-y-1">

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { User } from '@prisma/client';
-import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { User } from "@prisma/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import {
   Twitter,
   Instagram,
@@ -12,23 +12,23 @@ import {
   Linkedin,
   Mail,
   Phone,
-  Edit
-} from 'lucide-react';
-import { Skeleton } from '@/Components/ui/skeleton';
+  Edit,
+} from "lucide-react";
+import { Skeleton } from "@/Components/ui/skeleton";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/user')
-      .then(res => res.json())
-      .then(data => {
+    fetch("/api/user")
+      .then((res) => res.json())
+      .then((data) => {
         setUser(data);
         setLoading(false);
       })
-      .catch(error => {
-        console.error('Error fetching user:', error);
+      .catch((error) => {
+        console.error("Error fetching user:", error);
         setLoading(false);
       });
   }, []);
@@ -68,11 +68,18 @@ export default function ProfilePage() {
             <div className="flex justify-between items-start">
               <div className="flex items-center space-x-4">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src={user.profileImage || undefined} alt={user.name} />
-                  <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                  <AvatarImage
+                    src={user.profileImage || undefined}
+                    alt={user.name}
+                  />
+                  <AvatarFallback>
+                    {user.name.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    {user.name}
+                  </h1>
                   {user.profession && (
                     <p className="text-gray-500">{user.profession}</p>
                   )}
@@ -109,7 +116,9 @@ export default function ProfilePage() {
             </div>
 
             <div className="mt-6">
-              <h2 className="text-lg font-semibold text-gray-900">Social Media</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Social Media
+              </h2>
               <div className="mt-2 flex space-x-4">
                 {user.twitter && (
                   <a

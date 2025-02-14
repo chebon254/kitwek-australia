@@ -41,25 +41,6 @@ export default function DashboardPage() {
                 Member since: {new Date(user.createdAt).toLocaleDateString()}
               </p>
             </div>
-
-            <div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                Quick Actions
-              </h2>
-              <div className="space-y-2">
-                <Link href={"/dashboard/account"} className="w-full text-left px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors">
-                  View Profile Settings
-                </Link>
-                <br />
-                <Link href={"/dashboard/membership"} className="w-full text-left px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors">
-                  Billing History
-                </Link>
-                <br />
-                <Link href={"/dashboard/members"} className="w-full text-left px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors">
-                  Members
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
       </div>
