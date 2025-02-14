@@ -34,7 +34,7 @@ export default function Home() {
                     Granting our members the privilege of belonging to a
                     holistic community that fosters growth through mentorship,
                     networking and empowerment
-                  </p>
+                  </p>max-w-7xl mx-auto px-4 sm:px-6 pt-[180px] lg:px-8
                   <p className="font-bold text-base leading-5 text-white font-[family-name:var(--font-lora-sans)]">
                     Granting our members the privilege of belonging to a
                     holistic community that fosters growth through mentorship,
