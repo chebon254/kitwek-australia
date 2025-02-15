@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { auth } from "@/lib/firebase-admin";
+import { prisma } from '@/lib/prisma';
 
 export async function middleware(request: NextRequest) {
   const session = request.cookies.get('session')?.value || '';
+  console.log('Session:', session); // Add log for debugging
 
-  // Verify the session cookie
   if (!session) {
     return NextResponse.redirect(new URL('/signin', request.url));
   }
@@ -13,21 +14,25 @@ export async function middleware(request: NextRequest) {
   try {
     const decodedClaims = await auth.verifySessionCookie(session, true);
     
-    // Check if accessing dashboard and membership status
+    const user = await prisma.user.findUnique({
+      where: { email: decodedClaims.email },
+      select: { membershipStatus: true }
+    });
+
     if (request.nextUrl.pathname.startsWith('/dashboard') && 
         request.nextUrl.pathname !== '/dashboard/membership') {
-      const user = decodedClaims as any;
-      if (user.membershipStatus !== 'ACTIVE') {
+      if (!user || user.membershipStatus !== 'ACTIVE') {
         return NextResponse.redirect(new URL('/dashboard/membership', request.url));
       }
     }
 
     return NextResponse.next();
   } catch (error) {
+    console.error('Error in middleware:', error);
     return NextResponse.redirect(new URL('/signin', request.url));
   }
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: ['/dashboard/:path*'], // Adjust if you need broader protection
 };
