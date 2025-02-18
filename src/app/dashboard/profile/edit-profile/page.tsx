@@ -1,289 +1,260 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { User } from "@prisma/client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useDropzone } from 'react-dropzone';
+import { uploadImage } from '@/lib/digitalocean';
 
-const profileSchema = z.object({
-  bio: z.string().max(500, "Bio must be less than 500 characters"),
-  profession: z
-    .string()
-    .max(100, "Profession must be less than 100 characters"),
-  twitter: z
-    .string()
-    .url("Must be a valid URL")
-    .or(z.string().length(0))
-    .optional(),
-  instagram: z
-    .string()
-    .url("Must be a valid URL")
-    .or(z.string().length(0))
-    .optional(),
-  facebook: z
-    .string()
-    .url("Must be a valid URL")
-    .or(z.string().length(0))
-    .optional(),
-  youtube: z
-    .string()
-    .url("Must be a valid URL")
-    .or(z.string().length(0))
-    .optional(),
-  linkedin: z
-    .string()
-    .url("Must be a valid URL")
-    .or(z.string().length(0))
-    .optional(),
-});
+interface User {
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  bio: string;
+  profileImage: string;
+}
 
-type ProfileFormData = z.infer<typeof profileSchema>;
-
-export default function AccountPage() {
-  const [loading, setLoading] = useState(false);
+export default function EditProfile() {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
+  const [formData, setFormData] = useState({
+    username: '',
+    firstName: '',
+    lastName: '',
+    bio: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ProfileFormData>({
-    resolver: zodResolver(profileSchema),
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: {
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif']
+    },
+    maxSize: 5242880,
+    onDrop: async (acceptedFiles) => {
+      try {
+        const file = acceptedFiles[0];
+        const imageUrl = await uploadImage(file, 'profile-images');
+        setUser(prev => prev ? { ...prev, profileImage: imageUrl } : null);
+        await updateProfile({ profileImage: imageUrl });
+      } catch (error) {
+        setError('Error uploading image');
+      }
+    },
   });
 
-  const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setUploadingImage(true);
-
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/upload-url", {
-        method: "POST",
-        body: formData,
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const response = await fetch('/api/user');
+      const data = await response.json();
+      setUser(data);
+      setFormData({
+        username: data.username || '',
+        firstName: data.firstName || '',
+        lastName: data.lastName || '',
+        bio: data.bio || '',
+        password: '',
+        confirmPassword: '',
       });
+    };
 
-      if (!response.ok) {
-        throw new Error("Failed to upload image");
-      }
+    fetchUserData();
+  }, []);
 
-      const { imageUrl } = await response.json();
-
-      // Update user profile with new image URL
-      const updateResponse = await fetch("/api/user/update", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profileImage: imageUrl }),
-      });
-
-      if (!updateResponse.ok) {
-        throw new Error("Failed to update profile");
-      }
-
-      const updatedUser = await updateResponse.json();
-      setUser(updatedUser);
-      alert("Profile photo updated successfully!");
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      alert("Failed to upload image. Please try again.");
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
-  const onSubmit = async (data: ProfileFormData) => {
+  const updateProfile = async (data: Partial<User>) => {
     try {
-      setLoading(true);
-      const response = await fetch("/api/user/update", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/user', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
-      if (!response.ok) throw new Error("Failed to update profile");
-
-      const updatedUser = await response.json();
-      setUser(updatedUser);
-      alert("Profile updated successfully!");
+      if (!response.ok) throw new Error('Failed to update profile');
+      
+      setSuccess('Profile updated successfully');
+      setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Failed to update profile. Please try again.");
-    } finally {
-      setLoading(false);
+      setError('Error updating profile');
+      setTimeout(() => setError(''), 3000);
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (formData.password && formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    const updateData = {
+      username: formData.username,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      bio: formData.bio,
+      ...(formData.password && { password: formData.password }),
+    };
+
+    await updateProfile(updateData);
+  };
+
+  if (!user) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          Account Settings
-        </h1>
-
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
-          <div className="flex items-center space-x-4 mb-6">
-            <Avatar className="h-20 w-20">
-              <AvatarImage
-                src={user?.profileImage || undefined}
-                alt={user?.name}
-              />
-              <AvatarFallback>
-                {user?.name?.substring(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h2 className="text-xl font-semibold">{user?.name}</h2>
-              <label className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 cursor-pointer">
-                Change Photo
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={uploadingImage}
-                />
-              </label>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Bio
-              </label>
-              <textarea
-                {...register("bio")}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                rows={4}
-              />
-              {errors.bio?.message && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.bio.message}
-                </p>
-              )}
+    <div className="min-h-screen bg-gray-100">
+      <main className="py-10">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div className="px-4 py-5 sm:px-6">
+              <h3 className="text-lg leading-6 font-medium text-gray-900">Edit Profile</h3>
+              <p className="mt-1 max-w-2xl text-sm text-gray-500">Update your profile information.</p>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Profession
-              </label>
-              <input
-                {...register("profession")}
-                type="text"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              />
-              {errors.profession?.message && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.profession.message}
-                </p>
-              )}
-            </div>
+            {error && (
+              <div className="p-4 bg-red-50">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
 
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Social Media Links
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Twitter
-                  </label>
-                  <input
-                    {...register("twitter")}
-                    type="url"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  />
-                  {errors.twitter?.message && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.twitter.message}
-                    </p>
-                  )}
-                </div>
+            {success && (
+              <div className="p-4 bg-green-50">
+                <p className="text-sm text-green-700">{success}</p>
+              </div>
+            )}
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Instagram
-                  </label>
-                  <input
-                    {...register("instagram")}
-                    type="url"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700">Profile Image</label>
+                <div className="mt-2 flex items-center space-x-4">
+                  <img
+                    src={user.profileImage || '/ui-assets/avatar.webp'}
+                    alt="Profile"
+                    className="h-32 w-32 rounded-full"
                   />
-                  {errors.instagram?.message && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.instagram.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Facebook
-                  </label>
-                  <input
-                    {...register("facebook")}
-                    type="url"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  />
-                  {errors.facebook?.message && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.facebook.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    YouTube
-                  </label>
-                  <input
-                    {...register("youtube")}
-                    type="url"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  />
-                  {errors.youtube?.message && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.youtube.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    LinkedIn
-                  </label>
-                  <input
-                    {...register("linkedin")}
-                    type="url"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  />
-                  {errors.linkedin?.message && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.linkedin.message}
-                    </p>
-                  )}
+                  <div
+                    {...getRootProps()}
+                    className="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    <input {...getInputProps()} />
+                    <span>Change Image</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {loading ? "Saving..." : "Save Changes"}
-            </button>
-          </form>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      name="username"
+                      id="username"
+                      value={formData.username}
+                      onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      id="firstName"
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      id="lastName"
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
+                    Bio
+                  </label>
+                  <textarea
+                    id="bio"
+                    name="bio"
+                    rows={4}
+                    value={formData.bio}
+                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                      New Password (leave blank to keep current)
+                    </label>
+                    <input
+                      type="password"
+                      name="password"
+                      id="password"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                      Confirm New Password
+                    </label>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      id="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => router.back()}
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

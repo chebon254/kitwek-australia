@@ -4,26 +4,19 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-01-27.acacia',
 });
 
-export const createStripeCheckoutSession = async (email: string) => {
+export const getStripeSession = async (priceId: string, customerId: string, mode: 'subscription' | 'payment') => {
   const session = await stripe.checkout.sessions.create({
+    mode,
     payment_method_types: ['card'],
+    customer: customerId,
     line_items: [
       {
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: 'Membership Activation',
-            description: 'One-time membership activation fee',
-          },
-          unit_amount: 3000, // $30.00
-        },
+        price: priceId,
         quantity: 1,
       },
     ],
-    mode: 'payment',
-    success_url: `${process.env.NEXT_PUBLIC_URL}/dashboard?success=true`,
-    cancel_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/membership?canceled=true`,
-    customer_email: email,
+    success_url: `${process.env.NEXT_PUBLIC_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/membership`,
   });
 
   return session;

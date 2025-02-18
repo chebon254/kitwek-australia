@@ -6,28 +6,16 @@ export async function GET() {
     const members = await prisma.user.findMany({
       select: {
         id: true,
-        name: true,
+        username: true,
+        firstName: true,
+        lastName: true,
         profileImage: true,
-        profession: true,
         bio: true,
-        twitter: true,
-        instagram: true,
-        facebook: true,
-        youtube: true,
-        linkedin: true,
-        membershipStatus: true,
-      },
-      where: {
-        membershipStatus: 'ACTIVE',
       },
     });
 
     return NextResponse.json(members);
   } catch (error) {
-    console.error('Error fetching members:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch members' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

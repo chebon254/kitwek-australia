@@ -1,80 +1,85 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { User } from "@prisma/client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
-interface MemberUser extends User {
-  membershipStatus: string;
+interface Member {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  profileImage: string;
+  bio: string;
 }
 
-export default function MembersPage() {
-  const [members, setMembers] = useState<MemberUser[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function Members() {
+  const [members, setMembers] = useState<Member[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    fetch("/api/members")
-      .then((res) => res.json())
-      .then((data) => {
-        setMembers(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching members:", error);
-        setLoading(false);
-      });
+    const fetchMembers = async () => {
+      const response = await fetch('/api/members');
+      const data = await response.json();
+      setMembers(data);
+    };
+
+    fetchMembers();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const filteredMembers = members.filter(member => 
+    member.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          Members Directory
-        </h1>
+    <div className="min-h-screen bg-gray-100">
+      <main className="py-10">
+        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+          <div className="px-4 sm:px-0">
+            <h1 className="text-2xl font-semibold text-gray-900">Community Members</h1>
+            <p className="mt-2 text-sm text-gray-700">
+              Connect with other members of our community.
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {members.map((member) => (
-            <div
-              key={member.id}
-              className="block hover:shadow-lg transition-shadow duration-200"
-            >
-              <Link href={`/dashboard/members/${member.id}`}>
-                <div className="bg-white rounded-lg shadow p-6">
-                  <div className="flex items-center space-x-4">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage
-                        src={member.profileImage || undefined}
-                        alt={member.name}
-                      />
-                      <AvatarFallback>
-                        {member.name.substring(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h2 className="text-lg font-semibold text-gray-900">
-                        {member.name}
-                      </h2>
-                      <p className="text-sm text-gray-500">
-                        {member.profession || "Member"}
-                      </p>
-                    </div>
-                  </div>
-                  {member.bio && (
-                    <p className="mt-4 text-sm text-gray-600 line-clamp-2">
-                      {member.bio}
-                    </p>
-                  )}
+          <div className="mt-4">
+            <div className="relative">
+              <input
+                type="text"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                placeholder="Search members..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredMembers.map((member) => (
+              <Link
+                key={member.id}
+                href={`/dashboard/members/${member.id}`}
+                className="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+              >
+                <div className="flex-shrink-0">
+                  <img
+                    className="h-10 w-10 rounded-full"
+                    src={member.profileImage || 'https://via.placeholder.com/40'}
+                    alt=""
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="absolute inset-0" aria-hidden="true" />
+                  <p className="text-sm font-medium text-gray-900">
+                    {member.firstName} {member.lastName}
+                  </p>
+                  <p className="text-sm text-gray-500 truncate">@{member.username}</p>
                 </div>
               </Link>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

@@ -41,6 +41,12 @@ export default function Navbar({ className }: NavbarProps) {
                   {item.name}
                 </Link>
               ))}
+              <Link href={"/sign-in"} className="bg-white rounded-lg h-14 px-10 py-4 mx-2 w-40 outline-none text-xl text-black leading-6 font-bold">
+                Sign In
+              </Link>
+              <Link href={"/sign-up"} className="bg-white rounded-lg h-14 px-10 py-4 mx-2 w-60 outline-none text-xl text-black leading-6 font-bold">
+                Join us today
+              </Link>
             </div>
           </div>
 

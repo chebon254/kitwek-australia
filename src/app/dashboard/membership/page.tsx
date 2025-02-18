@@ -1,74 +1,67 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { loadStripe } from "@stripe/stripe-js";
-import { CheckCircle } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { stripe } from '@/lib/stripe';
 
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  membershipStatus: string;
-}
-
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-);
-
-export default function MembershipPage() {
-  const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+export default function Membership() {
+  const router = useRouter();
+  const [membershipStatus, setMembershipStatus] = useState<string>('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/user")
-      .then((res) => res.json())
-      .then((data) => setUser(data));
+    const fetchMembershipStatus = async () => {
+      const response = await fetch('/api/user/membership');
+      const data = await response.json();
+      setMembershipStatus(data.membershipStatus);
+      setLoading(false);
+    };
+
+    fetchMembershipStatus();
   }, []);
 
-  const handlePayment = async () => {
+  const handleActivateMembership = async () => {
     try {
-      setLoading(true);
-      const response = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user?.email }),
+      const response = await fetch('/api/stripe/create-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'membership' }),
       });
 
-      const { sessionId } = await response.json();
-      const stripe = await stripePromise;
-
-      if (!stripe) throw new Error("Stripe failed to load");
-
-      const { error } = await stripe.redirectToCheckout({ sessionId });
-
-      if (error) {
-        throw error;
-      }
+      const session = await response.json();
+      window.location.href = session.url;
     } catch (error) {
-      console.error("Payment error:", error);
-      alert("Payment failed. Please try again.");
-    } finally {
-      setLoading(false);
+      console.error('Error activating membership:', error);
     }
   };
 
-  if (!user) return <div>Loading...</div>;
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-  if (user.membershipStatus === "ACTIVE") {
+  if (membershipStatus === 'ACTIVE') {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            <div className="text-center">
-              <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
-              <h2 className="mt-4 text-2xl font-bold text-gray-900">
-                Active Membership
-              </h2>
-              <p className="mt-2 text-sm text-gray-600">
-                Your membership is active and you have full access to all
-                features.
-              </p>
-            </div>
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            Welcome, Member!
+          </h2>
+          <p className="mt-4 text-xl text-gray-500">
+            Your membership is active. You now have full access to all features.
+          </p>
+          <div className="mt-8 flex justify-center gap-4">
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+            >
+              Go to Dashboard
+            </button>
+            <button
+              onClick={() => router.push('/dashboard/profile')}
+              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200"
+            >
+              Edit Profile
+            </button>
           </div>
         </div>
       </div>
@@ -76,47 +69,21 @@ export default function MembershipPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+    <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <div className="text-center">
+        <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
           Activate Your Membership
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          One-time payment of $30 to unlock all features
+        <p className="mt-4 text-xl text-gray-500">
+          Complete your membership activation to access all features.
         </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-medium text-gray-900">
-                Membership Benefits
-              </h3>
-              <ul className="mt-4 space-y-2">
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span className="ml-2">Full access to all features</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span className="ml-2">Priority support</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span className="ml-2">Exclusive content</span>
-                </li>
-              </ul>
-            </div>
-
-            <button
-              onClick={handlePayment}
-              disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {loading ? "Processing..." : "Activate Membership - $30"}
-            </button>
-          </div>
+        <div className="mt-8">
+          <button
+            onClick={handleActivateMembership}
+            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+          >
+            Pay $30 to Activate
+          </button>
         </div>
       </div>
     </div>

@@ -1,180 +1,123 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { User } from "@prisma/client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
-import {
-  Twitter,
-  Instagram,
-  Facebook,
-  Youtube,
-  Linkedin,
-  Mail,
-  Phone,
-  Edit,
-} from "lucide-react";
-import { Skeleton } from "@/Components/ui/skeleton";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
-export default function ProfilePage() {
+interface User {
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  bio: string;
+  profileImage: string;
+  membershipStatus: string;
+  subscription: string;
+}
+
+export default function Profile() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/user")
-      .then((res) => res.json())
-      .then((data) => {
-        setUser(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching user:", error);
-        setLoading(false);
-      });
+    const fetchUserData = async () => {
+      const response = await fetch('/api/user');
+      const data = await response.json();
+      setUser(data);
+    };
+
+    fetchUserData();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white shadow rounded-lg overflow-hidden">
-            <div className="p-6">
-              <div className="flex items-center space-x-4">
-                <Skeleton className="h-24 w-24 rounded-full" />
-                <div className="space-y-2">
-                  <Skeleton className="h-8 w-48" />
-                  <Skeleton className="h-4 w-32" />
-                </div>
-              </div>
-              <div className="mt-6 space-y-4">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-2/3" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  if (!user) {
+    return <div>Loading...</div>;
   }
 
-  if (!user) return <div>User not found</div>;
-
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <div className="p-6">
-            <div className="flex justify-between items-start">
-              <div className="flex items-center space-x-4">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage
-                    src={user.profileImage || undefined}
-                    alt={user.name}
-                  />
-                  <AvatarFallback>
-                    {user.name.substring(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    {user.name}
-                  </h1>
-                  {user.profession && (
-                    <p className="text-gray-500">{user.profession}</p>
-                  )}
-                </div>
+    <div className="min-h-screen bg-gray-100">
+      <main className="py-10">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+              <div>
+                <h3 className="text-lg leading-6 font-medium text-gray-900">Profile Information</h3>
+                <p className="mt-1 max-w-2xl text-sm text-gray-500">Personal details and membership status.</p>
               </div>
               <Link
                 href="/dashboard/profile/edit-profile"
-                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                <Edit className="h-4 w-4 mr-2" />
                 Edit Profile
               </Link>
             </div>
-
-            {user.bio && (
-              <div className="mt-6">
-                <h2 className="text-lg font-semibold text-gray-900">About</h2>
-                <p className="mt-2 text-gray-600">{user.bio}</p>
-              </div>
-            )}
-
-            <div className="mt-6">
-              <h2 className="text-lg font-semibold text-gray-900">Contact</h2>
-              <div className="mt-2 space-y-2">
-                <div className="flex items-center space-x-2 text-gray-600">
-                  <Mail className="h-5 w-5" />
-                  <span>{user.email}</span>
+            <div className="border-t border-gray-200">
+              <dl>
+                <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt className="text-sm font-medium text-gray-500">Profile Image</dt>
+                  <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                    <img
+                      src={user.profileImage || '/ui-assets/avatar.webp'}
+                      alt="Profile"
+                      className="h-32 w-32 rounded-full"
+                    />
+                  </dd>
                 </div>
-                <div className="flex items-center space-x-2 text-gray-600">
-                  <Phone className="h-5 w-5" />
-                  <span>{user.phone}</span>
+                <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt className="text-sm font-medium text-gray-500">Full name</dt>
+                  <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                    {user.firstName} {user.lastName}
+                  </dd>
                 </div>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Social Media
-              </h2>
-              <div className="mt-2 flex space-x-4">
-                {user.twitter && (
-                  <a
-                    href={user.twitter}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-blue-500"
-                  >
-                    <Twitter className="h-6 w-6" />
-                  </a>
-                )}
-                {user.instagram && (
-                  <a
-                    href={user.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-pink-500"
-                  >
-                    <Instagram className="h-6 w-6" />
-                  </a>
-                )}
-                {user.facebook && (
-                  <a
-                    href={user.facebook}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-blue-600"
-                  >
-                    <Facebook className="h-6 w-6" />
-                  </a>
-                )}
-                {user.youtube && (
-                  <a
-                    href={user.youtube}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-red-500"
-                  >
-                    <Youtube className="h-6 w-6" />
-                  </a>
-                )}
-                {user.linkedin && (
-                  <a
-                    href={user.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-blue-700"
-                  >
-                    <Linkedin className="h-6 w-6" />
-                  </a>
-                )}
-              </div>
+                <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt className="text-sm font-medium text-gray-500">Username</dt>
+                  <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                    @{user.username}
+                  </dd>
+                </div>
+                <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt className="text-sm font-medium text-gray-500">Email address</dt>
+                  <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                    {user.email}
+                  </dd>
+                </div>
+                <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt className="text-sm font-medium text-gray-500">Bio</dt>
+                  <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                    {user.bio || 'No bio provided'}
+                  </dd>
+                </div>
+                <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt className="text-sm font-medium text-gray-500">Membership Status</dt>
+                  <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                    {user.membershipStatus}
+                  </dd>
+                </div>
+                <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt className="text-sm font-medium text-gray-500">Subscription Plan</dt>
+                  <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                    <div className="flex items-center justify-between">
+                      <span>{user.subscription}</span>
+                      {user.subscription === 'Free' ? (
+                        <Link
+                          href="/dashboard/subscription"
+                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                          Upgrade
+                        </Link>
+                      ) : (
+                        <button
+                          onClick={() => {/* Handle cancellation */}}
+                          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                          Cancel Subscription
+                        </button>
+                      )}
+                    </div>
+                  </dd>
+                </div>
+              </dl>
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
