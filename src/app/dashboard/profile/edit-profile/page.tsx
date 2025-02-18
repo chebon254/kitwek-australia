@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDropzone } from 'react-dropzone';
 import { uploadImage } from '@/lib/digitalocean';
+import Image from 'next/image';
+
 
 interface User {
   username: string;
@@ -40,6 +42,7 @@ export default function EditProfile() {
         setUser(prev => prev ? { ...prev, profileImage: imageUrl } : null);
         await updateProfile({ profileImage: imageUrl });
       } catch (error) {
+        console.error('error:', error);
         setError('Error uploading image');
       }
     },
@@ -76,6 +79,7 @@ export default function EditProfile() {
       setSuccess('Profile updated successfully');
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
+      console.error('error:', error);
       setError('Error updating profile');
       setTimeout(() => setError(''), 3000);
     }
@@ -131,8 +135,10 @@ export default function EditProfile() {
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700">Profile Image</label>
                 <div className="mt-2 flex items-center space-x-4">
-                  <img
+                  <Image
                     src={user.profileImage || '/ui-assets/avatar.webp'}
+                    height={128}
+                    width={128}
                     alt="Profile"
                     className="h-32 w-32 rounded-full"
                   />

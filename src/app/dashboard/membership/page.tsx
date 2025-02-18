@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { stripe } from '@/lib/stripe';
 
 export default function Membership() {
   const router = useRouter();

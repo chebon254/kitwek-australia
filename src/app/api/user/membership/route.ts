@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     }
 
     const decodedClaims = await adminAuth.verifySessionCookie(session.value, true);
-    const { paymentIntentId } = await request.json();
+    // const { paymentIntentId } = await request.json();
 
     const user = await prisma.user.update({
       where: { email: decodedClaims.email },

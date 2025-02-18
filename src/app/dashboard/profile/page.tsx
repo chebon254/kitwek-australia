@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface User {
   username: string;
@@ -53,8 +54,10 @@ export default function Profile() {
                 <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500">Profile Image</dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                    <img
+                    <Image
                       src={user.profileImage || '/ui-assets/avatar.webp'}
+                      height={128}
+                      width={128}
                       alt="Profile"
                       className="h-32 w-32 rounded-full"
                     />
