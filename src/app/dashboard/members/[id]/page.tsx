@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
 
 interface Member {
   id: string;
@@ -39,10 +40,12 @@ export default function MemberDetail() {
           <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <div className="px-4 py-5 sm:px-6">
               <div className="flex items-center">
-                <img
+                <Image
                   className="h-16 w-16 rounded-full"
                   src={member.profileImage || 'https://via.placeholder.com/64'}
                   alt=""
+                  height={64}
+                  width={64}
                 />
                 <div className="ml-4">
                   <h3 className="text-lg leading-6 font-medium text-gray-900">

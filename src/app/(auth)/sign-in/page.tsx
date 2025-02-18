@@ -26,6 +26,7 @@ export default function SignIn() {
 
       router.push('/dashboard');
     } catch (error) {
+      console.error("error:", error);
       setError('Invalid email or password');
     }
   };
@@ -44,6 +45,7 @@ export default function SignIn() {
 
       router.push('/dashboard');
     } catch (error) {
+      console.error("error:", error);
       setError('Error signing in with Google');
     }
   };
@@ -126,7 +128,7 @@ export default function SignIn() {
         </div>
 
         <div className="text-center mt-4">
-          <span className="text-gray-600">Don't have an account?</span>
+          <span className="text-gray-600">Don&apos;t have an account?</span>
           <Link href="/sign-up" className="ml-2 font-medium text-indigo-600 hover:text-indigo-500">
             Sign up
           </Link>

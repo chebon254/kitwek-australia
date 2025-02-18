@@ -16,6 +16,7 @@ export default function ResetPassword() {
       setMessage("Password reset email sent. Please check your inbox.");
       setError("");
     } catch (error) {
+      console.error("Password reset error:", error);
       setError("Error sending reset email. Please try again.");
       setMessage("");
     }
@@ -29,7 +30,7 @@ export default function ResetPassword() {
             Reset your password
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Enter your email address and we'll send you a link to reset your
+            Enter your email address and we&apos;ll send you a link to reset your
             password.
           </p>
         </div>

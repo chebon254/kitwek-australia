@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Member {
   id: string;
@@ -62,10 +63,12 @@ export default function Members() {
                 className="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
               >
                 <div className="flex-shrink-0">
-                  <img
+                  <Image
                     className="h-10 w-10 rounded-full"
                     src={member.profileImage || 'https://via.placeholder.com/40'}
                     alt=""
+                    height={40}
+                    width={40}
                   />
                 </div>
                 <div className="flex-1 min-w-0">

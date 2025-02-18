@@ -26,6 +26,7 @@ export default function SignUp() {
 
       router.push('/dashboard/membership');
     } catch (error) {
+      console.error("error:", error);
       setError('Error creating account. Please try again.');
     }
   };
@@ -44,6 +45,7 @@ export default function SignUp() {
 
       router.push('/dashboard/membership');
     } catch (error) {
+      console.error("error:", error);
       setError('Error signing in with Google');
     }
   };
@@ -65,6 +67,7 @@ export default function SignUp() {
 
       router.push('/dashboard/membership');
     } catch (error) {
+      console.error("error:", error);
       setError('Error signing in with Apple');
     }
   };
