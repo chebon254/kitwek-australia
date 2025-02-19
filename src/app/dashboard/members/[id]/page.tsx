@@ -42,7 +42,7 @@ export default function MemberDetail() {
               <div className="flex items-center">
                 <Image
                   className="h-16 w-16 rounded-full"
-                  src={member.profileImage || 'https://via.placeholder.com/64'}
+                  src={member.profileImage || '/ui-assets/avatar.webp'}
                   alt=""
                   height={64}
                   width={64}

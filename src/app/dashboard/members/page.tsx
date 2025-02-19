@@ -65,7 +65,7 @@ export default function Members() {
                 <div className="flex-shrink-0">
                   <Image
                     className="h-10 w-10 rounded-full"
-                    src={member.profileImage || 'https://via.placeholder.com/40'}
+                    src={member.profileImage || '/ui-assets/avatar.webp'}
                     alt=""
                     height={40}
                     width={40}
