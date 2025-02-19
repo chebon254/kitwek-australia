@@ -15,7 +15,7 @@ export default function Navbar({ className }: NavbarProps) {
     { name: "Home", href: "/" },
     { name: "About Us", href: "about-us" },
     { name: "Events", href: "events" },
-    { name: "Contact Us", href: "contact-us" },
+    // { name: "Contact Us", href: "contact-us" },
   ];
 
   return (
@@ -41,11 +41,8 @@ export default function Navbar({ className }: NavbarProps) {
                   {item.name}
                 </Link>
               ))}
-              <Link href={"/sign-in"} className="bg-white rounded-lg h-14 px-10 py-4 mx-2 w-40 outline-none text-xl text-black leading-6 font-bold">
-                Sign In
-              </Link>
               <Link href={"/sign-up"} className="bg-white rounded-lg h-14 px-10 py-4 mx-2 w-60 outline-none text-xl text-black leading-6 font-bold">
-                Join us today
+                Membership
               </Link>
             </div>
           </div>
@@ -101,6 +98,9 @@ export default function Navbar({ className }: NavbarProps) {
                       {item.name}
                     </Link>
                   ))}
+                  <Link href={"/sign-up"} className="bg-black rounded-lg h-14 px-10 py-4 mx-2 w-60 outline-none text-xl text-white leading-6 font-bold">
+                    Membership
+                  </Link>
                 </div>
               </div>
             )}
