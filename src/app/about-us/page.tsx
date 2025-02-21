@@ -46,7 +46,6 @@ export default function About() {
   const [bannerRef, bannerInView] = useInView({ threshold: 0.2, triggerOnce: true });
   const [galleryRef, galleryInView] = useInView({ threshold: 0.2, triggerOnce: true });
   const [missionRef, missionInView] = useInView({ threshold: 0.2, triggerOnce: true });
-  const [objectivesRef, objectivesInView] = useInView({ threshold: 0.2, triggerOnce: true });
   const [ctaRef, ctaInView] = useInView({ threshold: 0.2, triggerOnce: true });
 
   const fadeInUp = {

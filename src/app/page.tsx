@@ -19,14 +19,6 @@ export default function Home() {
     threshold: 0.2,
     triggerOnce: true,
   });
-  const [sportsRef, sportsInView] = useInView({
-    threshold: 0.2,
-    triggerOnce: true,
-  });
-  const [mentorshipRef, mentorshipInView] = useInView({
-    threshold: 0.2,
-    triggerOnce: true,
-  });
   const [contactRef, contactInView] = useInView({
     threshold: 0.2,
     triggerOnce: true,
@@ -297,9 +289,9 @@ export default function Home() {
               <div className="relative w-full h-[400px] md:h-[600px] rounded-[8px] overflow-hidden bg-[url(/ui-assets/mic-lady.jpeg)] bg-cover bg-center bg-no-repeat">
                 <div className="absolute bottom-0 w-full p-8 bg-gradient-to-t from-[#00000055] to-transparent">
                   <p className="font-bold text-[#F3F3F3] leading-relaxed">
-                    "Members strive to offer endless guidance to our members
+                  &quot;Members strive to offer endless guidance to our members
                     within our community equipping them with knowledge, skills
-                    and advice to harness their transition."
+                    and advice to harness their transition.&quot;
                   </p>
                 </div>
               </div>
