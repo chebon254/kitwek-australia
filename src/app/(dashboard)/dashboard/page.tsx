@@ -1,0 +1,275 @@
+"use client";
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { 
+  UserCircle, 
+  CreditCard, 
+  Calendar, 
+  Users, 
+  MessageSquare,
+  Heart,
+  TrendingUp,
+  Bell,
+  Settings,
+  ChevronRight
+} from 'lucide-react';
+
+interface DashboardData {
+  user: {
+    username: string;
+    email: string;
+    membershipStatus: string;
+    subscription: string;
+    profileImage?: string;
+  };
+  stats: {
+    totalMembers: number;
+    upcomingEvents: number;
+    unreadMessages: number;
+    donations: number;
+  };
+}
+
+export default function Dashboard() {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        // Fetch user data
+        const userResponse = await fetch('/api/user');
+        const userData = await userResponse.json();
+
+        // For demo purposes, using static stats
+        // In production, these would come from their respective API endpoints
+        const statsData = {
+          totalMembers: 256,
+          upcomingEvents: 3,
+          unreadMessages: 5,
+          donations: 1250,
+        };
+
+        setData({
+          user: userData,
+          stats: statsData,
+        });
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500">Error loading dashboard data</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Welcome Section */}
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-8 py-12">
+          <div className="flex items-center">
+            {data.user.profileImage ? (
+              <img
+                src={data.user.profileImage}
+                alt={data.user.username}
+                className="h-20 w-20 rounded-full border-4 border-white"
+              />
+            ) : (
+              <div className="h-20 w-20 rounded-full bg-white/20 flex items-center justify-center">
+                <UserCircle className="h-12 w-12 text-white" />
+              </div>
+            )}
+            <div className="ml-6">
+              <h1 className="text-3xl font-bold text-white">
+                Welcome back, {data.user.username}!
+              </h1>
+              <p className="text-indigo-100 mt-2">
+                {data.user.membershipStatus === 'ACTIVE' ? 'Active Member' : 'Complete your membership to unlock all features'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="px-8 py-6 bg-gray-50 border-b">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">Quick Actions</h2>
+            <Link 
+              href="/dashboard/profile"
+              className="text-sm text-indigo-600 hover:text-indigo-900 flex items-center"
+            >
+              View All <ChevronRight className="h-4 w-4 ml-1" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            <Link
+              href="/dashboard/profile"
+              className="flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors"
+            >
+              <Settings className="h-6 w-6 text-gray-500" />
+              <span className="ml-3 text-sm font-medium text-gray-900">Edit Profile</span>
+            </Link>
+            <Link
+              href="/dashboard/membership"
+              className="flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors"
+            >
+              <CreditCard className="h-6 w-6 text-gray-500" />
+              <span className="ml-3 text-sm font-medium text-gray-900">Manage Membership</span>
+            </Link>
+            <Link
+              href="/dashboard/events"
+              className="flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors"
+            >
+              <Calendar className="h-6 w-6 text-gray-500" />
+              <span className="ml-3 text-sm font-medium text-gray-900">View Events</span>
+            </Link>
+            <Link
+              href="/dashboard/forums"
+              className="flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors"
+            >
+              <MessageSquare className="h-6 w-6 text-gray-500" />
+              <span className="ml-3 text-sm font-medium text-gray-900">Forums</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-blue-100 bg-opacity-50">
+              <Users className="h-6 w-6 text-blue-600" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-sm font-medium text-gray-500">Total Members</h3>
+              <p className="text-2xl font-semibold text-gray-900">{data.stats.totalMembers}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-green-100 bg-opacity-50">
+              <Calendar className="h-6 w-6 text-green-600" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-sm font-medium text-gray-500">Upcoming Events</h3>
+              <p className="text-2xl font-semibold text-gray-900">{data.stats.upcomingEvents}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-yellow-100 bg-opacity-50">
+              <Bell className="h-6 w-6 text-yellow-600" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-sm font-medium text-gray-500">Unread Messages</h3>
+              <p className="text-2xl font-semibold text-gray-900">{data.stats.unreadMessages}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-purple-100 bg-opacity-50">
+              <Heart className="h-6 w-6 text-purple-600" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-sm font-medium text-gray-500">Total Donations</h3>
+              <p className="text-2xl font-semibold text-gray-900">${data.stats.donations}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Membership Status */}
+      <div className="bg-white rounded-lg shadow mb-8">
+        <div className="px-6 py-5 border-b border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900">Membership Status</h3>
+        </div>
+        <div className="px-6 py-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-500">Current Plan</p>
+              <p className="mt-1 text-lg font-semibold text-gray-900">{data.user.subscription}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Status</p>
+              <p className={`mt-1 text-lg font-semibold ${
+                data.user.membershipStatus === 'ACTIVE' 
+                  ? 'text-green-600' 
+                  : 'text-yellow-600'
+              }`}>
+                {data.user.membershipStatus}
+              </p>
+            </div>
+            <Link
+              href="/dashboard/subscription"
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+            >
+              {data.user.subscription === 'Free' ? 'Upgrade Plan' : 'Manage Plan'}
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Activity Feed */}
+      <div className="bg-white rounded-lg shadow">
+        <div className="px-6 py-5 border-b border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900">Recent Activity</h3>
+        </div>
+        <div className="divide-y divide-gray-200">
+          <div className="px-6 py-4">
+            <div className="flex items-center">
+              <TrendingUp className="h-5 w-5 text-gray-400" />
+              <p className="ml-3 text-sm text-gray-500">
+                You joined the platform
+              </p>
+              <span className="ml-auto text-sm text-gray-400">Just now</span>
+            </div>
+          </div>
+          <div className="px-6 py-4">
+            <div className="flex items-center">
+              <MessageSquare className="h-5 w-5 text-gray-400" />
+              <p className="ml-3 text-sm text-gray-500">
+                New forum discussion started
+              </p>
+              <span className="ml-auto text-sm text-gray-400">2h ago</span>
+            </div>
+          </div>
+          <div className="px-6 py-4">
+            <div className="flex items-center">
+              <Calendar className="h-5 w-5 text-gray-400" />
+              <p className="ml-3 text-sm text-gray-500">
+                New event scheduled
+              </p>
+              <span className="ml-auto text-sm text-gray-400">1d ago</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
