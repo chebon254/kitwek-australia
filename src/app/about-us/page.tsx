@@ -1,8 +1,12 @@
-import Footer from "@/Components/Footer/Footer";
-import Navbar from "@/Components/Navbar/Navbar";
-import ProgramSlider from "@/Components/Slides/ProgramSlider";
+"use client"
+
+import Footer from "@/components/Footer/Footer";
+import Navbar from "@/components/Navbar/Navbar";
+import ProgramSlider from "@/components/Slides/ProgramSlider";
 import Image from "next/image";
 import React from "react";
+import { motion } from "framer-motion";
+import { useInView } from "react-intersection-observer";
 
 const objectives = [
   {
@@ -37,81 +41,157 @@ const objectives = [
   },
 ];
 
-export default function about() {
+export default function About() {
+  // Scroll reveal hooks
+  const [bannerRef, bannerInView] = useInView({ threshold: 0.2, triggerOnce: true });
+  const [galleryRef, galleryInView] = useInView({ threshold: 0.2, triggerOnce: true });
+  const [missionRef, missionInView] = useInView({ threshold: 0.2, triggerOnce: true });
+  const [objectivesRef, objectivesInView] = useInView({ threshold: 0.2, triggerOnce: true });
+  const [ctaRef, ctaInView] = useInView({ threshold: 0.2, triggerOnce: true });
+
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  };
+
+  const staggerChildren = {
+    visible: {
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+  
   return (
     <>
-      <Navbar className="bg-white text-[#2C2C2C]" />
+    <style jsx global>{`
+        .navbar-text {
+          color: #2C2C2C !important;
+        }
+      `}</style>
+      <Navbar className="bg-white text-[#2C2C2C] navbar-text" />
       <main className="relative z-10">
         {/* Banner */}
-        <div className="h-[380px] w-full bg-[#ED6868]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-[180px] lg:px-8">
-            <h1 className="font-bold text-6xl text-white mb-5 text-center">
+         {/* Banner */}
+        <div 
+          className="h-[380px] w-full bg-[#ED6868]"
+        >
+          <motion.div className="max-w-7xl mx-auto px-4 sm:px-6 pt-[120px] md:pt-[180px] lg:px-8"
+          ref={bannerRef}
+          initial="hidden"
+          animate={bannerInView ? "visible" : "hidden"}
+          variants={fadeInUp}
+          >
+            <h1 className="font-bold text-4xl md:text-6xl text-white mb-5 text-center">
               About Us
             </h1>
-            <p className="font-medium text-white text-base text-center font-[family-name:var(--font-lora-sans)]">
+            <p className="font-medium text-white text-base text-center font-[family-name:var(--font-lora-sans)] max-w-2xl mx-auto">
               A vibrant community fostering connections, celebrating culture and
               thriving together.
             </p>
-          </div>
+          </motion.div>
         </div>
-        <div className="w-full relative z-10">
+        
+        
+         {/* Gallery Section */}
+        <div className="w-full relative z-10" ref={galleryRef}>
           <div className="w-full absolute z-10 top-0 bg-[#ED6868] h-2/4"></div>
-          <div className="flex items-center justify-center flex-wrap relative z-20">
-            <Image
-              src={"/ui-assets/holding-potraits.png"}
-              height={378}
-              width={350}
-              alt=""
-              className="max-w-[350px] min-w-[280px] m-4 w-full rounded-3xl outline-none"
-            />
-            <Image
+          <motion.div 
+            className="flex items-center justify-center flex-wrap relative z-20 gap-4 px-4"
+            variants={staggerChildren}
+            initial="hidden"
+            animate={galleryInView ? "visible" : "hidden"}
+          >
+            <motion.div
+              variants={fadeInUp}
+              className="w-full sm:w-auto"
+            >
+              <Image
+                src={"/ui-assets/holding-potraits.png"}
+                height={378}
+                width={350}
+                alt="Community portraits"
+                className="max-w-[350px] min-w-[280px] w-full rounded-3xl outline-none hover:scale-105 transition-transform duration-300"
+              />
+            </motion.div>
+            <motion.div
+              variants={fadeInUp}
+              className="w-full sm:w-auto"
+            >
+              <Image
               src={"/ui-assets/awards.png"}
               height={222}
               width={280}
               alt=""
-              className="max-w-[280px] min-w-[280px] m-4 w-full rounded-3xl outline-none"
+              className="max-w-[280px] min-w-[280px] m-4 w-full rounded-3xl outline-none hover:scale-105 transition-transform duration-300"
             />
-            <Image
+            </motion.div>
+            <motion.div
+              variants={fadeInUp}
+              className="w-full sm:w-auto"
+            >
+              <Image
               src={"/ui-assets/sport-group-photo.png"}
               height={378}
               width={306}
               alt=""
-              className="max-w-[306px] min-w-[280px] m-4 w-full rounded-3xl outline-none"
+              className="max-w-[306px] min-w-[280px] m-4 w-full rounded-3xl outline-none hover:scale-105 transition-transform duration-300"
             />
-            <Image
+            </motion.div>
+            <motion.div
+              variants={fadeInUp}
+              className="w-full sm:w-auto"
+            >
+              <Image
               src={"/ui-assets/perfomance-group-photo.png"}
               height={226}
               width={281}
               alt=""
-              className="max-w-[281px] min-w-[280px] m-4 w-full rounded-3xl outline-none"
+              className="max-w-[281px] min-w-[280px] m-4 w-full rounded-3xl outline-none hover:scale-105 transition-transform duration-300"
             />
-          </div>
+            </motion.div>
+            {/* Repeat similar motion.div wrapper for other images */}
+          </motion.div>
         </div>
 
+        
         {/* Missions */}
-        <div className="w-full py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-hidden rounded-3xl bg-[#000099] bg-[url(/ui-assets/star.png)] bg-cover bg-no-repeat">
-            <div className="h-full w-full bg-[#00009988] py-24 px-5">
-              <h1 className="font-bold text-6xl leading-[80px] text-white">
-                Our Misson and Vison
+        <div className="w-full py-8 md:py-16 px-4" ref={missionRef}>
+          <motion.div 
+            className="max-w-7xl mx-auto overflow-hidden rounded-3xl bg-[#000099] bg-[url(/ui-assets/star.png)] bg-cover bg-no-repeat"
+            variants={fadeInUp}
+            initial="hidden"
+            animate={missionInView ? "visible" : "hidden"}
+          >
+            <div className="h-full w-full bg-[#00009988] py-12 md:py-24 px-5">
+              <h1 className="font-bold text-4xl md:text-6xl leading-tight md:leading-[80px] text-white">
+                Our Mission and Vision
               </h1>
-              <div className="flex items-start justify-between flex-wrap pt-16">
-                <p className="font-bold text-base  m-4 w-full max-w-[500px] min-w-[280px] leading-5 text-white font-[family-name:var(--font-lora-sans)]">
+              <div className="flex flex-col md:flex-row items-start justify-between gap-8 pt-8 md:pt-16">
+                <motion.p 
+                  className="font-bold text-base w-full max-w-[500px] leading-6 font-[family-name:var(--font-lora-sans)]  text-white"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
                   Granting our members the privilege of belonging to a holistic
                   community that fosters growth through mentorship, networking
                   and empowerment
-                </p>
-                <p className="font-bold m-4 w-full max-w-[500px] min-w-[280px] text-base leading-5 text-white font-[family-name:var(--font-lora-sans)]">
+                </motion.p>
+                <motion.p 
+                  className="font-bold w-full max-w-[500px] text-base leading-6 font-[family-name:var(--font-lora-sans)] text-white"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
                   Granting our members the privilege of belonging to a holistic
                   community that fosters growth through mentorship, networking
                   and empowerment
-                </p>
+                </motion.p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
-        {/* About */}
+        {/* Programs Slider */}
         <div className="w-full">
           <ProgramSlider />
         </div>
@@ -164,24 +244,32 @@ export default function about() {
             </div>
 
             {/* CTA Section */}
-            <div className="relative mt-20">
+            <motion.div 
+              className="relative mt-20"
+              ref={ctaRef}
+              variants={fadeInUp}
+              initial="hidden"
+              animate={ctaInView ? "visible" : "hidden"}
+            >
               <div className="bg-[url(/ui-assets/line-waves.png)] bg-cover bg-center bg-no-repeat">
                 <div className="h-full w-full bg-[#ed6868e0] rounded-2xl py-10 overflow-hidden">
                   <div className="relative z-10 px-6 py-12 text-center text-white">
-                    <h3 className="text-3xl font-bold w-full max-w-[480px] mx-auto mb-7">
+                    <h3 className="text-2xl md:text-3xl font-bold w-full max-w-[480px] mx-auto mb-7">
                       Join our growing network of over 500+ people
                     </h3>
-                    <button className="bg-white text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300">
+                    <motion.button 
+                      className="bg-white text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
                       Get in touch
-                    </button>
+                    </motion.button>
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
-
-        {/* Team */}
       </main>
       <Footer />
     </>

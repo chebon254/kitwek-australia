@@ -24,7 +24,7 @@ export default function Navbar({ className }: NavbarProps) {
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link href="/" className="flex items-center font-bold text-[#ffffff] text-2xl">
+            <Link href="/" className={`flex items-center font-bold text-[#ffffff] text-2xl ${className || ""}`}>
               KITWEK VICTORIA
             </Link>
           </div>
@@ -36,12 +36,11 @@ export default function Navbar({ className }: NavbarProps) {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="text-base md:px-5 lg:px-10 font-[family-name:var(--font-ubuntu-sans)] font-semibold tracking-wider text-white transition-colors hover:text-gray-300"
-                >
+                  className={`text-base md:px-5 lg:px-10 font-[family-name:var(--font-ubuntu-sans)] font-semibold tracking-wider text-white transition-colors ${className || ""}`} >
                   {item.name}
                 </Link>
               ))}
-              <Link href={"/sign-up"} className="bg-white rounded-lg h-14 px-10 py-4 mx-2 w-60 outline-none text-xl text-black leading-6 font-bold">
+              <Link href={"/sign-up"} className="bg-white rounded-lg h-14 px-10 flex items-center justify-center mx-2 w-60 outline-none text-xl text-black leading-6 border-2  text-center border-[#00000077] font-bold">
                 Membership
               </Link>
             </div>
@@ -98,7 +97,7 @@ export default function Navbar({ className }: NavbarProps) {
                       {item.name}
                     </Link>
                   ))}
-                  <Link href={"/sign-up"} className="bg-black rounded-lg h-14 px-10 py-4 mx-2 w-60 outline-none text-xl text-white leading-6 font-bold">
+                  <Link href={"/sign-up"} className="bg-black rounded-lg h-14 px-10 flex items-center justify-center mx-2 w-60 outline-none text-xl text-white text-center leading-6 border-2 border-[#00000077] font-bold">
                     Membership
                   </Link>
                 </div>
