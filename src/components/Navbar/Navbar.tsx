@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
-import { UserCircle, LogOut, Settings } from "lucide-react";
+import { UserCircle, LogOut } from "lucide-react";
 
 interface NavbarProps {
   className?: string;
