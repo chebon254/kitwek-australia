@@ -121,7 +121,7 @@ export default function Navbar({ className }: NavbarProps) {
                               role="menuitem"
                               onClick={() => setIsDropdownOpen(false)}
                             >
-                              <Settings className="h-4 w-4 mr-2" />
+                              <UserCircle className="h-4 w-4 mr-2" />
                               Profile
                             </Link>
                             <button
