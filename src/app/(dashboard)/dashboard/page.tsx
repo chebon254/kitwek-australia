@@ -14,6 +14,7 @@ import {
   Settings,
   ChevronRight
 } from 'lucide-react';
+import Image from 'next/image';
 
 interface DashboardData {
   user: {
@@ -88,10 +89,12 @@ export default function Dashboard() {
         <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-8 py-12">
           <div className="flex items-center">
             {data.user.profileImage ? (
-              <img
+              <Image
                 src={data.user.profileImage}
                 alt={data.user.username}
                 className="h-20 w-20 rounded-full border-4 border-white"
+                height={80}
+                width={80}
               />
             ) : (
               <div className="h-20 w-20 rounded-full bg-white/20 flex items-center justify-center">

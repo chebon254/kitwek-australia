@@ -14,7 +14,8 @@ export async function PUT(request: Request) {
     const data = await request.json();
 
     // Remove readonly fields
-    const { email, membershipStatus, subscription, ...updateData } = data;
+    const { ...updateData } = data;
+    // const { email, membershipStatus, subscription, ...updateData } = data;
 
     const user = await prisma.user.update({
       where: { email: decodedClaims.email },

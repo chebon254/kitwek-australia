@@ -24,14 +24,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { type, planName, billingCycle } = await request.json();
-
-    // Validate required fields
-    if (!type) {
-      return NextResponse.json({ error: 'Missing request type' }, { status: 400 });
+    const decodedClaims = await adminAuth.verifySessionCookie(session.value, true);
+    if (!decodedClaims.email) {
+      return NextResponse.json({ error: 'User email not found' }, { status: 400 });
     }
 
-    const decodedClaims = await adminAuth.verifySessionCookie(session.value, true);
     const user = await prisma.user.findUnique({
       where: { email: decodedClaims.email },
     });
@@ -40,118 +37,113 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    console.log('Creating session for user:', user.id);
+    const { type, planName, billingCycle } = await request.json();
 
-    // Create or retrieve Stripe customer
-    let stripeCustomerId = user.stripeCustomerId;
-    if (!stripeCustomerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
-        metadata: {
-          userId: user.id,
-        },
-      });
-      stripeCustomerId = customer.id;
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { stripeCustomerId },
-      });
-    }
-
-    // Handle membership activation
+    // Handle membership activation payment
     if (type === 'membership') {
-      console.log('Creating membership checkout session');
-      const session = await stripe.checkout.sessions.create({
-        customer: stripeCustomerId,
-        mode: 'payment',
-        payment_method_types: ['card'],
-        line_items: [
-          {
-            price: MEMBERSHIP_PRICE,
-            quantity: 1,
+      try {
+        // Create a customer if one doesn't exist
+        let stripeCustomerId = user.stripeCustomerId;
+        if (!stripeCustomerId) {
+          const customer = await stripe.customers.create({
+            email: user.email,
+            metadata: {
+              userId: user.id,
+            },
+          });
+          stripeCustomerId = customer.id;
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { stripeCustomerId },
+          });
+        }
+
+        const session = await stripe.checkout.sessions.create({
+          customer: stripeCustomerId,
+          payment_method_types: ['card'],
+          line_items: [
+            {
+              price: MEMBERSHIP_PRICE,
+              quantity: 1,
+            },
+          ],
+          mode: 'payment',
+          success_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/membership?success=true`,
+          cancel_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/membership?canceled=true`,
+          metadata: {
+            userId: user.id,
+            type: 'membership',
           },
-        ],
-        success_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/membership?success=true`,
-        cancel_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/membership?canceled=true`,
-        metadata: {
-          userId: user.id,
-          type: 'membership',
-        },
-      });
+        });
 
-      console.log('Created membership session:', {
-        sessionId: session.id,
-        metadata: session.metadata,
-      });
-
-      return NextResponse.json({ url: session.url });
+        return NextResponse.json({ url: session.url });
+      } catch (stripeError) {
+        console.error('Membership payment setup error:', stripeError);
+        return NextResponse.json(
+          { error: 'Failed to set up membership payment' },
+          { status: 500 }
+        );
+      }
     }
 
     // Handle subscription
     if (type === 'subscription') {
-      if (!planName || !billingCycle) {
-        return NextResponse.json(
-          { error: 'Missing plan name or billing cycle' },
-          { status: 400 }
-        );
-      }
+      try {
+        let stripeCustomerId = user.stripeCustomerId;
+        if (!stripeCustomerId) {
+          const customer = await stripe.customers.create({
+            email: user.email,
+            metadata: {
+              userId: user.id,
+            },
+          });
+          stripeCustomerId = customer.id;
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { stripeCustomerId },
+          });
+        }
 
-      const priceId = SUBSCRIPTION_PRICES[planName as keyof typeof SUBSCRIPTION_PRICES]?.[billingCycle as 'monthly' | 'annual'];
-      if (!priceId) {
-        return NextResponse.json(
-          { error: 'Invalid plan or billing cycle' },
-          { status: 400 }
-        );
-      }
+        const priceId = SUBSCRIPTION_PRICES[planName as keyof typeof SUBSCRIPTION_PRICES]?.[billingCycle as 'monthly' | 'annual'];
+        if (!priceId) {
+          return NextResponse.json({ error: 'Invalid plan or billing cycle' }, { status: 400 });
+        }
 
-      // Check if user already has an active subscription
-      const existingSubscription = await stripe.subscriptions.list({
-        customer: stripeCustomerId,
-        status: 'active',
-        limit: 1,
-      });
-
-      if (existingSubscription.data.length > 0) {
-        return NextResponse.json(
-          { error: 'You already have an active subscription' },
-          { status: 400 }
-        );
-      }
-
-      console.log('Creating subscription checkout session');
-      const session = await stripe.checkout.sessions.create({
-        customer: stripeCustomerId,
-        mode: 'subscription',
-        payment_method_types: ['card'],
-        line_items: [
-          {
-            price: priceId,
-            quantity: 1,
+        const session = await stripe.checkout.sessions.create({
+          customer: stripeCustomerId,
+          mode: 'subscription',
+          payment_method_types: ['card'],
+          line_items: [
+            {
+              price: priceId,
+              quantity: 1,
+            },
+          ],
+          success_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/subscription?success=true`,
+          cancel_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/subscription?canceled=true`,
+          metadata: {
+            userId: user.id,
+            planName,
+            billingCycle,
+            type: 'subscription',
           },
-        ],
-        success_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/subscription?success=true`,
-        cancel_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/subscription?canceled=true`,
-        metadata: {
-          userId: user.id,
-          type: 'subscription',
-          planName,
-          billingCycle,
-        },
-      });
+        });
 
-      console.log('Created subscription session:', {
-        sessionId: session.id,
-        metadata: session.metadata,
-      });
-
-      return NextResponse.json({ url: session.url });
+        return NextResponse.json({ url: session.url });
+      } catch (stripeError) {
+        console.error('Subscription setup error:', stripeError);
+        return NextResponse.json(
+          { error: 'Failed to set up subscription' },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json({ error: 'Invalid request type' }, { status: 400 });
   } catch (error) {
-    console.error('Stripe session error:', error);
+    console.error('General error:', error);
     return NextResponse.json(
-      { error: 'Failed to create checkout session' },
+      { error: 'An unexpected error occurred' },
       { status: 500 }
     );
   }

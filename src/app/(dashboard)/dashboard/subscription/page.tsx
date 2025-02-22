@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 interface SubscriptionPlan {
   name: string;
@@ -52,7 +52,6 @@ const plans: SubscriptionPlan[] = [
 ];
 
 export default function Subscription() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [currentPlan, setCurrentPlan] = useState('');
   const [loading, setLoading] = useState(true);

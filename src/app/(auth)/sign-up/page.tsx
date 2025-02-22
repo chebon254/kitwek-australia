@@ -45,10 +45,16 @@ export default function SignUp() {
       if (!response.ok) throw new Error('Registration failed');
 
       router.push('/dashboard/membership');
-    } catch (error: any) {
+    } catch (error) {
       console.error("error:", error);
-      setError(error.message || 'Error creating account');
-    } finally {
+      
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Error creating account');
+      }
+    }
+     finally {
       setLoading(false);
     }
   };
@@ -70,9 +76,14 @@ export default function SignUp() {
       if (!response.ok) throw new Error('Registration failed');
 
       router.push('/dashboard/membership');
-    } catch (error: any) {
+    } catch (error) {
       console.error("error:", error);
-      setError(error.message || 'Error signing in');
+      
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Error signing in');
+      }
     } finally {
       setLoading(false);
     }

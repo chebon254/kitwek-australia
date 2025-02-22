@@ -43,7 +43,7 @@ export default function SignIn() {
 
       const callbackUrl = searchParams.get('callbackUrl');
       router.push(callbackUrl || '/dashboard');
-    } catch (error: any) {
+    } catch (error) {
       console.error("error:", error);
       setError('Invalid email or password');
     } finally {
@@ -76,7 +76,7 @@ export default function SignIn() {
 
       const callbackUrl = searchParams.get('callbackUrl');
       router.push(callbackUrl || '/dashboard');
-    } catch (error: any) {
+    } catch (error) {
       console.error("error:", error);
       setError('Error signing in with provider');
     } finally {
@@ -201,7 +201,7 @@ export default function SignIn() {
 
           <div className="mt-6 text-center text-sm">
             <p className="text-gray-600">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/sign-up" className="font-medium text-indigo-600 hover:text-indigo-500">
                 Sign up
               </Link>
