@@ -12,7 +12,7 @@ export default function DashboardLayout({
       <Navbar className="bg-white text-[#2C2C2C] navbar-text" />
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="flex-1 mt-24">
         <div className="py-6">
           {children}
         </div>
