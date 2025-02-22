@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 interface SubscriptionPlan {
@@ -51,7 +51,15 @@ const plans: SubscriptionPlan[] = [
   },
 ];
 
-export default function Subscription() {
+export default function Subui() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Subscription />
+    </Suspense>
+  );
+}
+
+function Subscription() {
   const searchParams = useSearchParams();
   const [currentPlan, setCurrentPlan] = useState('');
   const [loading, setLoading] = useState(true);
