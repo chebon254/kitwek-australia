@@ -1,15 +1,21 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PUBLIC_PATHS = ['/', '/about-us', '/contact-us', '/sign-in', '/sign-up', '/reset-password', '/favicon', '/ui-assets'];
-const AUTH_PATHS = ['/sign-in', '/sign-up', '/reset-password'];
+const PUBLIC_PATHS = ['/', '/about-us', '/contact-us', '/sign-in', '/sign-up', '/reset-password'];
+const PUBLIC_PATH_PREFIXES = ['/ui-assets/', '/favicon/']; // Paths that should be public including all their subpaths
+const AUTH_PATHS = ['/sign-in', '/sign-up', '/reset-password']; // Added this back
 
 export async function middleware(request: NextRequest) {
   const session = request.cookies.get('session');
   const pathname = request.nextUrl.pathname;
 
-  // Allow public paths without session
-  if (PUBLIC_PATHS.includes(pathname)) {
+  // Check if the path starts with any of our public prefixes
+  const isPublicAssetPath = PUBLIC_PATH_PREFIXES.some(prefix => 
+    pathname.startsWith(prefix)
+  );
+
+  // Allow public paths and asset paths without session
+  if (PUBLIC_PATHS.includes(pathname) || isPublicAssetPath) {
     return NextResponse.next();
   }
 
@@ -19,7 +25,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Require authentication for protected routes
-  if (!session && !PUBLIC_PATHS.includes(pathname)) {
+  if (!session) {
     const signInUrl = new URL('/sign-in', request.url);
     signInUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(signInUrl);
