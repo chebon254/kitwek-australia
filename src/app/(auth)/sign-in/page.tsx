@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { auth } from '@/lib/firebase';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
 
-export default function SignIn() {
+export default function SignInForm() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignIn />
+    </Suspense>
+  );
+}
+
+function SignIn() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
