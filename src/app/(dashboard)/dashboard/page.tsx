@@ -6,11 +6,8 @@ import {
   UserCircle, 
   CreditCard, 
   Calendar, 
-  Users, 
   MessageSquare,
-  Heart,
   TrendingUp,
-  Bell,
   Settings,
   ChevronRight
 } from 'lucide-react';
