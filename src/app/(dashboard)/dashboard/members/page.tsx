@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, Users, Filter, MapPin } from 'lucide-react';
+import { Search, Users, MapPin } from 'lucide-react';
 
 interface Member {
   id: string;
@@ -167,7 +167,7 @@ export default function Members() {
           <Users className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">No members found</h3>
           <p className="mt-1 text-sm text-gray-500">
-            Try adjusting your search or filter to find what you're looking for.
+            Try adjusting your search or filter to find what you&apos;re looking for.
           </p>
         </div>
       )}
