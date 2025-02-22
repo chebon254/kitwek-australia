@@ -1,5 +1,3 @@
-export const runtime = 'nodejs';
-
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { adminAuth } from '@/lib/firebase-admin';
@@ -8,7 +6,6 @@ import { prisma } from '@/lib/prisma';
 export async function GET() {
   try {
     const session = (await cookies()).get('session');
-    
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -16,6 +13,19 @@ export async function GET() {
     const decodedClaims = await adminAuth.verifySessionCookie(session.value, true);
     const user = await prisma.user.findUnique({
       where: { email: decodedClaims.email },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        firstName: true,
+        lastName: true,
+        bio: true,
+        proffession: true,
+        phone: true,
+        profileImage: true,
+        membershipStatus: true,
+        subscription: true,
+      },
     });
 
     if (!user) {
@@ -24,30 +34,10 @@ export async function GET() {
 
     return NextResponse.json(user);
   } catch (error) {
-    console.error("error:", error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
-}
-
-export async function PUT(request: Request) {
-  try {
-    const session = (await cookies()).get('session');
-    
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const decodedClaims = await adminAuth.verifySessionCookie(session.value, true);
-    const data = await request.json();
-
-    const user = await prisma.user.update({
-      where: { email: decodedClaims.email },
-      data,
-    });
-
-    return NextResponse.json(user);
-  } catch (error) {
-    console.error("error:", error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('User fetch error:', error);
+    return NextResponse.json(
+      { error: 'Error fetching user data' },
+      { status: 500 }
+    );
   }
 }

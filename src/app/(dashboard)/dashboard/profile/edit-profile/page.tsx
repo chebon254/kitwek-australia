@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { UserCircle, Loader2 } from 'lucide-react';
+import { UserCircle, Loader2, Upload } from 'lucide-react';
 
 interface UserProfile {
   username: string;
@@ -21,7 +21,9 @@ export default function EditProfile() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -70,6 +72,46 @@ export default function EditProfile() {
     setProfile(prev => prev ? { ...prev, [name]: value } : null);
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size should be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+    setError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload/profile-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Failed to upload image');
+
+      const data = await response.json();
+      setProfile(prev => prev ? { ...prev, profileImage: data.url } : null);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      setError('Failed to upload image');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -112,25 +154,47 @@ export default function EditProfile() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Profile Image */}
             <div className="flex items-center space-x-6">
-              {profile.profileImage ? (
-                <Image
-                  src={profile.profileImage}
-                  alt={profile.username}
-                  width={96}
-                  height={96}
-                  className="rounded-full"
+              <div className="relative">
+                {profile.profileImage ? (
+                  <Image
+                    src={profile.profileImage}
+                    alt={profile.username}
+                    width={96}
+                    height={96}
+                    className="rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                    <UserCircle className="w-16 h-16 text-gray-400" />
+                  </div>
+                )}
+                {uploading && (
+                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 text-white animate-spin" />
+                  </div>
+                )}
+              </div>
+              <div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                  accept="image/*"
+                  className="hidden"
                 />
-              ) : (
-                <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
-                  <UserCircle className="w-16 h-16 text-gray-400" />
-                </div>
-              )}
-              <button
-                type="button"
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Change Photo
-              </button>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                >
+                  <Upload className="h-5 w-5 mr-2" />
+                  {uploading ? 'Uploading...' : 'Change Photo'}
+                </button>
+                <p className="mt-2 text-xs text-gray-500">
+                  JPG, PNG or GIF (max. 5MB)
+                </p>
+              </div>
             </div>
 
             {/* Basic Information */}
