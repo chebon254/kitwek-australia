@@ -25,8 +25,8 @@ export default function Navbar({ className }: NavbarProps) {
 
   const navigation = [
     { name: "Home", href: "/" },
-    { name: "About Us", href: "about-us" },
-    { name: "Events", href: "events" },
+    { name: "About Us", href: "/about-us" },
+    { name: "Events", href: "/events" },
   ];
 
   useEffect(() => {
