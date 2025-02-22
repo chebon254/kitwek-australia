@@ -1,30 +1,77 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { auth } from "@/lib/firebase";
+import { UserCircle, LogOut, Settings } from "lucide-react";
 
 interface NavbarProps {
   className?: string;
 }
 
+interface User {
+  email: string;
+  profileImage?: string;
+}
+
 export default function Navbar({ className }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const navigation = [
     { name: "Home", href: "/" },
     { name: "About Us", href: "about-us" },
     { name: "Events", href: "events" },
-    // { name: "Contact Us", href: "contact-us" },
   ];
 
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+      if (firebaseUser) {
+        try {
+          const response = await fetch('/api/user');
+          const userData = await response.json();
+          setUser({
+            email: firebaseUser.email!,
+            profileImage: userData.profileImage,
+          });
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          setUser({ email: firebaseUser.email! });
+        }
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      await auth.signOut();
+      await fetch('/api/auth', { method: 'DELETE' });
+      router.push('/sign-in');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
-    <nav className={`w-full bg-[#00000077] z-20 fixed top-0 ${className || ""}`}>
+    <nav className={`w-full z-20 fixed top-0 ${className || ""}`} style={{
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      backdropFilter: 'blur(10px)',
+    }}>
       <div className="mx-auto max-w-7xl px-4">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link href="/" className={`flex items-center font-bold text-[#ffffff] text-2xl ${className || ""}`}>
+            <Link href="/" className="flex items-center font-bold text-white text-2xl">
               KITWEK VICTORIA
             </Link>
           </div>
@@ -36,13 +83,80 @@ export default function Navbar({ className }: NavbarProps) {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`text-base md:px-5 lg:px-10 font-[family-name:var(--font-ubuntu-sans)] font-semibold tracking-wider text-white transition-colors ${className || ""}`} >
+                  className="text-base md:px-5 lg:px-10 font-[family-name:var(--font-ubuntu-sans)] font-semibold tracking-wider text-white transition-colors hover:text-gray-300"
+                >
                   {item.name}
                 </Link>
               ))}
-              <Link href={"/sign-up"} className="bg-white rounded-lg h-14 px-10 flex items-center justify-center mx-2 w-60 outline-none text-xl text-black leading-6 border-2  text-center border-[#00000077] font-bold">
-                Membership
-              </Link>
+
+              {!loading && (
+                <div className="flex items-center space-x-4">
+                  {user ? (
+                    <div className="relative">
+                      <button
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="flex items-center space-x-2 focus:outline-none"
+                      >
+                        {user.profileImage ? (
+                          <Image
+                            src={user.profileImage}
+                            alt="Profile"
+                            width={40}
+                            height={40}
+                            className="rounded-full border-2 border-white"
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center">
+                            <UserCircle className="h-6 w-6 text-white" />
+                          </div>
+                        )}
+                      </button>
+
+                      {isDropdownOpen && (
+                        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                          <div className="py-1" role="menu">
+                            <Link
+                              href="/dashboard"
+                              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              role="menuitem"
+                              onClick={() => setIsDropdownOpen(false)}
+                            >
+                              <Settings className="h-4 w-4 mr-2" />
+                              Profile
+                            </Link>
+                            <button
+                              onClick={() => {
+                                setIsDropdownOpen(false);
+                                handleSignOut();
+                              }}
+                              className="flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-gray-100"
+                              role="menuitem"
+                            >
+                              <LogOut className="h-4 w-4 mr-2" />
+                              Sign out
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <Link
+                        href="/sign-in"
+                        className="text-white hover:text-gray-300 font-semibold"
+                      >
+                        Sign in
+                      </Link>
+                      <Link
+                        href="/sign-up"
+                        className="bg-white rounded-lg px-6 py-2 text-black font-semibold hover:bg-gray-100 transition-colors"
+                      >
+                        Membership
+                      </Link>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -54,7 +168,7 @@ export default function Navbar({ className }: NavbarProps) {
                 className="text-white"
               >
                 <Image
-                  src={"/ui-assets/bx-menu-alt-right.svg"}
+                  src="/ui-assets/bx-menu-alt-right.svg"
                   alt="Open menu"
                   width={50}
                   height={50}
@@ -97,9 +211,47 @@ export default function Navbar({ className }: NavbarProps) {
                       {item.name}
                     </Link>
                   ))}
-                  <Link href={"/sign-up"} className="bg-black rounded-lg h-14 px-10 flex items-center justify-center mx-2 w-60 outline-none text-xl text-white text-center leading-6 border-2 border-[#00000077] font-bold">
-                    Membership
-                  </Link>
+                  {!loading && (
+                    <>
+                      {user ? (
+                        <>
+                          <Link
+                            href="/dashboard/profile"
+                            className="text-center text-3xl font-semibold text-black hover:bg-gray-100 py-4"
+                            onClick={() => setIsOpen(false)}
+                          >
+                            Profile
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setIsOpen(false);
+                              handleSignOut();
+                            }}
+                            className="text-center text-3xl font-semibold text-red-600 hover:bg-gray-100 py-4 w-full"
+                          >
+                            Sign out
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <Link
+                            href="/sign-in"
+                            className="text-center text-3xl font-semibold text-black hover:bg-gray-100 py-4"
+                            onClick={() => setIsOpen(false)}
+                          >
+                            Sign in
+                          </Link>
+                          <Link
+                            href="/sign-up"
+                            className="bg-black rounded-lg h-14 px-10 flex items-center justify-center mx-auto w-60 text-xl text-white text-center font-bold hover:bg-gray-900"
+                            onClick={() => setIsOpen(false)}
+                          >
+                            Membership
+                          </Link>
+                        </>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             )}
