@@ -145,7 +145,7 @@ export default function Dashboard() {
                   </span>
                 </Link>
                 <Link
-                  href="/dashboard/events"
+                  href="/events"
                   className="flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors"
                 >
                   <Calendar className="h-6 w-6 text-gray-500" />
