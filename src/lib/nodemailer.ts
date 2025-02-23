@@ -62,8 +62,8 @@ export const sendWelcomeEmail = async (email: string, username: string) => {
             <a href="${process.env.NEXT_PUBLIC_URL}/dashboard/membership" class="button">
               Activate Membership
             </a>
-            <p>If you have any questions or need assistance, don't hesitate to reach out.</p>
-            <p>Best regards,<br>KITWEK VICTORIA INC</p>
+            <p>If you have any questions or need assistance, don't hesitate to reach out to our support team.</p>
+            <p>Best regards,<br>The Team</p>
           </div>
         </div>
       </body>
@@ -74,6 +74,112 @@ export const sendWelcomeEmail = async (email: string, username: string) => {
     from: process.env.SMTP_USER,
     to: email,
     subject: 'Welcome to Our Platform!',
+    html,
+  });
+};
+
+export const sendTicketEmail = async (
+  email: string,
+  name: string,
+  event: {
+    title: string;
+    date: string | Date;
+    location: string;
+  },
+  ticketId: string
+) => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            background-color: #4F46E5;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px;
+            border-radius: 8px 8px 0 0;
+          }
+          .content {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0 0 8px 8px;
+          }
+          .ticket {
+            background-color: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+          }
+          .qr-code {
+            text-align: center;
+            margin: 20px 0;
+          }
+          .button {
+            display: inline-block;
+            background-color: #4F46E5;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Your Event Ticket</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${name}!</h2>
+            <p>Thank you for purchasing a ticket to ${event.title}. Here are your ticket details:</p>
+            
+            <div class="ticket">
+              <h3>${event.title}</h3>
+              <p><strong>Date:</strong> ${new Date(event.date).toLocaleDateString()}</p>
+              <p><strong>Time:</strong> ${new Date(event.date).toLocaleTimeString()}</p>
+              <p><strong>Location:</strong> ${event.location}</p>
+              <p><strong>Ticket ID:</strong> ${ticketId}</p>
+            </div>
+
+            <div class="qr-code">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticketId}" alt="QR Code" />
+            </div>
+
+            <p>Please keep this email for your records. You'll need to show your ticket (either printed or on your mobile device) at the event.</p>
+            
+            <a href="${process.env.NEXT_PUBLIC_URL}/tickets" class="button">
+              View My Tickets
+            </a>
+
+            <p>If you have any questions or need to make changes to your ticket, please contact our support team.</p>
+
+            <p>We look forward to seeing you at the event!</p>
+
+            <p>Best regards,<br>The Team</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  await transporter.sendMail({
+    from: process.env.SMTP_USER,
+    to: email,
+    subject: `Your Ticket for ${event.title}`,
     html,
   });
 };
