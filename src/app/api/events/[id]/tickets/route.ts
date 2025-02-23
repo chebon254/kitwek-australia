@@ -6,10 +6,24 @@ import { stripe } from '@/lib/stripe';
 import { sendTicketEmail } from '@/lib/nodemailer';
 import type Stripe from 'stripe';
 
+// Define interface for request body
+interface TicketRequest {
+  quantity: number;
+  attendees: AttendeeData[];
+}
+
+// Define interface for attendee data
+interface AttendeeData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+}
+
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
-    const { quantity, attendees } = await request.json();
-    const { id: eventId } = await params;
+    const { quantity, attendees }: TicketRequest = await request.json();
+    const { id: eventId } = params;
 
     // Get event details
     const event = await prisma.event.findUnique({
@@ -25,8 +39,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
     }
 
     // Check if user is logged in
-    let userId = null;
-    let userEmail = null;
+    let userId: string | null = null;
+    let userEmail: string | null = null;
     const cookieStore = await cookies();
     const session = cookieStore.get('session');
     
@@ -92,7 +106,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
       // Create attendees
       const createdAttendees = await Promise.all(
-        attendees.map((attendee: any) =>
+        attendees.map((attendee: AttendeeData) =>
           prisma.eventAttendee.create({
             data: {
               eventId,
