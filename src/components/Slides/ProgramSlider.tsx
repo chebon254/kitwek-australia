@@ -33,27 +33,33 @@ const ProgramSlider = () => {
   const programs: Program[] = [
     {
       icon: <Users className="w-8 h-8 text-white" />,
-      title: "Events",
-      description: "Cultural Events: Join us for vibrant gatherings celebrating our rich traditions through music, dance, and authentic cuisine. Experience the warmth of community at our regular cultural nights, festivals, and special celebrations.",
+      title: "Welfare & Support Programs",
+      description: "The association has rolled out an Emergency Assistance Fund where it provides financial support for members facing crises such as medical emergencies and funerals.",
       bgColor: "bg-[#2C2C2C]"
     },
     {
       icon: <CircleDot className="w-8 h-8 text-white" />,
-      title: "Sports",
-      description: "Uniting people through friendly competition and active living. From our popular athletics programs to family fun days, we create opportunities for fitness, friendship, and team building across all age groups.",
+      title: "Cultural & Heritage Programs",
+      description: "Kitwek Victoria has Kalenjin Language & Literacy Classes where we teach the Kalenjin language to younger generations and newcomers. It also includes Traditional Rites of Passage to support community members in maintaining cultural identity.",
       bgColor: "bg-[#018C51]"
     },
     {
       icon: <Users2 className="w-8 h-8 text-white" />,
-      title: "Conference",
-      description: "Bridging cultures through meaningful engagement with the wider community. Our cultural exchange initiatives, collaborative events, and educational programs foster understanding and celebrate diversity.",
+      title: "Youth, Mental Health & Mentorship Programs",
+      description: "Connect young professionals with mentors through career development, provide educational support, and promote mental health awareness through events like running and talent showcases.",
       bgColor: "bg-[#ED6868]"
     },
     {
       icon: <Target className="w-8 h-8 text-white" />,
-      title: "Mentorship",
-      description: "Uniting people through friendly competition and active living. From our popular athletics programs to family fun days, we create opportunities for fitness, friendship, and team building across all age groups.",
+      title: "Business & Economic Empowerment",
+      description: "Offer workshops on entrepreneurship and business management, create community-based investment groups, and assist with job searches, resume writing, and interview preparation.",
       bgColor: "bg-[#0511F3]"
+    },
+    {
+      icon: <Users className="w-8 h-8 text-white" />,
+      title: "Community Engagement & Social Events",
+      description: "We host an Annual Gala where members showcase their Kalenjin culture, and Monthly Community Gatherings for regular meet-ups, networking, and bonding.",
+      bgColor: "bg-[#6C4C9C]"
     }
   ];
 

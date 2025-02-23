@@ -1,7 +1,6 @@
 "use client";
 
 import Footer from "@/components/Footer/Footer";
-import Navbar from "@/components/Navbar/Navbar";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
@@ -44,12 +43,11 @@ export default function Home() {
 
   return (
     <>
-      <Navbar />
       <main className="relative z-10">
         {/* Banner with zoom animation */}
         <div className="w-full h-screen relative overflow-hidden">
           <motion.div
-            className="w-full z-10 absolute top-0 h-screen bg-[url(/ui-assets/cover.png)] bg-center bg-cover bg-no-repeat"
+            className="w-full z-10 absolute top-0 h-screen bg-[url(/ui-assets/shade.jpeg)] bg-center bg-cover bg-no-repeat"
             animate={{ scale: bannerScale }}
             transition={{ duration: 10, ease: "easeInOut" }}
           ></motion.div>
@@ -84,10 +82,20 @@ export default function Home() {
                   Our Mission and Vision
                 </h1>
                 <div className="flex flex-col md:flex-row items-start justify-between pt-8 md:pt-16 gap-4">
-                  <p className="font-bold text-base leading-6 font-[family-name:var(--font-lora-sans)]  text-white">
-                    Granting our members the privilege of belonging to a
-                    holistic community that fosters growth through mentorship,
-                    networking and empowerment
+                  <p className="font-bold text-base leading-6 my-2 font-[family-name:var(--font-lora-sans)]  text-white">
+                   <strong>Mission: </strong>To foster unity, cultural preservation, and social
+                    empowerment among the Kalenjin community in Victoria,
+                    Australia, by providing support networks, promoting economic
+                    and educational opportunities, raising mental health
+                    awareness, and celebrating our rich heritage while
+                    integrating into the broader Australian Society.
+                  </p>
+                  <p className="font-bold text-base leading-6 my-2 font-[family-name:var(--font-lora-sans)]  text-white">
+                    <strong>Vision: </strong>To build a strong, united, and thriving Kalenjin community
+                    in Victoria, Australia, by fostering cultural preservation,
+                    social empowerment, and economic advancement while promoting
+                    inclusivity and integration within the broader Australian
+                    society.
                   </p>
                 </div>
               </div>
@@ -289,9 +297,9 @@ export default function Home() {
               <div className="relative w-full h-[400px] md:h-[600px] rounded-[8px] overflow-hidden bg-[url(/ui-assets/mic-lady.jpeg)] bg-cover bg-center bg-no-repeat">
                 <div className="absolute bottom-0 w-full p-8 bg-gradient-to-t from-[#00000055] to-transparent">
                   <p className="font-bold text-[#F3F3F3] leading-relaxed">
-                  &quot;Members strive to offer endless guidance to our members
-                    within our community equipping them with knowledge, skills
-                    and advice to harness their transition.&quot;
+                    &quot;Members strive to offer endless guidance to our
+                    members within our community equipping them with knowledge,
+                    skills and advice to harness their transition.&quot;
                   </p>
                 </div>
               </div>

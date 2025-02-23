@@ -62,8 +62,8 @@ export const sendWelcomeEmail = async (email: string, username: string) => {
             <a href="${process.env.NEXT_PUBLIC_URL}/dashboard/membership" class="button">
               Activate Membership
             </a>
-            <p>If you have any questions or need assistance, don't hesitate to reach out to our support team.</p>
-            <p>Best regards,<br>The Team</p>
+            <p>If you have any questions or need assistance, don't hesitate to reach out.</p>
+            <p>Best regards,<br>KITWEK VICTORIA INC</p>
           </div>
         </div>
       </body>

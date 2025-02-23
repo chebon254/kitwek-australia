@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Lora, Ubuntu } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/Navbar/Navbar";
 
 const ubuntu = Ubuntu({
   variable: "--font-ubuntu-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="manifest" href="/favicon/site.webmanifest" />
       </head>
       <body className={`${ubuntu.variable} ${lora.variable} w-full relative z-0`}>
+          <Navbar />
           {children}
       </body>
     </html>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { UserCircle, LogOut } from "lucide-react";
 
@@ -22,6 +22,18 @@ export default function Navbar({ className }: NavbarProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
+
+  const getNavStyles = () => {
+    switch (pathname) {
+      case '/':
+        return 'bg-[#2c2c2cbc] text-white hover:text-grey-500';
+      case '/about-us':
+        return 'bg-[#FFFFFF] text-black hover:text-grey-400 shadow-sm';
+      default:
+        return 'bg-[#2C2C2C] text-white';
+    }
+  };
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -62,16 +74,15 @@ export default function Navbar({ className }: NavbarProps) {
     }
   };
 
+  const isLightBackground = pathname === '/about-us';
+
   return (
-    <nav className={`w-full z-20 fixed top-0 ${className || ""}`} style={{
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-      backdropFilter: 'blur(10px)',
-    }}>
+    <nav className={`w-full z-20 fixed top-0 ${getNavStyles()} ${className || ""}`}>
       <div className="mx-auto max-w-7xl px-4">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link href="/" className="flex items-center font-bold text-white text-2xl">
+            <Link href="/" className="flex items-center font-bold text-2xl">
               KITWEK VICTORIA
             </Link>
           </div>
@@ -83,7 +94,9 @@ export default function Navbar({ className }: NavbarProps) {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="text-base md:px-5 lg:px-10 font-[family-name:var(--font-ubuntu-sans)] font-semibold tracking-wider text-white transition-colors hover:text-gray-300"
+                  className={`text-base md:px-5 lg:px-10 font-[family-name:var(--font-ubuntu-sans)] font-semibold tracking-wider transition-colors ${
+                    isLightBackground ? 'hover:text-gray-600' : 'hover:text-gray-300'
+                  }`}
                 >
                   {item.name}
                 </Link>
@@ -107,7 +120,7 @@ export default function Navbar({ className }: NavbarProps) {
                           />
                         ) : (
                           <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center">
-                            <UserCircle className="h-6 w-6 text-white" />
+                            <UserCircle className={`h-6 w-6 ${isLightBackground ? 'text-black' : 'text-white'}`} />
                           </div>
                         )}
                       </button>
@@ -142,14 +155,12 @@ export default function Navbar({ className }: NavbarProps) {
                   ) : (
                     <>
                       <Link
-                        href="/sign-in"
-                        className="text-white hover:text-gray-300 font-semibold"
-                      >
-                        Sign in
-                      </Link>
-                      <Link
                         href="/sign-up"
-                        className="bg-white rounded-lg px-6 py-2 text-black font-semibold hover:bg-gray-100 transition-colors"
+                        className={`rounded-lg px-6 py-2 font-semibold transition-colors ${
+                          isLightBackground 
+                            ? 'bg-black text-white hover:bg-gray-800' 
+                            : 'bg-white text-black hover:bg-gray-100'
+                        }`}
                       >
                         Membership
                       </Link>
@@ -165,7 +176,7 @@ export default function Navbar({ className }: NavbarProps) {
             <div className="flex items-center">
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="text-white"
+                className={isLightBackground ? 'text-black' : 'text-white'}
               >
                 <Image
                   src="/ui-assets/bx-menu-alt-right.svg"
@@ -234,13 +245,6 @@ export default function Navbar({ className }: NavbarProps) {
                         </>
                       ) : (
                         <>
-                          <Link
-                            href="/sign-in"
-                            className="text-center text-3xl font-semibold text-black hover:bg-gray-100 py-4"
-                            onClick={() => setIsOpen(false)}
-                          >
-                            Sign in
-                          </Link>
                           <Link
                             href="/sign-up"
                             className="bg-black rounded-lg h-14 px-10 flex items-center justify-center mx-auto w-60 text-xl text-white text-center font-bold hover:bg-gray-900"
