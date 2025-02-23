@@ -7,7 +7,6 @@ import {
   CreditCard,
   Calendar,
   MessageSquare,
-  TrendingUp,
   Settings,
   ChevronRight,
 } from "lucide-react";

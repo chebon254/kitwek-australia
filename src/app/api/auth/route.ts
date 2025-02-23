@@ -52,19 +52,21 @@ export async function POST(request: Request) {
 
     // Set cookie
     (await
-          // Set cookie
-          cookies()).set('session', sessionCookie, {
+      // Set cookie
+      cookies()).set('session', sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
       secure: true,
     });
 
-    // Send welcome email
-    try {
-      await sendWelcomeEmail(email, user.username || email);
-    } catch (error) {
-      console.error('Error sending welcome email:', error);
-      // Continue even if email fails
+    // Only send welcome email if this is a new user (check if the operation was a create)
+    if (!existingUser) {
+      try {
+        await sendWelcomeEmail(email, user.username || email);
+      } catch (error) {
+        console.error('Error sending welcome email:', error);
+        // Continue even if email fails
+      }
     }
 
     return NextResponse.json({ status: 'success', user });
