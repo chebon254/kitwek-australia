@@ -198,16 +198,18 @@ export default function About() {
             {/* Objectives Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
               {objectives.map((objective, index) => (
-                <div
+                <motion.div
                   key={objective.id}
                   className={`overflow-hidden rounded-lg transition-all duration-300 shadow-sm hover:shadow-md ${
                     index === 1
                       ? "bg-[url(/ui-assets/line-waves2.png)] bg-cover bg-no-repeat"
                       : "bg-[#FFFFFF]"
                   }`}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 >
                   <div
-                    className={`p-10 w-full ${
+                    className={`p-10 h-full w-full ${
                       index === 1 ? "bg-[#018c52e5] text-white" : "bg-[#F5F5F5]"
                     }`}
                   >
@@ -238,7 +240,7 @@ export default function About() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
 
