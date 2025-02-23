@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// Type for route handler context
+type RouteContext = {
+  params: { id: string }
+};
+
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: RouteContext
 ) {
-  const { id } = await params;
+  const { id } = params;
   
   if (!id) {
     return NextResponse.json({ error: 'Event ID is required' }, { status: 400 });
@@ -37,9 +42,9 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: RouteContext
 ) {
-  const { id } = await params;
+  const { id } = params;
 
   if (!id) {
     return NextResponse.json({ error: 'Event ID is required' }, { status: 400 });
@@ -63,9 +68,9 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: RouteContext
 ) {
-  const { id } = await params;
+  const { id } = params;
 
   if (!id) {
     return NextResponse.json({ error: 'Event ID is required' }, { status: 400 });
