@@ -3,14 +3,14 @@ import { prisma } from '@/lib/prisma';
 
 // Type for route handler context
 type RouteContext = {
-  params: { id: string }
+  params: Promise<{ id: string }>
 };
 
 export async function GET(
   request: Request,
   { params }: RouteContext
 ) {
-  const { id } = params;
+  const { id } = await params;
   
   if (!id) {
     return NextResponse.json({ error: 'Event ID is required' }, { status: 400 });
@@ -44,7 +44,7 @@ export async function PUT(
   request: Request,
   { params }: RouteContext
 ) {
-  const { id } = params;
+  const { id } = await params;
 
   if (!id) {
     return NextResponse.json({ error: 'Event ID is required' }, { status: 400 });
@@ -70,7 +70,7 @@ export async function DELETE(
   request: Request,
   { params }: RouteContext
 ) {
-  const { id } = params;
+  const { id } = await params;
 
   if (!id) {
     return NextResponse.json({ error: 'Event ID is required' }, { status: 400 });

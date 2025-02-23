@@ -20,10 +20,10 @@ interface AttendeeData {
   phone: string;
 }
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { quantity, attendees }: TicketRequest = await request.json();
-    const { id: eventId } = params;
+    const { id: eventId } = await params;
 
     // Get event details
     const event = await prisma.event.findUnique({
