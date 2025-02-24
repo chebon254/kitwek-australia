@@ -309,7 +309,7 @@ export default function Home() {
         </div>
 
         {/* Team Section */}
-        {/* <div className="w-full bg-white py-16" ref={teamRef}>
+        <div className="w-full bg-white py-16" ref={teamRef}>
           <motion.div
             className="text-center mb-10"
             variants={fadeInUp}
@@ -385,7 +385,7 @@ export default function Home() {
               </div>
             </motion.div>
           </div>
-        </div> */}
+        </div>
       </main>
       <Footer />
     </>
