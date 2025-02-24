@@ -5,10 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { format } from "date-fns";
 import {
-  Heart,
   Calendar,
   ArrowLeft,
-  TrendingUp,
   Loader2,
   Users,
 } from "lucide-react";

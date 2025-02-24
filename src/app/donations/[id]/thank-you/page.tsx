@@ -28,7 +28,7 @@ export default function ThankYou() {
                 Thank You for Your Donation!
               </h1>
               <p className="mt-4 text-lg text-gray-600">
-                Your generous contribution will help make a difference. We've
+                Your generous contribution will help make a difference. We&apos;ve
                 sent you a confirmation email with the details.
               </p>
               <div className="mt-8 space-y-4">
