@@ -6,24 +6,22 @@ import { stripe } from '@/lib/stripe';
 import { sendTicketEmail } from '@/lib/nodemailer';
 import type Stripe from 'stripe';
 
-// Define interface for request body
+interface AttendeeData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+}
+
 interface TicketRequest {
   quantity: number;
   attendees: AttendeeData[];
 }
 
-// Define interface for attendee data
-interface AttendeeData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-}
-
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
     const { quantity, attendees }: TicketRequest = await request.json();
-    const { id: eventId } = await params;
+    const eventId = await params.id;
 
     // Get event details
     const event = await prisma.event.findUnique({
@@ -41,8 +39,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     // Check if user is logged in
     let userId: string | null = null;
     let userEmail: string | null = null;
-    const cookieStore = await cookies();
-    const session = cookieStore.get('session');
+    const session = (await cookies()).get('session');
     
     if (session) {
       const decodedClaims = await adminAuth.verifySessionCookie(session.value, true);
@@ -76,8 +73,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         success_url: `${process.env.NEXT_PUBLIC_URL}/tickets?success=true`,
         cancel_url: `${process.env.NEXT_PUBLIC_URL}/events/${event.id}?canceled=true`,
         metadata: {
-          eventId: event.id,
-          userId,
+          type: 'ticket',
+          eventId,
+          userId: userId || null, // Changed from undefined to null
           quantity: quantity.toString(),
           attendees: JSON.stringify(attendees),
         },
@@ -101,6 +99,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           userId,
           quantity,
           totalAmount: event.price ? event.price * quantity : 0,
+          status: 'ACTIVE',
         },
       });
 
@@ -114,7 +113,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
               firstName: attendee.firstName,
               lastName: attendee.lastName,
               email: attendee.email,
-              phone: attendee.phone,
+              phone: attendee.phone || null, // Handle optional phone
               paid: false,
               amount: 0,
             },
