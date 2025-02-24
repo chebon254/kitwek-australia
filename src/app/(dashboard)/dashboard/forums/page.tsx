@@ -7,7 +7,6 @@ import { format } from "date-fns";
 import {
   MessageCircle,
   Search,
-  Filter,
   ChevronRight,
   UserCircle,
 } from "lucide-react";

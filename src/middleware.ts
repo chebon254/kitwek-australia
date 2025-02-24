@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PUBLIC_PATHS = ['/', '/about-us', '/contact-us', '/sign-in', '/sign-up', '/reset-password', '/events', '/tickets'];
+const PUBLIC_PATHS = ['/', '/about-us', '/contact-us', '/donations', '/sign-in', '/sign-up', '/reset-password', '/events', '/tickets'];
 const PUBLIC_PATH_PREFIXES = ['/ui-assets/', '/favicon/']; // Paths that should be public including all their subpaths
 const AUTH_PATHS = ['/sign-in', '/sign-up', '/reset-password']; // Added this back
 
