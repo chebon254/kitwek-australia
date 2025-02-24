@@ -144,10 +144,12 @@ export default function Home() {
                 </h1>
                 <div className="pt-8 md:pt-16">
                   <p className="font-bold text-base leading-6 font-[family-name:var(--font-lora-sans)] text-[#1E1E1E]">
-                    We host an assortment of Family Events, sporting tournaments
-                    and activities for our members across all age groups. This
-                    is a platform for our members to build relationships, unwind
-                    and acquire relevant sporting skills.
+                    Our annual events, including galas, camping trips, and
+                    mental health programs, are designed to promote the
+                    well-being of our community. Through these initiatives, we
+                    create spaces for connection, cultural celebration, and
+                    personal growth, fostering a strong support system that
+                    enhances both physical and mental wellness.
                   </p>
                 </div>
               </div>
@@ -167,10 +169,11 @@ export default function Home() {
                 </h1>
                 <div className="flex items-start justify-between pt-16">
                   <p className="font-bold text-base leading-5 text-[#1E1E1E] font-[family-name:var(--font-lora-sans)]">
-                    We plan and organize a number of sporting tournaments and
-                    activities for our members across all age groups. This is a
-                    platform for our members to build relationships, unwind and
-                    acquire relevant sporting skills
+                    Our sports program brings the community together through
+                    soccer, basketball, volleyball, athletics etc, providing a
+                    platform to showcase Kalenjin talent. By promoting teamwork,
+                    fitness, and competitive excellence, we foster unity and
+                    empowerment within the community.
                   </p>
                 </div>
               </div>
@@ -208,10 +211,10 @@ export default function Home() {
                 </h1>
                 <div className="flex items-start justify-between pt-16">
                   <p className="font-bold text-base leading-5 text-[#1E1E1E] font-[family-name:var(--font-lora-sans)]">
-                    Through mentorship programs, we provide endless guidance to
-                    our members & new international students within our
-                    community equipping them with knowledge, skills and advice
-                    to harness their transition.
+                    Through mentorship, we nurture leadership, career
+                    development, and personal well-being, ensuring that every
+                    member has the resources and encouragement needed to thrive
+                    and contribute positively to the community.
                   </p>
                 </div>
               </div>

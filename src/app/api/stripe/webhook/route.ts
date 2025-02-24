@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
-import { sendTicketEmail } from '@/lib/nodemailer';
+import { sendTicketEmail, sendDonationEmail } from '@/lib/nodemailer';
 import type Stripe from 'stripe';
 
 export async function POST(request: Request) {
@@ -136,6 +136,15 @@ export async function POST(request: Request) {
           anonymous: string;
         };
 
+        // Get donation details
+        const donation = await prisma.donation.findUnique({
+          where: { id: metadata.donationId },
+        });
+
+        if (!donation) {
+          throw new Error('Donation not found');
+        }
+
         // Create donor record
         await prisma.donor.create({
           data: {
@@ -147,6 +156,16 @@ export async function POST(request: Request) {
             amount: (session.amount_total || 0) / 100,
           },
         });
+
+        // Send confirmation email
+        await sendDonationEmail(
+          metadata.email,
+          metadata.name,
+          {
+            name: donation.name,
+            amount: (session.amount_total || 0) / 100,
+          }
+        );
       }
 
       return NextResponse.json({ received: true });

@@ -183,3 +183,111 @@ export const sendTicketEmail = async (
     html,
   });
 };
+
+export const sendDonationEmail = async (
+  email: string,
+  name: string,
+  donation: {
+    name: string;
+    amount: number;
+  }
+) => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            background-color: #4F46E5;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+          }
+          .content {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0 0 8px 8px;
+          }
+          .donation-details {
+            background-color: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+          }
+          .amount {
+            font-size: 24px;
+            color: #4F46E5;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+          }
+          .button {
+            display: inline-block;
+            background-color: #4F46E5;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+          }
+          .heart {
+            color: #ef4444;
+            font-size: 24px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Thank You for Your Donation!</h1>
+          </div>
+          <div class="content">
+            <h2>Dear ${name},</h2>
+            <p>Thank you for your generous donation to ${donation.name}. Your support means the world to us and will help make a real difference.</p>
+            
+            <div class="donation-details">
+              <div class="amount">$${donation.amount.toLocaleString()}</div>
+              <p style="text-align: center;">Your contribution to:<br><strong>${donation.name}</strong></p>
+            </div>
+
+            <p>Your donation will be put to good use in supporting our cause. We're grateful for your commitment to making a positive impact in our community.</p>
+
+            <p style="text-align: center;" class="heart">❤️</p>
+
+            <a href="${process.env.NEXT_PUBLIC_URL}/donations" class="button" style="display: block; text-align: center;">
+              Support More Causes
+            </a>
+
+            <p>If you have any questions about your donation or would like to learn more about how your contribution will be used, please don't hesitate to contact us.</p>
+
+            <p>With gratitude,<br>The Team</p>
+
+            <p style="font-size: 12px; color: #666; margin-top: 20px;">
+              This email serves as your donation receipt. Please keep it for your records.
+              Your donation may be tax-deductible; please consult with your tax advisor.
+            </p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  await transporter.sendMail({
+    from: process.env.SMTP_USER,
+    to: email,
+    subject: `Thank You for Your Donation to ${donation.name}`,
+    html,
+  });
+};
