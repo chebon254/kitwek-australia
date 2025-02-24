@@ -15,20 +15,73 @@ const SUBSCRIPTION_PRICES = {
     monthly: 'price_1Qtp5BGUzorFIpd8a6yfozQs', // $9.99/month
     annual: 'price_1QtpeIGUzorFIpd8MV3D450x',  // $99.99/year
   },
-};
+} as const;
+
+type PlanName = keyof typeof SUBSCRIPTION_PRICES;
+type BillingCycle = keyof typeof SUBSCRIPTION_PRICES[PlanName];
 
 export async function POST(request: Request) {
   try {
-    const session = (await cookies()).get('session');
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { type, planName, billingCycle } = await request.json();
+    const { type, planName, billingCycle, donationId, name, email, amount, message, anonymous } = await request.json();
 
     // Validate required fields
     if (!type) {
       return NextResponse.json({ error: 'Missing request type' }, { status: 400 });
+    }
+
+    // For donations, we don't require authentication
+    if (type === 'donation') {
+      if (!donationId || !name || !email || !amount) {
+        return NextResponse.json(
+          { error: 'Missing required donation fields' },
+          { status: 400 }
+        );
+      }
+
+      const donation = await prisma.donation.findUnique({
+        where: { id: donationId },
+      });
+
+      if (!donation) {
+        return NextResponse.json({ error: 'Donation not found' }, { status: 404 });
+      }
+
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price_data: {
+              currency: 'usd',
+              product_data: {
+                name: donation.name,
+                description: 'One-time donation',
+              },
+              unit_amount: amount * 100, // Convert to cents
+            },
+            quantity: 1,
+          },
+        ],
+        success_url: `${process.env.NEXT_PUBLIC_URL}/donations/${donationId}/thank-you?success=true`,
+        cancel_url: `${process.env.NEXT_PUBLIC_URL}/donations/${donationId}?canceled=true`,
+        customer_email: email,
+        metadata: {
+          type: 'donation',
+          donationId,
+          name,
+          email,
+          message,
+          anonymous: String(anonymous),
+        },
+      });
+
+      return NextResponse.json({ url: session.url });
+    }
+
+    // For other types (membership, subscription), require authentication
+    const session = (await cookies()).get('session');
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const decodedClaims = await adminAuth.verifySessionCookie(session.value, true);
@@ -88,7 +141,7 @@ export async function POST(request: Request) {
         );
       }
 
-      const priceId = SUBSCRIPTION_PRICES[planName as keyof typeof SUBSCRIPTION_PRICES]?.[billingCycle as 'monthly' | 'annual'];
+      const priceId = SUBSCRIPTION_PRICES[planName as PlanName]?.[billingCycle as BillingCycle];
       if (!priceId) {
         return NextResponse.json(
           { error: 'Invalid plan or billing cycle' },
