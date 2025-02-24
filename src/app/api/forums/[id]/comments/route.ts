@@ -55,11 +55,11 @@ export async function POST(
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const comments = await prisma.forumComment.findMany({
-      where: { forumId: params.id },
+      where: { forumId: (await params).id },
       orderBy: { createdAt: 'desc' },
     });
 
