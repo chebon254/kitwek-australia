@@ -54,7 +54,7 @@ export default function Home() {
           <div className="w-full relative z-40 h-screen bg-[#00000055]">
             <div className="w-full h-screen max-w-7xl mx-auto relative px-4">
               <div className="py-20 md:py-40 absolute bottom-0 left-0 text-left">
-                <h1 className="font-bold text-4xl md:text-6xl lg:text-8xl leading-tight md:leading-[120px] text-[#F3F3F3] max-w-[560px] w-full">
+                <h1 className="font-bold text-4xl md:text-6xl lg:text-8xl leading-tight md:leading-[120px] text-[#F3F3F3] max-w-[600px] w-full">
                   Welcome to Kitwek Victoria
                 </h1>
               </div>
@@ -150,6 +150,7 @@ export default function Home() {
                     create spaces for connection, cultural celebration, and
                     personal growth, fostering a strong support system that
                     enhances both physical and mental wellness.
+                    
                   </p>
                 </div>
               </div>
