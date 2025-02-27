@@ -183,7 +183,7 @@ export default function Home() {
                   src={"/ui-assets/sporting-team.png"}
                   height={693}
                   width={624}
-                  className="w-full min-w-[280px] max-w-[624px]"
+                  className="w-full min-w-[280px] max-w-[624px] rounded-lg"
                   alt="Kitwek Victoria | Australia South | Kitwek Victoria fosters cultural preservation, social empowerment, and economic advancement for the Kalenjin community in Victoria, Australia. Join us in promoting heritage, education, and integration within Australian society"
                 />
               </div>
@@ -202,7 +202,7 @@ export default function Home() {
                   src={"/ui-assets/mentorship.png"}
                   height={693}
                   width={624}
-                  className="w-full min-w-[280px] max-w-[624px]"
+                  className="w-full min-w-[280px] max-w-[624px] rounded-lg"
                   alt="Kitwek Victoria | Australia South | Kitwek Victoria fosters cultural preservation, social empowerment, and economic advancement for the Kalenjin community in Victoria, Australia. Join us in promoting heritage, education, and integration within Australian society"
                 />
               </div>
