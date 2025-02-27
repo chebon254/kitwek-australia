@@ -59,7 +59,7 @@ export const sendWelcomeEmail = async (email: string, username: string) => {
             <h2>Hello ${username}!</h2>
             <p>Thank you for joining our platform. We're excited to have you as part of our community!</p>
             <p>To complete your membership and unlock all features, please activate your account by clicking the button below:</p>
-            <a href="${process.env.NEXT_PUBLIC_URL}/dashboard/membership" class="button">
+            <a href="${process.env.NEXT_PUBLIC_URL}/dashboard/membership" style="color: #FFFFFF !important;" class="button">
               Activate Membership
             </a>
             <p>If you have any questions or need assistance, don't hesitate to reach out to our support team.</p>
@@ -161,7 +161,7 @@ export const sendTicketEmail = async (
 
             <p>Please keep this email for your records. You'll need to show your ticket (either printed or on your mobile device) at the event.</p>
             
-            <a href="${process.env.NEXT_PUBLIC_URL}/tickets" class="button">
+            <a href="${process.env.NEXT_PUBLIC_URL}/tickets" style="color: #FFFFFF !important;" class="button">
               View My Tickets
             </a>
 
@@ -266,7 +266,7 @@ export const sendDonationEmail = async (
 
             <p style="text-align: center;" class="heart">❤️</p>
 
-            <a href="${process.env.NEXT_PUBLIC_URL}/donations" class="button" style="display: block; text-align: center;">
+            <a href="${process.env.NEXT_PUBLIC_URL}/donations" class="button" style="color: #FFFFFF !important; display: block; text-align: center;">
               Support More Causes
             </a>
 
