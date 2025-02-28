@@ -8,12 +8,12 @@ import { stripe } from '@/lib/stripe';
 const MEMBERSHIP_PRICE = 'price_1Qtp4DGUzorFIpd8Hn5t0Ed9'; // $30 one-time payment
 const SUBSCRIPTION_PRICES = {
   Premium: {
-    monthly: 'price_1Qtp4jGUzorFIpd8HbTx1ZHy', // $4.99/month
-    annual: 'price_1QtpbAGUzorFIpd8q15yvVaf',  // $49.99/year
+    monthly: 'price_1QxcjD01IgH6xBSRgGKtqEeC', // $3/month
+    annual: 'price_1QxcIO01IgH6xBSRqv8oFNOa',  // $30/year
   },
   VIP: {
-    monthly: 'price_1Qtp5BGUzorFIpd8a6yfozQs', // $9.99/month
-    annual: 'price_1QtpeIGUzorFIpd8MV3D450x',  // $99.99/year
+    monthly: 'price_1Qxcmb01IgH6xBSRjI0j2IdJ', // $5/month
+    annual: 'price_1QxcGm01IgH6xBSRi6o1VaHV',  // $50/year
   },
 } as const;
 
