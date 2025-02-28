@@ -47,7 +47,7 @@ export default function Home() {
         {/* Banner with zoom animation */}
         <div className="w-full h-screen relative overflow-hidden">
           <motion.div
-            className="w-full z-10 absolute top-0 h-screen bg-[url(/ui-assets/shade.jpeg)] bg-center bg-cover bg-no-repeat"
+            className="w-full z-10 absolute top-0 h-screen bg-[url(/ui-assets/shade.png)] bg-center bg-cover bg-no-repeat"
             animate={{ scale: bannerScale }}
             transition={{ duration: 10, ease: "easeInOut" }}
           ></motion.div>

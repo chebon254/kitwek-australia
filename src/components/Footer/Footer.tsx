@@ -17,7 +17,9 @@ function Footer() {
             />
           </div>
           <div className="m-1">
-            <h2 className="font-bold text-xl leading-6 text-black mb-2">Menu</h2>
+            <h2 className="font-bold text-xl leading-6 text-black mb-2">
+              Menu
+            </h2>
             <div className="">
               <Link
                 href={""}
@@ -50,24 +52,9 @@ function Footer() {
             </div>
           </div>
           <div className="m-1">
-            <div className="h-[312px] w-[320px] rounded-lg bg-[url(/ui-assets/radio-image.png)] bg-cover bg-no-repeat overflow-hidden">
-              <div className="bg-[#ed6868cb] h-full w-full p-4 ">
-                <h1 className="text-white font-bold text-xl leading-6 mb-4">Kalenjin Radio</h1>
-                <p className="text-white font-bold text-base leading-6 mb-4 font-[family-name:var(--font-lora-sans)]">Tune in every Sunday 10:30 PM to Midnight</p>
-                <div className="w-full flex items-center justify-center h-48">
-                  <Image
-                    src={"/ui-assets/play-button.png"}
-                    height={96}
-                    width={96}
-                    className="w-[96px] h-[96px] align-middle"
-                    alt="Kitwek Victoria | Australia South | Kitwek Victoria fosters cultural preservation, social empowerment, and economic advancement for the Kalenjin community in Victoria, Australia. Join us in promoting heritage, education, and integration within Australian society"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="m-1">
-            <h2 className="font-bold text-xl leading-6 text-black mb-2">Programs</h2>
+            <h2 className="font-bold text-xl leading-6 text-black mb-2">
+              Programs
+            </h2>
             <div className="">
               <Link
                 href={""}
@@ -93,10 +80,17 @@ function Footer() {
             </div>
           </div>
           <div className="m-1">
-            <h2 className="font-bold text-xl leading-6 text-black mb-2">Membership</h2>
+            <h2 className="font-bold text-xl leading-6 text-black mb-2">
+              Membership
+            </h2>
             <div className="bg-[#ED6868] rounded-lg p-10 w-[312px]">
-              <h3 className="text-white font-bold text-xl leading-6 mb-4">Thinking of being a member?</h3>
-              <Link href={"/sign-up"} className="bg-white rounded-lg h-14 px-10 py-4 mt-4 w-60 outline-none text-xl text-black leading-6 font-bold">
+              <h3 className="text-white font-bold text-xl leading-6 mb-4">
+                Thinking of being a member?
+              </h3>
+              <Link
+                href={"/sign-up"}
+                className="bg-white rounded-lg h-14 px-10 py-4 mt-4 w-60 outline-none text-xl text-black leading-6 font-bold"
+              >
                 Join us today
               </Link>
             </div>
