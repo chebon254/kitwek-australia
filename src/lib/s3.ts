@@ -5,7 +5,7 @@ if (!process.env.DO_SPACES_KEY || !process.env.DO_SPACES_SECRET || !process.env.
 }
 
 export const s3Client = new S3Client({
-  region: 'us-east-1', // DigitalOcean Spaces default region
+  region: 'blr1', // DigitalOcean Spaces default region
   endpoint: `https://${process.env.DO_SPACES_ENDPOINT}`,
   credentials: {
     accessKeyId: process.env.DO_SPACES_KEY,
