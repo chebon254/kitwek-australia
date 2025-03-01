@@ -25,7 +25,7 @@ const plans: SubscriptionPlan[] = [
   },
   {
     name: "Premium",
-    monthlyPrice: 2.5,
+    monthlyPrice: 3,
     yearlyPrice: 30,
     features: [
       "All Free features",
@@ -38,7 +38,7 @@ const plans: SubscriptionPlan[] = [
   },
   {
     name: "VIP",
-    monthlyPrice: 4,
+    monthlyPrice: 5,
     yearlyPrice: 50,
     features: [
       "All Premium features",
@@ -172,7 +172,7 @@ function Subscription() {
                   yearlyBilling ? "text-gray-900" : "text-gray-500"
                 }`}
               >
-                Yearly <span className="text-green-500">(Save up to 20%)</span>
+                Yearly <span className="text-green-500">(Save up to 17%)</span>
               </span>
             </div>
           </div>
