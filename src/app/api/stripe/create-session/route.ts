@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
 
 // Fixed price IDs for membership and subscriptions
-const MEMBERSHIP_PRICE = 'price_1Qtp4DGUzorFIpd8Hn5t0Ed9'; // $30 one-time payment
+const MEMBERSHIP_PRICE = 'price_1QxcJN01IgH6xBSRVyVFvNqV'; // $30 one-time payment
 const SUBSCRIPTION_PRICES = {
   Premium: {
     monthly: 'price_1QxcjD01IgH6xBSRgGKtqEeC', // $3/month
