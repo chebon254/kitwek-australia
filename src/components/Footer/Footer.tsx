@@ -7,7 +7,7 @@ function Footer() {
     <div className="w-full">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-start justify-evenly flex-wrap py-20">
-          <div className="m-1 min-w-[280px]">
+          <div className="m-1 my-4 min-w-[280px]">
             <Image
               src={"/ui-assets/logo.png"}
               height={150}
@@ -16,7 +16,7 @@ function Footer() {
               alt="Kitwek Victoria | Australia South | Kitwek Victoria fosters cultural preservation, social empowerment, and economic advancement for the Kalenjin community in Victoria, Australia. Join us in promoting heritage, education, and integration within Australian society"
             />
           </div>
-          <div className="m-1 min-w-[280px]">
+          <div className="m-1 my-4 min-w-[280px]">
             <h2 className="font-bold text-xl leading-6 text-black mb-2">
               Menu
             </h2>
@@ -44,7 +44,7 @@ function Footer() {
               <br />
             </div>
           </div>
-          <div className="m-1 min-w-[280px]">
+          <div className="m-1 my-4 min-w-[280px]">
             <h2 className="font-bold text-xl leading-6 text-black mb-2">
               Programs
             </h2>
@@ -72,7 +72,7 @@ function Footer() {
               <br />
             </div>
           </div>
-          <div className="m-1 min-w-[280px]">
+          <div className="m-1 my-4 min-w-[280px]">
             <h2 className="font-bold text-xl leading-6 text-black mb-2">
               Membership
             </h2>
