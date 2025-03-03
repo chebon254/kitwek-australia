@@ -64,7 +64,8 @@ function Subscription() {
   const [currentPlan, setCurrentPlan] = useState("");
   const [loading, setLoading] = useState(true);
   // Set yearlyBilling to true by default and don't expose a toggle
-  const [yearlyBilling, setYearlyBilling] = useState(true);
+  // const [yearlyBilling, setYearlyBilling] = useState(true);
+  const [yearlyBilling] = useState(true);
   const [processingPlan, setProcessingPlan] = useState("");
 
   useEffect(() => {
