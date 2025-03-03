@@ -6,15 +6,15 @@ import { stripe } from '@/lib/stripe';
 
 // Fixed price IDs for membership and subscriptions
 // const MEMBERSHIP_PRICE = 'price_1QxcJN01IgH6xBSRVyVFvNqV'; // $30 one-time payment
-const MEMBERSHIP_PRICE = 'price_1QyJgo04YgkEMOrNVvWh5mnx'; // $30 one-time payment
+const MEMBERSHIP_PRICE = 'price_1QyJgo04YgkEMOrNVvWh5mnx '; // $30 one-time payment
 const SUBSCRIPTION_PRICES = {
   Premium: {
-    monthly: 'price_1QxcjD01IgH6xBSRgGKtqEeC', // $3/month
-    annual: 'price_1QxcIO01IgH6xBSRqv8oFNOa',  // $30/year
+    monthly: 'price_1QySd004YgkEMOrN7RDLQ4Mr', // $3/month
+    annual: 'price_1QySd004YgkEMOrN7RDLQ4Mr',  // $30/year
   },
   VIP: {
-    monthly: 'price_1Qxcmb01IgH6xBSRjI0j2IdJ', // $5/month
-    annual: 'price_1QxcGm01IgH6xBSRi6o1VaHV',  // $50/year
+    monthly: 'price_1QySd004YgkEMOrN7RDLQ4Mr', // $5/month
+    annual: 'price_1QySd004YgkEMOrN7RDLQ4Mr',  // $50/year
   },
 } as const;
 

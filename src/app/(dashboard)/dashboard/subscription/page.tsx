@@ -63,7 +63,8 @@ function Subscription() {
   const searchParams = useSearchParams();
   const [currentPlan, setCurrentPlan] = useState("");
   const [loading, setLoading] = useState(true);
-  const [yearlyBilling, setYearlyBilling] = useState(false);
+  // Set yearlyBilling to true by default and don't expose a toggle
+  const [yearlyBilling, setYearlyBilling] = useState(true);
   const [processingPlan, setProcessingPlan] = useState("");
 
   useEffect(() => {
@@ -140,41 +141,13 @@ function Subscription() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-12">
             <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-              Choose Your Plan
+              Choose Your Annual Plan
             </h1>
             <p className="mt-4 text-xl text-gray-500">
-              Select the perfect plan for your needs
+              Select the perfect yearly subscription for your needs
             </p>
 
-            {/* Billing Toggle */}
-            <div className="mt-6 flex items-center justify-center gap-3">
-              <span
-                className={`text-sm ${
-                  !yearlyBilling ? "text-gray-900" : "text-gray-500"
-                }`}
-              >
-                Monthly
-              </span>
-              <button
-                onClick={() => setYearlyBilling(!yearlyBilling)}
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  yearlyBilling ? "bg-indigo-600" : "bg-gray-200"
-                }`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                    yearlyBilling ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </button>
-              <span
-                className={`text-sm ${
-                  yearlyBilling ? "text-gray-900" : "text-gray-500"
-                }`}
-              >
-                Yearly <span className="text-green-500">(Save up to 17%)</span>
-              </span>
-            </div>
+            {/* Remove the billing toggle UI but keep the state */}
           </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
@@ -201,12 +174,10 @@ function Subscription() {
                   </h2>
                   <p className="mt-4">
                     <span className="text-4xl font-bold text-gray-900">
-                      ${yearlyBilling ? plan.yearlyPrice : plan.monthlyPrice}
+                      ${plan.yearlyPrice}
                     </span>
-                    {plan.monthlyPrice > 0 && (
-                      <span className="text-gray-500">
-                        /{yearlyBilling ? "year" : "month"}
-                      </span>
+                    {plan.yearlyPrice > 0 && (
+                      <span className="text-gray-500">/year</span>
                     )}
                   </p>
 
