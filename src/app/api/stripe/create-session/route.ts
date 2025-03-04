@@ -132,7 +132,7 @@ export async function POST(request: Request) {
         } catch (customerRetrieveError) {
           // If customer not found, create a new one
           console.warn(
-            "Existing Stripe customer not found, creating new customer"
+            "Existing Stripe customer not found, creating new customer: ", customerRetrieveError
           );
           const customer = await stripe.customers.create({
             email: user.email,

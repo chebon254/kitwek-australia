@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { cookies } from 'next/headers';
 
 const PUBLIC_PATHS = ['/', '/about-us', '/contact-us', '/donations', '/sign-in', '/sign-up', '/reset-password', '/events', '/tickets'];
 const PUBLIC_PATH_PREFIXES = ['/ui-assets/', '/favicon/']; // Paths that should be public including all their subpaths
