@@ -96,6 +96,7 @@ export default function Home() {
         });
       }
     } catch (error) {
+      console.log(error)
       setSubmitStatus({
         success: false,
         message: "An error occurred. Please try again later.",
