@@ -77,12 +77,14 @@ function Footer() {
               Membership
             </h2>
             <div className="bg-[#ED6868] rounded-lg p-10 w-[312px]">
-              <h3 className="text-white font-bold text-xl leading-6 mb-4">
+              <h3 className="text-white font-bold text-xl leading-6 ">
                 Thinking of being a member?
               </h3>
+              <br />
+              <br />
               <Link
                 href={"/sign-up"}
-                className="bg-white rounded-lg h-14 px-10 py-4 mt-4 w-60 outline-none text-xl text-black leading-6 font-bold"
+                className="bg-white rounded-lg h-14 px-10 py-4 w-60 outline-none text-xl text-black leading-6 font-bold"
               >
                 Join us today
               </Link>

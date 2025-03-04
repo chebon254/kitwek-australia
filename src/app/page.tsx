@@ -4,10 +4,21 @@ import Footer from "@/components/Footer/Footer";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import { useEffect, useState } from "react";
+import { useEffect, useState, FormEvent } from "react";
 
 export default function Home() {
   const [bannerScale, setBannerScale] = useState(1);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
 
   // Scroll reveal hooks
   const [missionRef, missionInView] = useInView({
@@ -39,6 +50,59 @@ export default function Home() {
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setSubmitStatus({
+          success: true,
+          message: "Your message has been sent successfully!",
+        });
+        // Reset form after successful submission
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        setSubmitStatus({
+          success: false,
+          message: result.error || "Failed to send message. Please try again.",
+        });
+      }
+    } catch (error) {
+      setSubmitStatus({
+        success: false,
+        message: "An error occurred. Please try again later.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -150,7 +214,6 @@ export default function Home() {
                     create spaces for connection, cultural celebration, and
                     personal growth, fostering a strong support system that
                     enhances both physical and mental wellness.
-                    
                   </p>
                 </div>
               </div>
@@ -236,12 +299,23 @@ export default function Home() {
           >
             <div className="min-w-[280px] max-w-[760px] w-full rounded-[8px] overflow-hidden bg-[#ED6868] bg-[url(/ui-assets/star.png)] bg-cover bg-no-repeat">
               <div className="h-full w-full bg-[#ed68687e] p-5 md:p-10">
-                <form className="h-full w-full">
+                <form onSubmit={handleSubmit} className="h-full w-full">
                   <div className="p-0">
                     <h1 className="mb-5 text-2xl md:text-4xl text-white font-bold">
                       Get in touch with us today
                     </h1>
                   </div>
+                  {submitStatus && (
+                    <div
+                      className={`mb-4 p-3 rounded ${
+                        submitStatus.success
+                          ? "bg-green-500 text-white"
+                          : "bg-red-500 text-white"
+                      }`}
+                    >
+                      {submitStatus.message}
+                    </div>
+                  )}
                   <motion.div
                     className="py-5"
                     whileHover={{ scale: 1.02 }}
@@ -249,8 +323,12 @@ export default function Home() {
                   >
                     <input
                       type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
                       placeholder="Names"
-                      className="border-b-2 bg-transparent w-full placeholder:text-white text-xl font-bold outline-none py-[10px] text-white"
+                      required
+                      className="border-b-2 border-0 border-b-white bg-transparent w-full placeholder:text-white text-xl font-bold outline-none py-[10px] text-white focus:outline-none focus:border-0"
                     />
                   </motion.div>
                   <motion.div
@@ -259,9 +337,13 @@ export default function Home() {
                     transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   >
                     <input
-                      type="text"
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
                       placeholder="Email Address"
-                      className="border-b-2 bg-transparent w-full placeholder:text-white text-xl font-bold outline-none py-[10px] text-white"
+                      required
+                      className="border-b-2 border-0 border-b-white bg-transparent w-full placeholder:text-white text-xl font-bold outline-none py-[10px] text-white focus:outline-none focus:border-0"
                     />
                   </motion.div>
                   <motion.div
@@ -271,8 +353,12 @@ export default function Home() {
                   >
                     <input
                       type="text"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleInputChange}
                       placeholder="Subject"
-                      className="border-b-2 bg-transparent w-full placeholder:text-white text-xl font-bold outline-none py-[10px] text-white"
+                      required
+                      className="border-b-2 border-0 border-b-white bg-transparent w-full placeholder:text-white text-xl font-bold outline-none py-[10px] text-white focus:outline-none focus:border-0"
                     />
                   </motion.div>
                   <motion.div
@@ -282,18 +368,22 @@ export default function Home() {
                   >
                     <textarea
                       name="message"
-                      id="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
                       placeholder="Your Message (Optional)"
-                      className="border-b-2 bg-transparent h-[200px] w-full placeholder:text-white text-xl font-bold outline-none py-[10px] text-white"
+                      className="border-b-2 border-0 border-b-white bg-transparent h-[200px] w-full placeholder:text-white text-xl font-bold outline-none py-[10px] text-white focus:outline-none focus:border-0"
                     ></textarea>
                   </motion.div>
-                  {/* Similar motion.div wrapper for other form elements */}
                   <motion.button
-                    className="bg-white rounded-lg h-14 w-full md:w-60 outline-none text-xl text-black leading-6 font-bold mt-8"
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={`bg-white rounded-lg h-14 w-full md:w-60 outline-none text-xl text-black leading-6 font-bold mt-8 ${
+                      isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    Get in touch
+                    {isSubmitting ? "Sending..." : "Get in touch"}
                   </motion.button>
                 </form>
               </div>

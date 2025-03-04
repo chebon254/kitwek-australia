@@ -296,3 +296,76 @@ export const sendDonationEmail = async (
     html,
   });
 };
+
+
+
+export const sendContactEmail = async (data: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}) => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            background-color: #4F46E5;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+          }
+          .content {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0 0 8px 8px;
+          }
+          .contact-details {
+            background-color: #f3f4f6;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>New Contact Form Submission</h1>
+          </div>
+          <div class="content">
+            <div class="contact-details">
+              <p><strong>Name:</strong> ${data.name}</p>
+              <p><strong>Email:</strong> ${data.email}</p>
+              <p><strong>Subject:</strong> ${data.subject}</p>
+            </div>
+            
+            <h2>Message:</h2>
+            <p>${data.message || 'No additional message provided'}</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  await transporter.sendMail({
+    from: process.env.SMTP_USER,
+    to: 'info@kitwekvictoria.org',
+    subject: `Contact Form: ${data.subject}`,
+    html,
+    replyTo: data.email
+  });
+};
