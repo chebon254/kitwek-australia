@@ -7,7 +7,7 @@ function Footer() {
     <div className="w-full">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-start justify-evenly flex-wrap py-20">
-          <div className="m-1">
+          <div className="m-1 my-4 min-w-[280px]">
             <Image
               src={"/ui-assets/logo.png"}
               height={150}
@@ -16,42 +16,35 @@ function Footer() {
               alt="Kitwek Victoria | Australia South | Kitwek Victoria fosters cultural preservation, social empowerment, and economic advancement for the Kalenjin community in Victoria, Australia. Join us in promoting heritage, education, and integration within Australian society"
             />
           </div>
-          <div className="m-1">
+          <div className="m-1 my-4 min-w-[280px]">
             <h2 className="font-bold text-xl leading-6 text-black mb-2">
               Menu
             </h2>
             <div className="">
               <Link
-                href={""}
+                href={"/about-us"}
                 className="w-full py-[5px] font-normal hover:text-[#2C2C2C] text-xl leading-6 text-black"
               >
                 About Us
               </Link>
               <br />
               <Link
-                href={""}
+                href={"/events"}
                 className="w-full py-[5px] font-normal hover:text-[#2C2C2C] text-xl leading-6 text-black"
               >
                 Events
               </Link>
               <br />
               <Link
-                href={""}
+                href={"/donations"}
                 className="w-full py-[5px] font-normal hover:text-[#2C2C2C] text-xl leading-6 text-black"
               >
-                Members
-              </Link>
-              <br />
-              <Link
-                href={""}
-                className="w-full py-[5px] font-normal hover:text-[#2C2C2C] text-xl leading-6 text-black"
-              >
-                Radio
+                Donations
               </Link>
               <br />
             </div>
           </div>
-          <div className="m-1">
+          <div className="m-1 my-4 min-w-[280px]">
             <h2 className="font-bold text-xl leading-6 text-black mb-2">
               Programs
             </h2>
@@ -64,7 +57,7 @@ function Footer() {
               </Link>
               <br />
               <Link
-                href={""}
+                href={"/events"}
                 className="w-full py-[5px] font-normal hover:text-[#2C2C2C] text-xl leading-6 text-black"
               >
                 Events
@@ -79,7 +72,7 @@ function Footer() {
               <br />
             </div>
           </div>
-          <div className="m-1">
+          <div className="m-1 my-4 min-w-[280px]">
             <h2 className="font-bold text-xl leading-6 text-black mb-2">
               Membership
             </h2>
