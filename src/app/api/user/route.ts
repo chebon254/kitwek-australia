@@ -1,17 +1,20 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { adminAuth } from '@/lib/firebase-admin';
-import { prisma } from '@/lib/prisma';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { adminAuth } from "@/lib/firebase-admin";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const session = (await cookies()).get('session');
+    const session = (await cookies()).get("session");
 
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Session Unauthorized" }, { status: 401 });
     }
 
-    const decodedClaims = await adminAuth.verifySessionCookie(session.value, true);
+    const decodedClaims = await adminAuth.verifySessionCookie(
+      session.value,
+      true
+    );
     const user = await prisma.user.findUnique({
       where: { email: decodedClaims.email },
       select: {
@@ -31,14 +34,14 @@ export async function GET() {
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     return NextResponse.json(user);
   } catch (error) {
-    console.error('User fetch error:', error);
+    console.error("User fetch error:", error);
     return NextResponse.json(
-      { error: 'Error fetching user data' },
+      { error: "Error fetching user data" },
       { status: 500 }
     );
   }
