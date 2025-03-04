@@ -34,13 +34,15 @@ export async function POST(request: Request) {
           data: { membershipStatus: 'ACTIVE' },
         });
       } else if (type === 'subscription') {
-        const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+        // const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+        const planName = session.metadata?.planName || 'Premium';
         
+        // Make sure we use the plan name from the metadata
         await prisma.user.update({
           where: { stripeCustomerId: session.customer as string },
           data: {
             membershipStatus: 'ACTIVE',
-            subscription: subscription.items.data[0].price.nickname || 'Premium',
+            subscription: planName,
           },
         });
       } else if (type === 'ticket') {

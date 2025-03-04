@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { cookies } from 'next/headers';
 
 const PUBLIC_PATHS = ['/', '/about-us', '/contact-us', '/donations', '/sign-in', '/sign-up', '/reset-password', '/events', '/tickets'];
 const PUBLIC_PATH_PREFIXES = ['/ui-assets/', '/favicon/']; // Paths that should be public including all their subpaths
@@ -29,6 +30,23 @@ export async function middleware(request: NextRequest) {
     const signInUrl = new URL('/sign-in', request.url);
     signInUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(signInUrl);
+  }
+
+  // Skip storing paths that are API routes, static files, or the 404 page itself
+  if (!pathname.startsWith('/api/') && 
+      !pathname.includes('.') && 
+      pathname !== '/not-found' &&
+      pathname !== '/404') {
+    
+    const response = NextResponse.next();
+    response.cookies.set('lastVisitedPath', pathname, { 
+      path: '/',
+      maxAge: 60 * 60, // 1 hour
+      httpOnly: true,
+      sameSite: 'strict'
+    });
+    
+    return response;
   }
 
   return NextResponse.next();

@@ -112,7 +112,7 @@ export default function Navbar({ className }: NavbarProps) {
                       >
                         {user.profileImage ? (
                           <Image
-                            src={user.profileImage}
+                            src={user.profileImage || '/ui-assets/avatar.webp'}
                             alt="Profile"
                             width={40}
                             height={40}

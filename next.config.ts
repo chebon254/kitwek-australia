@@ -1,9 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
-    domains: ['kitwek-victoria-files.blr1.digitaloceanspaces.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'kitwek-victoria-files.blr1.digitaloceanspaces.com',
+        port: '',
+        pathname: '/**',
+      }
+    ],
   },
 };
 

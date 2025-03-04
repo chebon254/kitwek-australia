@@ -5,8 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
 
 // Fixed price IDs for membership and subscriptions
-// const MEMBERSHIP_PRICE = 'price_1QxcJN01IgH6xBSRVyVFvNqV'; // $30 one-time payment
-const MEMBERSHIP_PRICE = 'price_1QyJgo04YgkEMOrNVvWh5mnx '; // $30 one-time payment
+const MEMBERSHIP_PRICE = 'price_1QxcJN01IgH6xBSRVyVFvNqV'; // $30 one-time payment
 const SUBSCRIPTION_PRICES = {
   Premium: {
     monthly: 'price_1QySd004YgkEMOrN7RDLQ4Mr', // $3/month
@@ -17,6 +16,17 @@ const SUBSCRIPTION_PRICES = {
     annual: 'price_1QySd004YgkEMOrN7RDLQ4Mr',  // $50/year
   },
 } as const;
+// const MEMBERSHIP_PRICE = 'price_1Qtp4DGUzorFIpd8Hn5t0Ed9'; // $30 one-time payment
+// const SUBSCRIPTION_PRICES = {
+//   Premium: {
+//     monthly: 'price_1Qtp4jGUzorFIpd8HbTx1ZHy', // $3/month
+//     annual: 'price_1QtpbAGUzorFIpd8q15yvVaf',  // $30/year
+//   },
+//   VIP: {
+//     monthly: 'price_1Qtp5BGUzorFIpd8a6yfozQs', // $5/month
+//     annual: 'price_1QtpeIGUzorFIpd8MV3D450x',  // $50/year
+//   },
+// } as const;
 
 type PlanName = keyof typeof SUBSCRIPTION_PRICES;
 type BillingCycle = keyof typeof SUBSCRIPTION_PRICES[PlanName];
@@ -151,17 +161,22 @@ export async function POST(request: Request) {
       }
 
       // Check if user already has an active subscription
-      const existingSubscription = await stripe.subscriptions.list({
+      const existingSubscriptions = await stripe.subscriptions.list({
         customer: stripeCustomerId,
         status: 'active',
-        limit: 1,
       });
 
-      if (existingSubscription.data.length > 0) {
-        return NextResponse.json(
-          { error: 'You already have an active subscription' },
-          { status: 400 }
-        );
+      // Cancel existing subscriptions if switching plans
+      if (existingSubscriptions.data.length > 0) {
+        for (const subscription of existingSubscriptions.data) {
+          await stripe.subscriptions.cancel(subscription.id);
+        }
+        
+        // Update user record to Free before creating new subscription
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { subscription: 'Free' },
+        });
       }
 
       const session = await stripe.checkout.sessions.create({

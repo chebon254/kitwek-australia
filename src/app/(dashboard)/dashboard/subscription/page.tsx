@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 
 interface SubscriptionPlan {
   name: string;
-  monthlyPrice: number;
   yearlyPrice: number;
   features: string[];
   highlight?: boolean;
@@ -14,7 +13,6 @@ interface SubscriptionPlan {
 const plans: SubscriptionPlan[] = [
   {
     name: "Free",
-    monthlyPrice: 0,
     yearlyPrice: 0,
     features: [
       "Basic member features",
@@ -25,7 +23,6 @@ const plans: SubscriptionPlan[] = [
   },
   {
     name: "Premium",
-    monthlyPrice: 3,
     yearlyPrice: 30,
     features: [
       "All Free features",
@@ -38,7 +35,6 @@ const plans: SubscriptionPlan[] = [
   },
   {
     name: "VIP",
-    monthlyPrice: 5,
     yearlyPrice: 50,
     features: [
       "All Premium features",
@@ -63,24 +59,23 @@ function Subscription() {
   const searchParams = useSearchParams();
   const [currentPlan, setCurrentPlan] = useState("");
   const [loading, setLoading] = useState(true);
-  // Set yearlyBilling to true by default and don't expose a toggle
-  // const [yearlyBilling, setYearlyBilling] = useState(true);
-  const [yearlyBilling] = useState(true);
   const [processingPlan, setProcessingPlan] = useState("");
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [planToSwitch, setPlanToSwitch] = useState("");
+
+  const fetchSubscription = async () => {
+    try {
+      const response = await fetch("/api/user/membership");
+      const data = await response.json();
+      setCurrentPlan(data.subscription);
+    } catch (error) {
+      console.error("Error fetching subscription:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchSubscription = async () => {
-      try {
-        const response = await fetch("/api/user/membership");
-        const data = await response.json();
-        setCurrentPlan(data.subscription);
-      } catch (error) {
-        console.error("Error fetching subscription:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchSubscription();
 
     // Handle success/cancel messages
@@ -88,8 +83,9 @@ function Subscription() {
     const canceled = searchParams.get("canceled");
 
     if (success === "true") {
-      // Show success message
+      // Show success message and refresh subscription data
       console.log("Subscription successful!");
+      fetchSubscription();
     } else if (canceled === "true") {
       // Show canceled message
       console.log("Subscription canceled.");
@@ -101,6 +97,18 @@ function Subscription() {
       return;
     }
 
+    // If user already has a subscription, show cancel confirmation
+    if (currentPlan !== "Free" && currentPlan !== "") {
+      setPlanToSwitch(planName);
+      setShowCancelModal(true);
+      return;
+    }
+
+    // Otherwise proceed with subscription
+    proceedWithSubscription(planName);
+  };
+
+  const proceedWithSubscription = async (planName: string) => {
     setProcessingPlan(planName);
     try {
       const response = await fetch("/api/stripe/create-session", {
@@ -109,7 +117,7 @@ function Subscription() {
         body: JSON.stringify({
           type: "subscription",
           planName,
-          billingCycle: yearlyBilling ? "annual" : "monthly",
+          billingCycle: "annual", // Only annual billing now
         }),
       });
 
@@ -121,6 +129,30 @@ function Subscription() {
       console.error("Error creating subscription:", error);
     } finally {
       setProcessingPlan("");
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    setProcessingPlan(currentPlan);
+    try {
+      const response = await fetch("/api/user/cancel-subscription", {
+        method: "POST",
+      });
+      
+      if (response.ok) {
+        // If we're switching plans, proceed with new subscription
+        if (planToSwitch) {
+          await proceedWithSubscription(planToSwitch);
+        } else {
+          // Otherwise just update the UI to show Free plan
+          setCurrentPlan("Free");
+        }
+      }
+    } catch (error) {
+      console.error("Error canceling subscription:", error);
+    } finally {
+      setProcessingPlan("");
+      setShowCancelModal(false);
     }
   };
 
@@ -142,29 +174,28 @@ function Subscription() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-12">
             <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-              Choose Your Annual Plan
+              Choose Your Plan
             </h1>
             <p className="mt-4 text-xl text-gray-500">
-              Select the perfect yearly subscription for your needs
+              Select the perfect plan for your needs
             </p>
-
-            {/* Remove the billing toggle UI but keep the state */}
           </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
             {plans.map((plan) => (
               <div
                 key={plan.name}
-                className={`rounded-lg shadow-lg divide-y divide-gray-200 ${
+                className={`rounded-lg shadow-lg relative divide-y divide-gray-200 ${
                   plan.highlight
                     ? "border-2 border-indigo-500 relative"
                     : "border border-gray-200"
                 }`}
               >
-                {plan.highlight && (
-                  <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-                      Popular
+                {/* Current Plan Tag */}
+                {plan.name === currentPlan && (
+                  <div className="absolute top-0 right-0 mt-4 mr-4">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                      Current Plan
                     </span>
                   </div>
                 )}
@@ -203,31 +234,74 @@ function Subscription() {
                     ))}
                   </ul>
 
-                  <button
-                    onClick={() => handleSubscribe(plan.name)}
-                    disabled={
-                      plan.name === currentPlan || processingPlan === plan.name
-                    }
-                    className={`mt-8 w-full px-4 py-2 rounded-md text-sm font-medium ${
-                      plan.name === currentPlan
-                        ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-                        : plan.highlight
-                        ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                        : "bg-white text-indigo-600 border border-indigo-600 hover:bg-indigo-50"
-                    }`}
-                  >
-                    {processingPlan === plan.name
-                      ? "Processing..."
-                      : plan.name === currentPlan
-                      ? "Current Plan"
-                      : "Subscribe"}
-                  </button>
+                  {plan.name === "Free" ? (
+                    // Free plan button - only show outline if it's the current plan
+                    currentPlan === "Free" ? (
+                      <div className="mt-8 w-full px-4 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-500 cursor-not-allowed text-center">
+                        Current Plan
+                      </div>
+                    ) : null
+                  ) : plan.name === currentPlan ? (
+                    // Cancel subscription button for current paid plan
+                    <button
+                      onClick={() => setShowCancelModal(true)}
+                      disabled={processingPlan === currentPlan}
+                      className="mt-8 w-full px-4 py-2 rounded-md text-sm font-medium bg-red-600 text-white hover:bg-red-700"
+                    >
+                      {processingPlan === currentPlan
+                        ? "Processing..."
+                        : "Cancel Subscription"}
+                    </button>
+                  ) : (
+                    // Subscribe button for other plans
+                    <button
+                      onClick={() => handleSubscribe(plan.name)}
+                      disabled={processingPlan === plan.name}
+                      className={`mt-8 w-full px-4 py-2 rounded-md text-sm font-medium ${
+                        plan.highlight
+                          ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                          : "bg-white text-indigo-600 border border-indigo-600 hover:bg-indigo-50"
+                      }`}
+                    >
+                      {processingPlan === plan.name
+                        ? "Processing..."
+                        : "Subscribe"}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      {/* Cancel Subscription Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full">
+            <h3 className="text-xl font-bold mb-4">Cancel Current Subscription</h3>
+            <p className="mb-6">
+              {planToSwitch 
+                ? `Are you sure you want to switch from ${currentPlan} to ${planToSwitch}? You will not receive a refund for the current billing period.` 
+                : `Are you sure you want to cancel your ${currentPlan} subscription? You will not receive a refund for the current billing period.`}
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Keep Subscription
+              </button>
+              <button
+                onClick={handleCancelSubscription}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                {processingPlan ? "Processing..." : "Confirm Cancellation"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
