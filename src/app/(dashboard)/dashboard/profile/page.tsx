@@ -16,6 +16,7 @@ interface UserProfile {
   profileImage?: string;
   subscription: string;
   membershipStatus: string;
+  memberNumber?: string;
 }
 
 export default function Profile() {
@@ -107,6 +108,11 @@ export default function Profile() {
                   {profile.proffession && (
                     <p className="text-indigo-600 mt-1">
                       {profile.proffession}
+                    </p>
+                  )}
+                  {profile.memberNumber && (
+                    <p className="text-gray-700 mt-1 font-medium">
+                      Member #: {profile.memberNumber}
                     </p>
                   )}
                 </div>

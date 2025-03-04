@@ -3,6 +3,7 @@ import { adminAuth } from '@/lib/firebase-admin';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 import { sendWelcomeEmail } from '@/lib/nodemailer';
+import { generateMemberNumber } from '@/lib/memberNumber';
 
 export async function POST(request: Request) {
   try {
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
     // Check if user is revoked
     const existingUser = await prisma.user.findUnique({
       where: { email },
-      select: { revokeStatus: true, revokeReason: true }
+      select: { revokeStatus: true, revokeReason: true, memberNumber: true }
     });
 
     if (existingUser?.revokeStatus) {
@@ -29,6 +30,12 @@ export async function POST(request: Request) {
         error: 'Account revoked',
         reason: existingUser.revokeReason
       }, { status: 403 });
+    }
+
+    // Generate member number for new users
+    let memberNumber = existingUser?.memberNumber;
+    if (!existingUser) {
+      memberNumber = await generateMemberNumber();
     }
 
     // Create or update user in database
@@ -41,6 +48,7 @@ export async function POST(request: Request) {
         id: uid,
         email,
         username: username || email.split('@')[0], // Use email prefix as fallback username
+        memberNumber,
         membershipStatus: 'INACTIVE',
         subscription: 'Free'
       },
@@ -62,7 +70,9 @@ export async function POST(request: Request) {
     // Only send welcome email if this is a new user (check if the operation was a create)
     if (!existingUser) {
       try {
-        await sendWelcomeEmail(email, user.username || email);
+        // Convert null to undefined to satisfy TypeScript
+        const memberNumberForEmail = user.memberNumber || undefined;
+        await sendWelcomeEmail(email, user.username || email, memberNumberForEmail);
       } catch (error) {
         console.error('Error sending welcome email:', error);
         // Continue even if email fails

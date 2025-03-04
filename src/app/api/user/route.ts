@@ -26,6 +26,7 @@ export async function GET() {
         profileImage: true,
         membershipStatus: true,
         subscription: true,
+        memberNumber: true,
       },
     });
 

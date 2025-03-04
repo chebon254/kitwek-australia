@@ -10,7 +10,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendWelcomeEmail = async (email: string, username: string) => {
+export const sendWelcomeEmail = async (email: string, username: string, memberNumber?: string) => {
+  const memberInfo = memberNumber 
+    ? `<p>Your member number is: <strong>${memberNumber}</strong></p>`
+    : '';
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -58,6 +62,7 @@ export const sendWelcomeEmail = async (email: string, username: string) => {
           <div class="content">
             <h2>Hello ${username}!</h2>
             <p>Thank you for joining our platform. We're excited to have you as part of our community!</p>
+            ${memberInfo}
             <p>To complete your membership and unlock all features, please activate your account by clicking the button below:</p>
             <a href="${process.env.NEXT_PUBLIC_URL}/dashboard/membership" style="color: #FFFFFF !important;" class="button">
               Activate Membership
