@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -10,10 +10,14 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendWelcomeEmail = async (email: string, username: string, memberNumber?: string) => {
-  const memberInfo = memberNumber 
+export const sendWelcomeEmail = async (
+  email: string,
+  username: string,
+  memberNumber?: string
+) => {
+  const memberInfo = memberNumber
     ? `<p>Your member number is: <strong>${memberNumber}</strong></p>`
-    : '';
+    : "";
 
   const html = `
     <!DOCTYPE html>
@@ -78,7 +82,211 @@ export const sendWelcomeEmail = async (email: string, username: string, memberNu
   await transporter.sendMail({
     from: process.env.SMTP_USER,
     to: email,
-    subject: 'Welcome to Our Platform!',
+    subject: "Welcome to Our Platform!",
+    html,
+  });
+};
+
+export const sendMembershipConfirmationEmail = async (
+  email: string,
+  name: string
+) => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            background-color: #4F46E5;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+          }
+          .content {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0 0 8px 8px;
+          }
+          .payment-details {
+            background-color: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+          }
+          .button {
+            display: inline-block;
+            background-color: #4F46E5;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Membership Activated!</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${name}!</h2>
+            <p>Thank you for activating your membership. Your payment has been processed successfully!</p>
+            
+            <div class="payment-details">
+              <h3>Payment Details</h3>
+              <p><strong>Amount Paid:</strong> $30.00</p>
+              <p><strong>Type:</strong> One-time Membership Fee</p>
+              <p><strong>Status:</strong> Completed</p>
+            </div>
+
+            <p>You now have full access to all member features including:</p>
+            <ul>
+              <li>Access to member directory</li>
+              <li>Participation in forums</li>
+              <li>Access to events and activities</li>
+            </ul>
+
+            <a href="${process.env.NEXT_PUBLIC_URL}/dashboard" style="color: #FFFFFF !important;" class="button">
+              Go to Dashboard
+            </a>
+
+            <p>If you have any questions about your membership, please don't hesitate to contact our support team.</p>
+
+            <p>Best regards,<br>The Team</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  await transporter.sendMail({
+    from: process.env.SMTP_USER,
+    to: email,
+    subject: "Membership Successfully Activated!",
+    html,
+  });
+};
+
+export const sendSubscriptionConfirmationEmail = async (
+  email: string,
+  name: string,
+  plan: {
+    name: string;
+    amount: number;
+  }
+) => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            background-color: #4F46E5;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+          }
+          .content {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0 0 8px 8px;
+          }
+          .subscription-details {
+            background-color: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+          }
+          .button {
+            display: inline-block;
+            background-color: #4F46E5;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Subscription Confirmed!</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${name}!</h2>
+            <p>Thank you for subscribing to our ${plan.name} plan. Your subscription is now active!</p>
+            
+            <div class="subscription-details">
+              <h3>Subscription Details</h3>
+              <p><strong>Plan:</strong> ${plan.name}</p>
+              <p><strong>Amount:</strong> $${plan.amount.toFixed(2)}/year</p>
+              <p><strong>Status:</strong> Active</p>
+              <p><strong>Billing Cycle:</strong> Annual</p>
+            </div>
+
+            <p>Your ${plan.name} plan includes:</p>
+            ${plan.name === 'Premium' ? `
+            <ul>
+              <li>All Free features</li>
+              <li>Priority forum access</li>
+              <li>Early event registration</li>
+              <li>Exclusive content access</li>
+              <li>Premium badge</li>
+            </ul>
+            ` : `
+            <ul>
+              <li>All Premium features</li>
+              <li>VIP support</li>
+              <li>Event discounts</li>
+              <li>Featured member listing</li>
+              <li>Custom profile badge</li>
+              <li>Exclusive VIP events</li>
+            </ul>
+            `}
+
+            <a href="${process.env.NEXT_PUBLIC_URL}/dashboard" style="color: #FFFFFF !important;" class="button">
+              Go to Dashboard
+            </a>
+
+            <p>If you have any questions about your subscription, please don't hesitate to contact our support team.</p>
+
+            <p>Best regards,<br>The Team</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  await transporter.sendMail({
+    from: process.env.SMTP_USER,
+    to: email,
+    subject: `${plan.name} Subscription Activated!`,
     html,
   });
 };
@@ -297,8 +505,6 @@ export const sendDonationEmail = async (
   });
 };
 
-
-
 export const sendContactEmail = async (data: {
   name: string;
   email: string;
@@ -354,7 +560,7 @@ export const sendContactEmail = async (data: {
             </div>
             
             <h2>Message:</h2>
-            <p>${data.message || 'No additional message provided'}</p>
+            <p>${data.message || "No additional message provided"}</p>
           </div>
         </div>
       </body>
@@ -363,9 +569,9 @@ export const sendContactEmail = async (data: {
 
   await transporter.sendMail({
     from: process.env.SMTP_USER,
-    to: 'info@kitwekvictoria.org',
+    to: "info@kitwekvictoria.org",
     subject: `Contact Form: ${data.subject}`,
     html,
-    replyTo: data.email
+    replyTo: data.email,
   });
 };

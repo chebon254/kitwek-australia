@@ -2,7 +2,12 @@ import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
-import { sendTicketEmail, sendDonationEmail } from '@/lib/nodemailer';
+import { 
+  sendTicketEmail, 
+  sendDonationEmail, 
+  sendMembershipConfirmationEmail,
+  sendSubscriptionConfirmationEmail 
+} from '@/lib/nodemailer';
 import type Stripe from 'stripe';
 
 export async function POST(request: Request) {
@@ -29,22 +34,40 @@ export async function POST(request: Request) {
       const { type } = session.metadata as { type: 'membership' | 'subscription' | 'ticket' | 'donation' };
 
       if (type === 'membership') {
-        await prisma.user.update({
+        const user = await prisma.user.update({
           where: { stripeCustomerId: session.customer as string },
           data: { membershipStatus: 'ACTIVE' },
         });
+
+        // Send membership confirmation email
+        if (user && session.customer_details?.email && session.customer_details?.name) {
+          await sendMembershipConfirmationEmail(
+            session.customer_details.email,
+            session.customer_details.name
+          );
+        }
       } else if (type === 'subscription') {
-        // const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
         const planName = session.metadata?.planName || 'Premium';
         
-        // Make sure we use the plan name from the metadata
-        await prisma.user.update({
+        const user = await prisma.user.update({
           where: { stripeCustomerId: session.customer as string },
           data: {
             membershipStatus: 'ACTIVE',
             subscription: planName,
           },
         });
+
+        // Send subscription confirmation email
+        if (user && session.customer_details?.email && session.customer_details?.name) {
+          await sendSubscriptionConfirmationEmail(
+            session.customer_details.email,
+            session.customer_details.name,
+            {
+              name: planName,
+              amount: planName === 'Premium' ? 30 : 50, // VIP plan is $50
+            }
+          );
+        }
       } else if (type === 'ticket') {
         const metadata = session.metadata as {
           eventId: string;
