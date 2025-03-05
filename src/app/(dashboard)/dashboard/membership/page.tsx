@@ -7,6 +7,7 @@ export default function Membership() {
   const router = useRouter();
   const [membershipStatus, setMembershipStatus] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [isActivating, setIsActivating] = useState(false);
 
   useEffect(() => {
     const fetchMembershipStatus = async () => {
@@ -21,6 +22,7 @@ export default function Membership() {
 
   const handleActivateMembership = async () => {
     try {
+      setIsActivating(true);
       const response = await fetch("/api/stripe/create-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -31,6 +33,7 @@ export default function Membership() {
       window.location.href = session.url;
     } catch (error) {
       console.error("Error activating membership:", error);
+      setIsActivating(false);
     }
   };
 
@@ -56,8 +59,7 @@ export default function Membership() {
                 Welcome, Member!
               </h2>
               <p className="mt-4 text-xl text-gray-500">
-                Your membership is active. You now have full access to all
-                features.
+                Your membership is active. You now have full access to all features.
               </p>
               <div className="mt-8 flex justify-center gap-4">
                 <button
@@ -103,9 +105,7 @@ export default function Membership() {
                         Lifetime access to member features
                       </p>
                     </div>
-                    <div className="text-4xl font-bold text-indigo-600">
-                      $30
-                    </div>
+                    <div className="text-4xl font-bold text-indigo-600">$30</div>
                   </div>
                   <ul className="space-y-4 mb-8">
                     <li className="flex items-center">
@@ -159,9 +159,17 @@ export default function Membership() {
                   </ul>
                   <button
                     onClick={handleActivateMembership}
-                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    disabled={isActivating}
+                    className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-75 disabled:cursor-not-allowed"
                   >
-                    Pay $30 to Activate
+                    {isActivating ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                        Processing...
+                      </>
+                    ) : (
+                      'Pay $30 to Activate'
+                    )}
                   </button>
                 </div>
               </div>
