@@ -4,16 +4,29 @@ import { adminAuth } from "@/lib/firebase-admin";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 
-// Fixed price IDs for membership and subscriptions
-const MEMBERSHIP_PRICE = "price_1QyJgo04YgkEMOrNVvWh5mnx"; // $30 one-time payment
+
+//  TEST PRICES
+// const MEMBERSHIP_PRICE = "price_1QxcJN01IgH6xBSRVyVFvNqV";
+// const SUBSCRIPTION_PRICES = {
+//   Premium: {
+//     monthly: "price_1QySd004YgkEMOrN7RDLQ4Mr", 
+//     annual: "price_1QxcIO01IgH6xBSRqv8oFNOa", 
+//   },
+//   VIP: {
+//     monthly: "price_1QySd004YgkEMOrN7RDLQ4Mr", 
+//     annual: "price_1QxcGm01IgH6xBSRi6o1VaHV",
+// } as const;
+
+// Live Fixed price IDs for membership and subscriptions
+const MEMBERSHIP_PRICE = "price_1QyJgo04YgkEMOrNVvWh5mnx"; 
 const SUBSCRIPTION_PRICES = {
   Premium: {
-    monthly: "price_1QySd004YgkEMOrN7RDLQ4Mr", // $3/month
-    annual: "price_1QySd004YgkEMOrN7RDLQ4Mr", // $30/year
+    monthly: "price_1QySd004YgkEMOrN7RDLQ4Mr", 
+    annual: "price_1QySd004YgkEMOrN7RDLQ4Mr", 
   },
   VIP: {
-    monthly: "price_1QySd004YgkEMOrN7RDLQ4Mr", // $5/month
-    annual: "price_1QySd004YgkEMOrN7RDLQ4Mr", // $50/year
+    monthly: "price_1QySd004YgkEMOrN7RDLQ4Mr", 
+    annual: "price_1QySd004YgkEMOrN7RDLQ4Mr", 
   },
 } as const;
 

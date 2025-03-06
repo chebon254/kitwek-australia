@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { auth } from '@/lib/firebase';
-import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
+import { auth, appleProvider, getAuthErrorMessage } from '@/lib/firebase';
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 export default function SignUp() {
   const router = useRouter();
@@ -47,19 +48,13 @@ export default function SignUp() {
       router.push('/dashboard/membership');
     } catch (error) {
       console.error("error:", error);
-      
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('Error creating account');
-      }
-    }
-     finally {
+      setError(getAuthErrorMessage(error));
+    } finally {
       setLoading(false);
     }
   };
 
-  const handleProviderSignIn = async (provider: GoogleAuthProvider | OAuthProvider) => {
+  const handleProviderSignIn = async (provider: GoogleAuthProvider | typeof appleProvider) => {
     setError('');
     setLoading(true);
 
@@ -78,12 +73,7 @@ export default function SignUp() {
       router.push('/dashboard/membership');
     } catch (error) {
       console.error("error:", error);
-      
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('Error signing in');
-      }
+      setError(getAuthErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -106,7 +96,7 @@ export default function SignUp() {
           )}
 
           <form className="space-y-6" onSubmit={handleEmailSignUp}>
-            <div>
+          <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                 Username
               </label>
@@ -176,14 +166,14 @@ export default function SignUp() {
                 />
               </div>
             </div>
-
+            
             <div>
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
               >
-                {loading ? 'Creating account...' : 'Sign up'}
+                {loading ? <LoadingSpinner /> : 'Sign up'}
               </button>
             </div>
           </form>
@@ -202,31 +192,43 @@ export default function SignUp() {
               <button
                 onClick={() => handleProviderSignIn(new GoogleAuthProvider())}
                 disabled={loading}
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
               >
-                <Image
-                  src={"/ui-assets/google-icon.png"}
-                  alt="Google"
-                  width={20}
-                  height={20}
-                  className="mr-2"
-                />
-                <span>Google</span>
+                {loading ? (
+                  <LoadingSpinner />
+                ) : (
+                  <>
+                    <Image
+                      src={"/ui-assets/google-icon.png"}
+                      alt="Google"
+                      width={20}
+                      height={20}
+                      className="mr-2"
+                    />
+                    <span>Google</span>
+                  </>
+                )}
               </button>
 
               <button
-                onClick={() => handleProviderSignIn(new OAuthProvider('apple.com'))}
+                onClick={() => handleProviderSignIn(appleProvider)}
                 disabled={loading}
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
               >
-                <Image
-                  src={"/ui-assets/apple-icon.png"}
-                  alt="Apple"
-                  width={20}
-                  height={20}
-                  className="mr-2"
-                />
-                <span>Apple</span>
+                {loading ? (
+                  <LoadingSpinner />
+                ) : (
+                  <>
+                    <Image
+                      src={"/ui-assets/apple-icon.png"}
+                      alt="Apple"
+                      width={20}
+                      height={20}
+                      className="mr-2"
+                    />
+                    <span>Apple</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

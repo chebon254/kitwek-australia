@@ -72,7 +72,7 @@ export default function DashboardNotFound() {
             <h1 className="text-6xl font-extrabold text-gray-900 mb-4">404</h1>
             <h2 className="text-3xl font-bold text-gray-800 mb-6">Page Not Found</h2>
             <p className="text-lg text-gray-600 mb-8">
-              The dashboard page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
+              The page you are looking for cannot be found, had its name changed, or is temporarily unavailable.
             </p>
 
             {/* Action Buttons */}
@@ -113,7 +113,7 @@ export default function DashboardNotFound() {
 
             {/* Countdown */}
             <p className="text-sm text-gray-500">
-              Redirecting to dashboard in {countdown} seconds...
+              Redirecting to profile in {countdown} seconds...
             </p>
           </div>
         </div>

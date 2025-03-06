@@ -4,12 +4,17 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { auth } from '@/lib/firebase';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
+import { auth, appleProvider, getAuthErrorMessage } from '@/lib/firebase';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 export default function SignInForm() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    }>
       <SignIn />
     </Suspense>
   );
@@ -43,7 +48,7 @@ function SignIn() {
       if (!response.ok) {
         const data = await response.json();
         if (response.status === 403) {
-          setError(`Account revoked: ${data.reason}`);
+          setError(`Your account has been revoked: ${data.reason}`);
           return;
         }
         throw new Error('Sign in failed');
@@ -53,13 +58,13 @@ function SignIn() {
       router.push(callbackUrl || '/dashboard');
     } catch (error) {
       console.error("error:", error);
-      setError('Invalid email or password');
+      setError(getAuthErrorMessage(error));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleProviderSignIn = async (provider: GoogleAuthProvider | OAuthProvider) => {
+  const handleProviderSignIn = async (provider: GoogleAuthProvider | typeof appleProvider) => {
     setError('');
     setLoading(true);
 
@@ -76,7 +81,7 @@ function SignIn() {
       if (!response.ok) {
         const data = await response.json();
         if (response.status === 403) {
-          setError(`Account revoked: ${data.reason}`);
+          setError(`Your account has been revoked: ${data.reason}`);
           return;
         }
         throw new Error('Sign in failed');
@@ -86,7 +91,7 @@ function SignIn() {
       router.push(callbackUrl || '/dashboard');
     } catch (error) {
       console.error("error:", error);
-      setError('Error signing in with provider');
+      setError(getAuthErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -123,6 +128,8 @@ function SignIn() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="Enter your email"
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -141,13 +148,18 @@ function SignIn() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="Enter your password"
+                  disabled={loading}
                 />
               </div>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="text-sm">
-                <Link href="/reset-password" className="font-medium text-indigo-600 hover:text-indigo-500">
+                <Link 
+                  href="/reset-password" 
+                  className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
+                >
                   Forgot your password?
                 </Link>
               </div>
@@ -157,9 +169,9 @@ function SignIn() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
               >
-                {loading ? 'Signing in...' : 'Sign in'}
+                {loading ? <LoadingSpinner /> : 'Sign in'}
               </button>
             </div>
           </form>
@@ -178,31 +190,43 @@ function SignIn() {
               <button
                 onClick={() => handleProviderSignIn(new GoogleAuthProvider())}
                 disabled={loading}
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
               >
-                <Image
-                  src={"/ui-assets/google-icon.png"}
-                  alt="Google"
-                  width={20}
-                  height={20}
-                  className="mr-2"
-                />
-                <span>Google</span>
+                {loading ? (
+                  <LoadingSpinner />
+                ) : (
+                  <>
+                    <Image
+                      src="/ui-assets/google-icon.png"
+                      alt="Google"
+                      width={20}
+                      height={20}
+                      className="mr-2"
+                    />
+                    <span>Google</span>
+                  </>
+                )}
               </button>
 
               <button
-                onClick={() => handleProviderSignIn(new OAuthProvider('apple.com'))}
+                onClick={() => handleProviderSignIn(appleProvider)}
                 disabled={loading}
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
               >
-                <Image
-                  src={"/ui-assets/apple-icon.png"}
-                  alt="Apple"
-                  width={20}
-                  height={20}
-                  className="mr-2"
-                />
-                <span>Apple</span>
+                {loading ? (
+                  <LoadingSpinner />
+                ) : (
+                  <>
+                    <Image
+                      src="/ui-assets/apple-icon.png"
+                      alt="Apple"
+                      width={20}
+                      height={20}
+                      className="mr-2"
+                    />
+                    <span>Apple</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -210,7 +234,10 @@ function SignIn() {
           <div className="mt-6 text-center text-sm">
             <p className="text-gray-600">
               Don&apos;t have an account?{' '}
-              <Link href="/sign-up" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <Link 
+                href="/sign-up" 
+                className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
+              >
                 Sign up
               </Link>
             </p>
