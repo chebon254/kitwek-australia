@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { auth } from "@/lib/firebase";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { Link } from "lucide-react";
+import Link from "next/link";
 
 export default function ResetPassword() {
   const [email, setEmail] = useState("");
