@@ -61,7 +61,7 @@ export const sendWelcomeEmail = async (
       <body>
         <div class="container">
           <div class="header">
-            <h1>Welcome to Our Community!</h1>
+            <h1>Welcome to Kitwek Victoria!</h1>
           </div>
           <div class="content">
             <h2>Hello ${username}!</h2>
