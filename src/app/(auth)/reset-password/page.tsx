@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { auth } from "@/lib/firebase";
 import { sendPasswordResetEmail } from "firebase/auth";
+import { Link } from "lucide-react";
 
 export default function ResetPassword() {
   const [email, setEmail] = useState("");
@@ -18,9 +19,9 @@ export default function ResetPassword() {
 
     try {
       // Check if account is revoked before sending reset email
-      const response = await fetch('/api/auth/check-revoke', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/auth/check-revoke", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
@@ -33,7 +34,7 @@ export default function ResetPassword() {
       }
 
       await sendPasswordResetEmail(auth, email);
-      setMessage("Password reset email sent. Please check your inbox.");
+      setMessage("Success! Password reset sent to you email sent.");
     } catch (error) {
       console.error("Password reset error:", error);
       setError("Error sending reset email. Please try again.");
@@ -50,7 +51,8 @@ export default function ResetPassword() {
             Reset your password
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Enter your email address and we&apos;ll send you a link to reset your password.
+            Enter your email address and we&apos;ll send you a link to reset
+            your password.
           </p>
         </div>
 
@@ -89,8 +91,19 @@ export default function ResetPassword() {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              {loading ? 'Sending...' : 'Send reset link'}
+              {loading ? "Sending..." : "Send reset link"}
             </button>
+          </div>
+          <div className="mt-6 text-center text-sm">
+            <p className="text-gray-600">
+              Go back to?{" "}
+              <Link
+                href="/sign-in"
+                className="font-medium text-indigo-600 hover:text-indigo-500"
+              >
+                Sign in
+              </Link>
+            </p>
           </div>
         </form>
       </div>
