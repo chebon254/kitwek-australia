@@ -18,15 +18,15 @@ import { stripe } from "@/lib/stripe";
 // } as const;
 
 // Live Fixed price IDs for membership and subscriptions
-const MEMBERSHIP_PRICE = "price_1QyJgo04YgkEMOrNVvWh5mnx"; 
+const MEMBERSHIP_PRICE = "price_1R08B404YgkEMOrNZkrYhBJV"; 
 const SUBSCRIPTION_PRICES = {
   Premium: {
     monthly: "price_1QySd004YgkEMOrN7RDLQ4Mr", 
-    annual: "price_1QySd004YgkEMOrN7RDLQ4Mr", 
+    annual: "price_1R08CZ04YgkEMOrNZl85jAAC", 
   },
   VIP: {
     monthly: "price_1QySd004YgkEMOrN7RDLQ4Mr", 
-    annual: "price_1QySd004YgkEMOrN7RDLQ4Mr", 
+    annual: "price_1R08Dr04YgkEMOrNA4958WVv", 
   },
 } as const;
 
