@@ -132,7 +132,7 @@ export default function Home() {
           className="w-full bg-white pb-20 md:pb-100 relative"
           ref={missionRef}
         >
-          <div className="absolute top-0 w-full h-3/5 bg-black bg-[url(/ui-assets/star.png)] bg-center bg-cover bg-no-repeat z-10">
+          <div className="absolute top-0 w-full h-[70%] bg-black bg-[url(/ui-assets/star.png)] bg-center bg-cover bg-no-repeat z-10">
             <div className="h-full w-full bg-[#00000055]"></div>
           </div>
           <motion.div
@@ -359,7 +359,7 @@ export default function Home() {
                       onChange={handleInputChange}
                       placeholder="Subject"
                       required
-                      className="border-b-2 border-0 border-b-white bg-transparent w-full placeholder:text-white text-xl font-bold outline-none py-[10px] text-white focus:outline-none focus:border-0"
+                      className="border-b-2 border-0 border-b-white bg-transparent w-full placeholder:text-white text-xl font-bold outline-none py-[10px] text-white focus:outline-none focus:border-transparent focus:border-0"
                     />
                   </motion.div>
                   <motion.div
