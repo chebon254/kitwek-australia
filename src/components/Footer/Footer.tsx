@@ -83,7 +83,7 @@ function Footer() {
               <br />
               <br />
               <Link
-                href={"/registration"}
+                href={"/sign-up"}
                 className="bg-white rounded-lg h-14 px-10 py-4 w-60 outline-none text-xl text-black leading-6 font-bold"
               >
                 Join us today

@@ -155,7 +155,7 @@ export default function Navbar({ className }: NavbarProps) {
                   ) : (
                     <>
                       <Link
-                        href="/registration"
+                        href="/sign-up"
                         className={`rounded-lg px-6 py-2 font-semibold transition-colors ${
                           isLightBackground 
                             ? 'bg-black text-white hover:bg-gray-800' 
@@ -246,7 +246,7 @@ export default function Navbar({ className }: NavbarProps) {
                       ) : (
                         <>
                           <Link
-                            href="/registration"
+                            href="/sign-up"
                             className="bg-black rounded-lg h-14 px-10 flex items-center justify-center mx-auto w-60 text-xl text-white text-center font-bold hover:bg-gray-900"
                             onClick={() => setIsOpen(false)}
                           >
