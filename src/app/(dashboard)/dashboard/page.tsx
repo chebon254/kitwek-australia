@@ -159,7 +159,7 @@ export default function Dashboard() {
                   </span>
                 </Link>
                 <Link
-                  href="/dashboard/membership"
+                  href="/dashboard/subscription"
                   className="flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors"
                 >
                   <CreditCard className="h-6 w-6 text-gray-500" />
