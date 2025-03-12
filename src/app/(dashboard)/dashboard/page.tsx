@@ -19,6 +19,7 @@ interface DashboardData {
     membershipStatus: string;
     subscription: string;
     profileImage?: string;
+    createdAt: string;
   };
   stats: {
     totalMembers: number;
@@ -31,6 +32,7 @@ interface DashboardData {
 export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [accountAge, setAccountAge] = useState(0);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -38,6 +40,12 @@ export default function Dashboard() {
         // Fetch user data
         const userResponse = await fetch("/api/user");
         const userData = await userResponse.json();
+
+        // Calculate account age in days
+        const createdAt = new Date(userData.createdAt);
+        const now = new Date();
+        const ageInDays = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+        setAccountAge(ageInDays);
 
         // For demo purposes, using static stats
         // In production, these would come from their respective API endpoints
@@ -85,6 +93,13 @@ export default function Dashboard() {
       </main>
     );
   }
+
+  const getSubscriptionButtonText = () => {
+    if (data.user.subscription === "Free") {
+      return accountAge >= 365 ? "Renew Subscription" : "Manage Subscription";
+    }
+    return null;
+  };
 
   return (
     <main className="flex-1 mt-24">
@@ -217,7 +232,9 @@ export default function Dashboard() {
                       <Link
                         href="/dashboard/subscription"
                         className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                      >Manage Subscription</Link>
+                      >
+                        {getSubscriptionButtonText()}
+                      </Link>
                     )}
                 </div>
               </div>
