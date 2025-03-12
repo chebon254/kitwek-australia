@@ -21,12 +21,12 @@ import { stripe } from "@/lib/stripe";
 const MEMBERSHIP_PRICE = "price_1R08B404YgkEMOrNZkrYhBJV"; 
 const SUBSCRIPTION_PRICES = {
   Premium: {
-    monthly: "price_1QySd004YgkEMOrN7RDLQ4Mr", 
+    monthly: "price_1R1nL304YgkEMOrNjtHJjh9p", 
     annual: "price_1R1nL304YgkEMOrNjtHJjh9p", 
   },
   VIP: {
-    monthly: "price_1QySd004YgkEMOrN7RDLQ4Mr", 
-    annual: "price_1R08Dr04YgkEMOrNA4958WVv", 
+    monthly: "price_1R1nL304YgkEMOrNjtHJjh9p", 
+    annual: "price_1R1nL304YgkEMOrNjtHJjh9p", 
   },
 } as const;
 
