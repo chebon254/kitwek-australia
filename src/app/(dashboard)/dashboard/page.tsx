@@ -44,7 +44,9 @@ export default function Dashboard() {
         // Calculate account age in days
         const createdAt = new Date(userData.createdAt);
         const now = new Date();
-        const ageInDays = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+        const ageInDays = Math.floor(
+          (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
+        );
         setAccountAge(ageInDays);
 
         // For demo purposes, using static stats
@@ -93,13 +95,6 @@ export default function Dashboard() {
       </main>
     );
   }
-
-  const getSubscriptionButtonText = () => {
-    if (data.user.subscription === "Free") {
-      return accountAge >= 365 ? "Renew Subscription" : "Manage Subscription";
-    }
-    return null;
-  };
 
   return (
     <main className="flex-1 mt-24">
@@ -219,16 +214,18 @@ export default function Dashboard() {
                   </p>
                 </div>
                 <div>
-                  {data.user.membershipStatus === "INACTIVE" && accountAge <= 365 && (
-                    <Link
-                      href="/dashboard/membership"
-                      className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                    >
-                      Activate Membership
-                    </Link>
-                  )}
+                  {data.user.membershipStatus === "INACTIVE" &&
+                    accountAge <= 365 && (
+                      <Link
+                        href="/dashboard/membership"
+                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                      >
+                        Activate Membership
+                      </Link>
+                    )}
                   {data.user.subscription === "Free" &&
-                    data.user.membershipStatus === "ACTIVE" && accountAge <= 365 &&(
+                    data.user.membershipStatus === "ACTIVE" &&
+                    accountAge <= 365 && (
                       <Link
                         href="/dashboard/subscription"
                         className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
@@ -237,7 +234,8 @@ export default function Dashboard() {
                       </Link>
                     )}
                   {data.user.subscription === "Free" &&
-                    data.user.membershipStatus === "INACTIVE" && accountAge >= 365 &&(
+                    data.user.membershipStatus === "INACTIVE" &&
+                    accountAge >= 365 && (
                       <Link
                         href="/dashboard/subscription"
                         className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
@@ -246,7 +244,8 @@ export default function Dashboard() {
                       </Link>
                     )}
                   {data.user.subscription === "Premium" &&
-                    data.user.membershipStatus === "ACTIVE" && accountAge >= 365 &&(
+                    data.user.membershipStatus === "ACTIVE" &&
+                    accountAge >= 365 && (
                       <Link
                         href="/dashboard/subscription"
                         className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
