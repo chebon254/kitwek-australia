@@ -52,7 +52,7 @@ export async function POST(request: Request) {
         const user = await prisma.user.update({
           where: { stripeCustomerId: session.customer as string },
           data: {
-            membershipStatus: 'ACTIVE',
+            membershipStatus: 'ACTIVE', // Set to ACTIVE when subscribing to Premium
             subscription: planName,
           },
         });
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
             session.customer_details.name,
             {
               name: planName,
-              amount: planName === 'Premium' ? 30 : 50, // VIP plan is $50
+              amount: 30, // Premium plan is $30
             }
           );
         }

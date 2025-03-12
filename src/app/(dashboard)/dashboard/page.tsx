@@ -219,7 +219,7 @@ export default function Dashboard() {
                   </p>
                 </div>
                 <div>
-                  {data.user.membershipStatus === "INACTIVE" && (
+                  {data.user.membershipStatus === "INACTIVE" && accountAge <= 365 && (
                     <Link
                       href="/dashboard/membership"
                       className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
@@ -228,7 +228,7 @@ export default function Dashboard() {
                     </Link>
                   )}
                   {data.user.subscription === "Free" &&
-                    data.user.membershipStatus === "ACTIVE" && (
+                    data.user.membershipStatus === "INACTIVE" &&(
                       <Link
                         href="/dashboard/subscription"
                         className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"

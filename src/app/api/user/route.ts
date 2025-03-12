@@ -38,6 +38,20 @@ export async function GET() {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Calculate account age and update membership status if needed
+    const createdAt = new Date(user.createdAt);
+    const now = new Date();
+    const ageInDays = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (ageInDays >= 365 && user.subscription === "Free") {
+      // Update user to INACTIVE if they're on free plan and account is over a year old
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { membershipStatus: "INACTIVE" },
+      });
+      user.membershipStatus = "INACTIVE";
+    }
+
     return NextResponse.json(user);
   } catch (error) {
     console.error("User fetch error:", error);

@@ -17,10 +17,10 @@ const plans: SubscriptionPlan[] = [
     features: [
       "Access to member directory",
       "Participate in forums",
-      "Access to events and activities"
+      "Access to events and activities",
     ],
     highlight: true,
-  }
+  },
 ];
 
 export default function Subui() {
@@ -36,7 +36,7 @@ function Subscription() {
   const [currentPlan, setCurrentPlan] = useState("");
   const [loading, setLoading] = useState(true);
   const [processingPlan, setProcessingPlan] = useState("");
-  const [, setShowCancelModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [accountAge, setAccountAge] = useState(0); // in days
   const [showRenewalModal, setShowRenewalModal] = useState(false);
 
@@ -44,20 +44,22 @@ function Subscription() {
     try {
       const [membershipResponse, userResponse] = await Promise.all([
         fetch("/api/user/membership"),
-        fetch("/api/user")
+        fetch("/api/user"),
       ]);
-      
+
       const membershipData = await membershipResponse.json();
       const userData = await userResponse.json();
-      
+
       setCurrentPlan(membershipData.subscription);
-      
+
       // Calculate account age in days
       const createdAt = new Date(userData.createdAt);
       const now = new Date();
-      const ageInDays = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+      const ageInDays = Math.floor(
+        (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
+      );
       setAccountAge(ageInDays);
-      
+
       // Show renewal modal if:
       // 1. Account is at least 1 year old
       // 2. User is not currently on Premium plan
@@ -84,7 +86,9 @@ function Subscription() {
 
   const handleSubscribe = async (planName: string) => {
     if (accountAge < 365) {
-      alert("Your account must be at least 1 year old to subscribe to Premium. Please try again after your account reaches 1 year.");
+      alert(
+        "Your account must be at least 1 year old to subscribe to Premium. Please try again after your account reaches 1 year."
+      );
       return;
     }
 
@@ -121,6 +125,25 @@ function Subscription() {
       console.error("Error creating subscription:", error);
     } finally {
       setProcessingPlan("");
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    setProcessingPlan(currentPlan);
+    try {
+      const response = await fetch("/api/user/cancel-subscription", {
+        method: "POST",
+      });
+
+      if (response.ok) {
+        // Update UI to show Free plan
+        setCurrentPlan("Free");
+      }
+    } catch (error) {
+      console.error("Error canceling subscription:", error);
+    } finally {
+      setProcessingPlan("");
+      setShowCancelModal(false);
     }
   };
 
@@ -173,7 +196,6 @@ function Subscription() {
                     </span>
                     <span className="text-gray-500">/year</span>
                   </p>
-
                   <ul className="mt-6 space-y-4">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start">
@@ -194,15 +216,24 @@ function Subscription() {
                       </li>
                     ))}
                   </ul>
-
-                  {plan.name === currentPlan ? (
-                    <div className="mt-8 w-full px-4 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-500 cursor-not-allowed text-center">
-                      Current Plan
-                    </div>
+                  {currentPlan !== "Free" ? (
+                    // User has an active subscription - show cancel button
+                    <button
+                      onClick={() => setShowCancelModal(true)}
+                      disabled={processingPlan === currentPlan}
+                      className="mt-8 w-full px-4 py-2 rounded-md text-sm font-medium bg-red-600 text-white hover:bg-red-700"
+                    >
+                      {processingPlan === currentPlan
+                        ? "Processing..."
+                        : "Cancel Subscription"}
+                    </button>
                   ) : (
+                    // User is on Free plan - show subscribe button
                     <button
                       onClick={() => handleSubscribe(plan.name)}
-                      disabled={processingPlan === plan.name || accountAge < 365}
+                      disabled={
+                        processingPlan === plan.name || accountAge < 365
+                      }
                       className={`mt-8 w-full px-4 py-2 rounded-md text-sm font-medium ${
                         accountAge < 365
                           ? "bg-gray-300 cursor-not-allowed"
@@ -212,7 +243,7 @@ function Subscription() {
                       {processingPlan === plan.name
                         ? "Processing..."
                         : accountAge < 365
-                        ? "Subscribed. Your account is active"
+                        ? "Available after 1 year"
                         : "Subscribe Now"}
                     </button>
                   )}
@@ -223,13 +254,43 @@ function Subscription() {
         </div>
       </div>
 
+      {/* Cancel Subscription Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full">
+            <h3 className="text-xl font-bold mb-4">
+              Cancel Current Subscription
+            </h3>
+            <p className="mb-6">
+              Are you sure you want to cancel your {currentPlan} subscription?
+              You will not receive a refund for the current billing period.
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Keep Subscription
+              </button>
+              <button
+                onClick={handleCancelSubscription}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                {processingPlan ? "Processing..." : "Confirm Cancellation"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Renewal Modal */}
       {showRenewalModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4">Time to Renew!</h3>
             <p className="mb-6">
-              Your account is now one year old! You can now renew your subscription.
+              Your account is now one year old! You can now renew your
+              subscription.
             </p>
             <div className="flex justify-end space-x-4">
               <button
@@ -241,7 +302,7 @@ function Subscription() {
               <button
                 onClick={() => {
                   setShowRenewalModal(false);
-                  handleSubscribe("Premium");
+                  handleSubscribe("Membership");
                 }}
                 className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
               >
