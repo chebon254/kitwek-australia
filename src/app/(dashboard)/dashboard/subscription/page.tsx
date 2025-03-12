@@ -229,7 +229,7 @@ function Subscription() {
           <div className="bg-white rounded-lg p-8 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4">Time to Renew!</h3>
             <p className="mb-6">
-              Your account is now one year old! You can now subscribe to our Premium plan to unlock additional features and benefits.
+              Your account is now one year old! You can now renew your subscription.
             </p>
             <div className="flex justify-end space-x-4">
               <button
@@ -245,7 +245,7 @@ function Subscription() {
                 }}
                 className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
               >
-                View Premium Plan
+                Renew Subscription
               </button>
             </div>
           </div>
