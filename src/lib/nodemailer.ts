@@ -240,35 +240,15 @@ export const sendSubscriptionConfirmationEmail = async (
           </div>
           <div class="content">
             <h2>Hello ${name}!</h2>
-            <p>Thank you for subscribing to our ${plan.name} plan. Your subscription is now active!</p>
+            <p>Thank you for renewing your annual plan. Your subscription is now active!</p>
             
             <div class="subscription-details">
               <h3>Subscription Details</h3>
-              <p><strong>Plan:</strong> ${plan.name}</p>
+              <p><strong>Plan:</strong> Annual Membership</p>
               <p><strong>Amount:</strong> $${plan.amount.toFixed(2)}/year</p>
               <p><strong>Status:</strong> Active</p>
               <p><strong>Billing Cycle:</strong> Annual</p>
             </div>
-
-            <p>Your ${plan.name} plan includes:</p>
-            ${plan.name === 'Premium' ? `
-            <ul>
-              <li>All Free features</li>
-              <li>Priority forum access</li>
-              <li>Early event registration</li>
-              <li>Exclusive content access</li>
-              <li>Premium badge</li>
-            </ul>
-            ` : `
-            <ul>
-              <li>All Premium features</li>
-              <li>VIP support</li>
-              <li>Event discounts</li>
-              <li>Featured member listing</li>
-              <li>Custom profile badge</li>
-              <li>Exclusive VIP events</li>
-            </ul>
-            `}
 
             <a href="${process.env.NEXT_PUBLIC_URL}/dashboard" style="color: #FFFFFF !important;" class="button">
               Go to Dashboard
