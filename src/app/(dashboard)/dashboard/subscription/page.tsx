@@ -12,7 +12,7 @@ interface SubscriptionPlan {
 
 const plans: SubscriptionPlan[] = [
   {
-    name: "Membership",
+    name: "Premium",
     yearlyPrice: 30,
     features: [
       "Access to member directory",
@@ -113,7 +113,7 @@ function Subscription() {
         body: JSON.stringify({
           type: "subscription",
           planName,
-          billingCycle: "annual",
+          billingCycle: "annual", // Only annual billing now
         }),
       });
 
