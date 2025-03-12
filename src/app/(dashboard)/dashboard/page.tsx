@@ -203,7 +203,7 @@ export default function Dashboard() {
                     Current Plan
                   </p>
                   <p className="mt-1 text-lg font-semibold text-gray-900">
-                    {data.user.subscription}
+                    Annual
                   </p>
                 </div>
                 <div>
@@ -234,6 +234,15 @@ export default function Dashboard() {
                         className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
                       >
                         {getSubscriptionButtonText()}
+                      </Link>
+                    )}
+                  {data.user.subscription === "Premium" &&
+                    data.user.membershipStatus === "ACTIVE" && accountAge >= 365 &&(
+                      <Link
+                        href="/dashboard/subscription"
+                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                      >
+                        Manage Subscription
                       </Link>
                     )}
                 </div>

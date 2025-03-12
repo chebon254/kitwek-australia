@@ -34,7 +34,10 @@ export async function POST() {
       // No active subscriptions found, just update the user record
       await prisma.user.update({
         where: { id: user.id },
-        data: { subscription: 'Free' },
+        data: { 
+          subscription: 'Free',
+          membershipStatus: 'INACTIVE'
+        },
       });
       
       return NextResponse.json({ message: 'Subscription canceled' });
@@ -48,7 +51,10 @@ export async function POST() {
     // Update user record
     await prisma.user.update({
       where: { id: user.id },
-      data: { subscription: 'Free' },
+      data: { 
+        subscription: 'Free',
+        membershipStatus: 'INACTIVE'
+      },
     });
 
     return NextResponse.json({ message: 'Subscription canceled successfully' });
