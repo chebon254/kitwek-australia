@@ -30,6 +30,7 @@ export async function GET() {
         membershipStatus: true,
         subscription: true,
         memberNumber: true,
+        createdAt: true,
       },
     });
 
