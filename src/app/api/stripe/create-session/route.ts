@@ -22,7 +22,7 @@ const MEMBERSHIP_PRICE = "price_1R08B404YgkEMOrNZkrYhBJV";
 const SUBSCRIPTION_PRICES = {
   Premium: {
     monthly: "price_1QySd004YgkEMOrN7RDLQ4Mr", 
-    annual: "price_1R08CZ04YgkEMOrNZl85jAAC", 
+    annual: "price_1R1nL304YgkEMOrNjtHJjh9p", 
   },
   VIP: {
     monthly: "price_1QySd004YgkEMOrN7RDLQ4Mr", 

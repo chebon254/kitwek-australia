@@ -217,11 +217,7 @@ export default function Dashboard() {
                       <Link
                         href="/dashboard/subscription"
                         className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                      >
-                        {data.user.subscription === "Free"
-                          ? "Renew"
-                          : "Manage Plan"}
-                      </Link>
+                      >Manage Subscription</Link>
                     )}
                 </div>
               </div>
