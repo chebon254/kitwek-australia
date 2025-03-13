@@ -9,95 +9,123 @@ export async function POST(request: Request) {
   try {
     const { idToken, username } = await request.json();
 
+    if (!idToken) {
+      return NextResponse.json({ error: "No ID token provided" }, { status: 400 });
+    }
+
     // Verify the Firebase ID token
-    const decodedToken = await adminAuth.verifyIdToken(idToken);
+    let decodedToken;
+    try {
+      decodedToken = await adminAuth.verifyIdToken(idToken);
+    } catch (error) {
+      console.error("Token verification error:", error);
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
 
     if (!decodedToken.email) {
-      throw new Error("Email is required");
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
     const email = decodedToken.email;
     const uid = decodedToken.uid;
 
-    // Check if user is revoked
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-      select: { revokeStatus: true, revokeReason: true, memberNumber: true },
-    });
+    try {
+      // Check if user is revoked
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+        select: { revokeStatus: true, revokeReason: true, memberNumber: true },
+      });
 
-    if (existingUser?.revokeStatus) {
-      return NextResponse.json(
-        {
-          error: "Account revoked",
-          reason: existingUser.revokeReason,
+      if (existingUser?.revokeStatus) {
+        return NextResponse.json(
+          {
+            error: "Account revoked",
+            reason: existingUser.revokeReason,
+          },
+          { status: 403 }
+        );
+      }
+
+      // Generate member number for new users
+      let memberNumber = existingUser?.memberNumber;
+      if (!existingUser) {
+        memberNumber = await generateMemberNumber();
+      }
+
+      // Create or update user in database
+      const user = await prisma.user.upsert({
+        where: { email },
+        update: {
+          username: username || undefined,
         },
-        { status: 403 }
+        create: {
+          email,
+          username: username || email.split("@")[0],
+          memberNumber,
+          membershipStatus: "INACTIVE",
+          subscription: "Free",
+        },
+      });
+
+      // Create session cookie
+      const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
+      const sessionCookie = await adminAuth.createSessionCookie(idToken, {
+        expiresIn,
+      });
+
+      // Set cookie
+      (await
+        // Set cookie
+        cookies()).set("session", sessionCookie, {
+        maxAge: expiresIn,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+      });
+
+      // Send welcome email for new users
+      if (!existingUser) {
+        try {
+          await sendWelcomeEmail(
+            email,
+            user.username || email,
+            user.memberNumber || undefined
+          );
+        } catch (error) {
+          console.error("Error sending welcome email:", error);
+        }
+      }
+
+      return NextResponse.json({ status: "success", user });
+    } catch (dbError) {
+      console.error("Database error:", dbError);
+      // If database operation fails, delete the Firebase user
+      try {
+        await adminAuth.deleteUser(uid);
+      } catch (deleteError) {
+        console.error("Error deleting Firebase user:", deleteError);
+      }
+      return NextResponse.json(
+        { error: "Failed to create user in database" },
+        { status: 500 }
       );
     }
-
-    // Generate member number for new users
-    let memberNumber = existingUser?.memberNumber;
-    if (!existingUser) {
-      memberNumber = await generateMemberNumber();
-    }
-
-    // Create or update user in database
-    const user = await prisma.user.upsert({
-      where: { email },
-      update: {
-        username: username || undefined,
-      },
-      create: {
-        id: uid,
-        email,
-        username: username || email.split("@")[0], // Use email prefix as fallback username
-        memberNumber,
-        membershipStatus: "INACTIVE",
-        subscription: "Free",
-      },
-    });
-
-    // Create session cookie
-    const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
-    const sessionCookie = await adminAuth.createSessionCookie(idToken, {
-      expiresIn,
-    });
-
-    // Set cookie
-    const cookieStore = cookies();
-    (await cookieStore).set("session", sessionCookie, {
-      maxAge: expiresIn,
-      httpOnly: true,
-      secure: true,
-    });
-
-    // Only send welcome email if this is a new user (check if the operation was a create)
-    if (!existingUser) {
-      try {
-        // Convert null to undefined to satisfy TypeScript
-        const memberNumberForEmail = user.memberNumber || undefined;
-        await sendWelcomeEmail(
-          email,
-          user.username || email,
-          memberNumberForEmail
-        );
-      } catch (error) {
-        console.error("Error sending welcome email:", error);
-        // Continue even if email fails
-      }
-    }
-
-    return NextResponse.json({ status: "success", user });
   } catch (error) {
     console.error("Authentication error:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unauthorized" },
-      { status: 401 }
+      { error: "Authentication failed. Please try again." },
+      { status: 500 }
     );
   }
 }
 
 export async function DELETE() {
-  (await cookies()).delete("session");
-  return NextResponse.json({ status: "success" });
+  try {
+    (await cookies()).delete("session");
+    return NextResponse.json({ status: "success" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    return NextResponse.json({ error: "Failed to logout" }, { status: 500 });
+  }
 }

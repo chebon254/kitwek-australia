@@ -7,14 +7,24 @@ export async function GET() {
   try {
     const session = (await cookies()).get("session");
 
-    if (!session) {
-      return NextResponse.json({ error: "Session Unauthorized" }, { status: 401 });
+    if (!session?.value) {
+      return NextResponse.json({ error: "No session found" }, { status: 401 });
     }
 
-    const decodedClaims = await adminAuth.verifySessionCookie(
-      session.value,
-      true
-    );
+    let decodedClaims;
+    try {
+      decodedClaims = await adminAuth.verifySessionCookie(session.value, true);
+    } catch (error) {
+      console.error("Session verification error:", error);
+      // Clear invalid session cookie
+      (await cookies()).delete("session");
+      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
+    }
+
+    if (!decodedClaims.email) {
+      return NextResponse.json({ error: "No email in session" }, { status: 400 });
+    }
+
     const user = await prisma.user.findUnique({
       where: { email: decodedClaims.email },
       select: {
@@ -35,16 +45,16 @@ export async function GET() {
     });
 
     if (!user) {
+      (await cookies()).delete("session");
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Calculate account age and update membership status if needed
+    // Check membership status
     const createdAt = new Date(user.createdAt);
     const now = new Date();
     const ageInDays = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
 
-    if (ageInDays >= 365 && user.subscription === "Free") {
-      // Update user to INACTIVE if they're on free plan and account is over a year old
+    if (ageInDays >= 365 && user.subscription === "Free" && user.membershipStatus !== "INACTIVE") {
       await prisma.user.update({
         where: { id: user.id },
         data: { membershipStatus: "INACTIVE" },
@@ -56,7 +66,7 @@ export async function GET() {
   } catch (error) {
     console.error("User fetch error:", error);
     return NextResponse.json(
-      { error: "Error fetching user data" },
+      { error: "Failed to fetch user data" },
       { status: 500 }
     );
   }
