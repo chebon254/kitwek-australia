@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { MessageCircle, ArrowLeft, Send, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 interface Forum {
   id: string;
@@ -115,13 +116,13 @@ export default function ForumDetail() {
               <h2 className="text-2xl font-bold text-gray-900">
                 Forum not found
               </h2>
-              <button
-                onClick={() => router.back()}
+              <Link
+                href={"dashboard/forums"}
                 className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200"
               >
                 <ArrowLeft className="h-5 w-5 mr-2" />
                 Back to Forums
-              </button>
+              </Link>
             </div>
           </div>
         </div>
