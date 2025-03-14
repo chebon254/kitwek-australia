@@ -59,6 +59,7 @@ export async function POST(request: Request) {
           username: username || undefined,
         },
         create: {
+          id: uid,
           email,
           username: username || email.split("@")[0],
           memberNumber,
