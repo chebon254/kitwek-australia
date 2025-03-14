@@ -18,43 +18,70 @@ export async function POST(request: Request) {
     const email = decodedToken.email;
     const uid = decodedToken.uid;
 
-    // Check if user is revoked
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-      select: { revokeStatus: true, revokeReason: true, memberNumber: true },
+    // First, check if user exists by Firebase UID
+    let user = await prisma.user.findUnique({
+      where: { id: uid },
     });
 
-    if (existingUser?.revokeStatus) {
+    // If no user found by UID, check by email
+    if (!user) {
+      user = await prisma.user.findUnique({
+        where: { email },
+      });
+    }
+
+    // If user exists but IDs don't match, update the ID
+    if (user && user.id !== uid) {
+      user = await prisma.user.update({
+        where: { email },
+        data: { id: uid },
+      });
+    }
+
+    // If user exists and is revoked, return error
+    if (user?.revokeStatus) {
       return NextResponse.json(
         {
           error: "Account revoked",
-          reason: existingUser.revokeReason,
+          reason: user.revokeReason,
         },
         { status: 403 }
       );
     }
 
-    // Generate member number for new users
-    let memberNumber = existingUser?.memberNumber;
-    if (!existingUser) {
-      memberNumber = await generateMemberNumber();
-    }
+    // If no user exists, create new user
+    // In src/app/api/auth/route.ts
+    // Modify the user creation part:
 
-    // Create or update user in the database
-    const user = await prisma.user.upsert({
-      where: { email },
-      update: {
-        username: username || undefined,
-      },
-      create: {
-        id: uid,
-        email,
-        username: username || email.split("@")[0], // Use email prefix as fallback username
-        memberNumber,
-        membershipStatus: "INACTIVE",
-        subscription: "Free",
-      },
-    });
+    if (!user) {
+      const memberNumber = await generateMemberNumber();
+
+      try {
+        user = await prisma.user.create({
+          data: {
+            id: uid,
+            email,
+            username: username || email.split("@")[0],
+            memberNumber,
+            membershipStatus: "INACTIVE",
+            subscription: "Free",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
+      } catch (error) {
+        console.error("Database error:", error);
+        return NextResponse.json(
+          { error: "Failed to create user account" },
+          { status: 500 }
+        );
+      }
+
+      // Move email sending to a separate try-catch
+      sendWelcomeEmail(email, user.username || email, user.memberNumber || undefined ).catch(
+        (error) => console.error("Welcome email error:", error)
+      );
+    }
 
     // Create session cookie
     const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
@@ -63,27 +90,14 @@ export async function POST(request: Request) {
     });
 
     // Set cookie
-    (await
-      // Set cookie
-      cookies()).set("session", sessionCookie, {
+    (
+      await // Set cookie
+      cookies()
+    ).set("session", sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
       secure: true,
     });
-
-    // Send welcome email if this is a new user
-    if (!existingUser) {
-      try {
-        await sendWelcomeEmail(
-          email,
-          user.username || email,
-          user.memberNumber || undefined
-        );
-      } catch (error) {
-        console.error("Error sending welcome email:", error);
-        // Continue even if email fails
-      }
-    }
 
     return NextResponse.json({ status: "success", user });
   } catch (error) {
