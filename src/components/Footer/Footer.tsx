@@ -93,7 +93,7 @@ function Footer() {
         </div>
         <div className="text-left w-full py-8">
           <p className="w-full font-bold text-base text-left leading-5 font-[family-name:var(--font-lora-sans)]">
-            Kitwek Victoria @2025 Production. All Rights Reserved
+            Kitwek Victoria Copyright 2025 Production. All Rights Reserved
           </p>
         </div>
       </div>
