@@ -6,6 +6,7 @@ import Image from "next/image";
 import React from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import Link from "next/link";
 
 const objectives = [
   {
@@ -258,13 +259,12 @@ export default function About() {
                     <h3 className="text-2xl md:text-3xl font-bold w-full max-w-[480px] mx-auto mb-7">
                       Join our growing network of over 500+ people
                     </h3>
-                    <motion.button
+                    <Link
+                      href={"/contact-us"}
                       className="bg-white text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
                     >
                       Get in touch
-                    </motion.button>
+                    </Link>
                   </div>
                 </div>
               </div>
