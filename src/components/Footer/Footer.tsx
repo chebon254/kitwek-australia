@@ -34,7 +34,6 @@ function Footer() {
               >
                 Events
               </Link>
-              
             </div>
           </div>
           <div className="m-1 my-4 min-w-[280px]">
@@ -56,6 +55,12 @@ function Footer() {
                 Donations
               </Link>
               <br />
+              <Link
+                href="/tickets"
+                className="w-full py-[5px] font-normal hover:text-[#2C2C2C] text-xl leading-6 text-black"
+              >
+                Tickets
+              </Link>
             </div>
           </div>
           <div className="m-1 my-4 min-w-[280px]">

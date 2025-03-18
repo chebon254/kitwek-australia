@@ -9,6 +9,7 @@ import {
   MessageSquare,
   Settings,
   ChevronRight,
+  Ticket
 } from "lucide-react";
 import Image from "next/image";
 
@@ -143,7 +144,7 @@ export default function Dashboard() {
                   View All <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">
                 <Link
                   href="/dashboard/profile"
                   className="flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors"
@@ -169,6 +170,15 @@ export default function Dashboard() {
                   <Calendar className="h-6 w-6 text-gray-500" />
                   <span className="ml-3 text-sm font-medium text-gray-900">
                     View Events
+                  </span>
+                </Link>
+                <Link
+                  href="/tickets"
+                  className="flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors"
+                >
+                  <Ticket className="h-6 w-6 text-gray-500" />
+                  <span className="ml-3 text-sm font-medium text-gray-900">
+                    Tickets
                   </span>
                 </Link>
                 <Link

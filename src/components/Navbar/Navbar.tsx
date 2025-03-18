@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { auth } from "@/lib/firebase";
-import { UserCircle, LogOut, Ticket } from "lucide-react";
+import { UserCircle, LogOut } from "lucide-react";
 
 interface NavbarProps {
   className?: string;
@@ -138,15 +138,6 @@ export default function Navbar({ className }: NavbarProps) {
                               <UserCircle className="h-4 w-4 mr-2" />
                               Profile
                             </Link>
-                            <Link
-                              href="/tickets"
-                              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                              role="menuitem"
-                              onClick={() => setIsDropdownOpen(false)}
-                            >
-                              <Ticket className="h-4 w-4 mr-2" />
-                              Tickets
-                            </Link>
                             <button
                               onClick={() => {
                                 setIsDropdownOpen(false);
@@ -243,15 +234,6 @@ export default function Navbar({ className }: NavbarProps) {
                           >
                             Profile
                           </Link>
-                          <Link
-                              href="/tickets"
-                              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                              role="menuitem"
-                              onClick={() => setIsDropdownOpen(false)}
-                            >
-                              <Ticket className="h-4 w-4 mr-2" />
-                              Tickets
-                            </Link>
                           <button
                             onClick={() => {
                               setIsOpen(false);
