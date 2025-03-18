@@ -17,11 +17,13 @@ interface UserProfile {
   subscription: string;
   membershipStatus: string;
   memberNumber?: string;
+  createdAt: string;
 }
 
 export default function Profile() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [accountAge, setAccountAge] = useState(0);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -29,6 +31,15 @@ export default function Profile() {
         const response = await fetch("/api/user");
         if (!response.ok) throw new Error("Failed to fetch profile");
         const data = await response.json();
+
+        // Calculate account age in days
+        const createdAt = new Date(data.createdAt);
+        const now = new Date();
+        const ageInDays = Math.floor(
+          (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        setAccountAge(ageInDays);
+        
         setProfile(data);
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -141,24 +152,50 @@ export default function Profile() {
                     <h2 className="text-lg font-semibold text-gray-900">
                       Current Plan
                     </h2>
-                    <p className="text-gray-500">{profile.subscription}</p>
+                    <p className="text-gray-500">Annual</p>
                   </div>
                 </div>
-                {profile.subscription === "Free" ? (
-                  <Link
-                    href="/dashboard/subscription"
-                    className="w-full block text-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-                  >
-                    Upgrade Plan
-                  </Link>
-                ) : (
-                  <Link
-                    href="/dashboard/subscription"
-                    className="w-full block text-center px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-                  >
-                    Manage Subscription
-                  </Link>
-                )}
+                <div>
+                  {profile.membershipStatus === "INACTIVE" &&
+                    accountAge <= 365 && (
+                      <Link
+                        href="/dashboard/membership"
+                        className="w-full block text-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                      >
+                        Activate Membership
+                      </Link>
+                    )}
+                  {profile.subscription === "Free" &&
+                    profile.membershipStatus === "ACTIVE" &&
+                    accountAge <= 365 && (
+                      <Link
+                        href="/dashboard/subscription"
+                        className="w-full block text-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                      >
+                        Manage Subscription
+                      </Link>
+                    )}
+                  {profile.subscription === "Free" &&
+                    profile.membershipStatus === "INACTIVE" &&
+                    accountAge >= 365 && (
+                      <Link
+                        href="/dashboard/subscription"
+                        className="w-full block text-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                      >
+                        Renew Subscription
+                      </Link>
+                    )}
+                  {profile.subscription === "Premium" &&
+                    profile.membershipStatus === "ACTIVE" &&
+                    accountAge >= 365 && (
+                      <Link
+                        href="/dashboard/subscription"
+                        className="w-full block text-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                      >
+                        Manage Subscription
+                      </Link>
+                    )}
+                </div>
               </div>
 
               {/* Profile Details */}
