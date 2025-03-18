@@ -108,7 +108,7 @@ export default function Profile() {
 
             {/* Profile Content */}
             <div className="pt-16 px-8 pb-8">
-              <div className="flex justify-between items-start mb-6">
+              <div className="flex justify-between flex-wrap items-start mb-6">
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
                     {profile.firstName && profile.lastName
