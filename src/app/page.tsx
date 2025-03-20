@@ -132,7 +132,7 @@ export default function Home() {
           className="w-full bg-white pb-20 md:pb-100 relative"
           ref={missionRef}
         >
-          <div className="absolute top-0 w-full h-[70%] bg-black bg-[url(/ui-assets/star.png)] bg-center bg-cover bg-no-repeat z-10">
+          <div className="absolute top-0 w-full h-[75%] md:h-[85%] bg-black bg-[url(/ui-assets/star.png)] bg-center bg-cover bg-no-repeat z-10">
             <div className="h-full w-full bg-[#00000055]"></div>
           </div>
           <motion.div
