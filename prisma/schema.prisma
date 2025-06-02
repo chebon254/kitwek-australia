@@ -28,6 +28,7 @@ model User {
   updatedAt       DateTime  @updatedAt
   stripeCustomerId String?  @unique
   tickets         Ticket[]
+  votes           Vote[]
 }
 
 model AdminUser {
@@ -45,6 +46,7 @@ model AdminUser {
   donations     Donation[]
   logs          AdminLog[]
   notifications AdminNotification[]
+  votingCampaigns VotingCampaign[]
 }
 
 model AdminLog {
@@ -196,4 +198,56 @@ model Donor {
   donation   Donation @relation(fields: [donationId], references: [id])
 
   @@index([donationId])
+}
+
+// Voting System Models
+model VotingCampaign {
+  id          String    @id @default(uuid())
+  title       String
+  description String    @db.Text
+  startDate   DateTime
+  endDate     DateTime
+  status      String    @default("UPCOMING") // UPCOMING, ACTIVE, COMPLETED, CANCELLED
+  type        String    // ELECTION, DECISION, POLL
+  thumbnail   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  adminId     String
+  admin       AdminUser @relation(fields: [adminId], references: [id])
+  candidates  VotingCandidate[]
+  votes       Vote[]
+
+  @@index([adminId])
+}
+
+model VotingCandidate {
+  id          String   @id @default(uuid())
+  name        String
+  description String?  @db.Text
+  image       String?
+  position    String?  // For election-type campaigns
+  manifesto   String?  @db.Text // For election-type campaigns
+  campaignId  String
+  campaign    VotingCampaign @relation(fields: [campaignId], references: [id])
+  votes       Vote[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([campaignId])
+}
+
+model Vote {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  campaignId  String
+  campaign    VotingCampaign @relation(fields: [campaignId], references: [id])
+  candidateId String
+  candidate   VotingCandidate @relation(fields: [candidateId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, campaignId])
+  @@index([userId])
+  @@index([campaignId])
+  @@index([candidateId])
 }
