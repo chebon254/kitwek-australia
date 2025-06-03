@@ -13,6 +13,7 @@ import {
   ArrowLeft,
   Award,
 } from "lucide-react";
+import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
 
 interface Member {
   id: string;
@@ -48,6 +49,8 @@ export default function MemberDetail() {
 
   useEffect(() => {
     const fetchMember = async () => {
+      const canAccess = await checkMembershipAndRedirect(router);
+      if (!canAccess) return;
       try {
         const response = await fetch(`/api/members/${params.id}`);
         const data = await response.json();
@@ -65,11 +68,11 @@ export default function MemberDetail() {
   if (loading) {
     return (
       <main className="flex-1 mt-24">
-      <div className="py-6">
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
-      </div>
+        <div className="py-6">
+          <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          </div>
+        </div>
       </main>
     );
   }

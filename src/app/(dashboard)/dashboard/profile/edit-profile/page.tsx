@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { UserCircle, Loader2, Upload } from "lucide-react";
+import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
 
 interface UserProfile {
   username: string;
@@ -27,6 +28,8 @@ export default function EditProfile() {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      const canAccess = await checkMembershipAndRedirect(router);
+      if (!canAccess) return;
       try {
         const response = await fetch("/api/user");
         if (!response.ok) throw new Error("Failed to fetch profile");

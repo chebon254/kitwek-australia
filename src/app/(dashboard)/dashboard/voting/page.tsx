@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Calendar, Users, Vote, CheckCircle } from "lucide-react";
+import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
+import { useRouter } from "next/navigation";
 
 interface VotingCampaign {
   id: string;
@@ -28,6 +30,7 @@ interface UserVote {
 }
 
 export default function VotingPage() {
+  const router = useRouter();
   const [campaigns, setCampaigns] = useState<VotingCampaign[]>([]);
   const [userVotes, setUserVotes] = useState<UserVote[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +38,8 @@ export default function VotingPage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const canAccess = await checkMembershipAndRedirect(router);
+      if (!canAccess) return;
       try {
         const [campaignsRes, votesRes] = await Promise.all([
           fetch("/api/voting/campaigns"),

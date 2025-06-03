@@ -11,6 +11,7 @@ import {
   Clock,
   AlertCircle,
 } from "lucide-react";
+import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
 
 interface VotingCandidate {
   id: string;
@@ -53,6 +54,9 @@ export default function VotingCampaignPage({
     const initAndFetch = async () => {
       const resolvedParams = await params;
       setCampaignId(resolvedParams.campaignId);
+
+      const canAccess = await checkMembershipAndRedirect(router);
+      if (!canAccess) return;
 
       try {
         const response = await fetch(

@@ -4,12 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { format } from "date-fns";
-import {
-  MessageCircle,
-  Search,
-  ChevronRight,
-  UserCircle,
-} from "lucide-react";
+import { MessageCircle, Search, ChevronRight, UserCircle } from "lucide-react";
+import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
+import { useRouter } from 'next/navigation';
 
 interface Forum {
   id: string;
@@ -26,6 +23,7 @@ interface Forum {
 }
 
 export default function Forums() {
+  const router = useRouter();
   const [forums, setForums] = useState<Forum[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,6 +31,8 @@ export default function Forums() {
 
   useEffect(() => {
     const fetchForums = async () => {
+      const canAccess = await checkMembershipAndRedirect(router);
+      if (!canAccess) return;
       try {
         const response = await fetch("/api/forums");
         if (!response.ok) throw new Error("Failed to fetch forums");

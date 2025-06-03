@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { ArrowLeft, Trophy, User, Vote, Calendar, Share2 } from "lucide-react";
+import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
 
 interface VotingCandidate {
   id: string;
@@ -36,8 +37,12 @@ export default function VotingResultsPage() {
 
   useEffect(() => {
     const fetchCampaign = async () => {
+      const canAccess = await checkMembershipAndRedirect(router);
+      if (!canAccess) return;
       try {
-        const response = await fetch(`/api/voting/campaigns/${params.campaignId}`);
+        const response = await fetch(
+          `/api/voting/campaigns/${params.campaignId}`
+        );
         if (response.ok) {
           const data = await response.json();
           setCampaign(data);
@@ -57,7 +62,9 @@ export default function VotingResultsPage() {
 
   const getSortedCandidates = () => {
     if (!campaign) return [];
-    return [...campaign.candidates].sort((a, b) => b._count.votes - a._count.votes);
+    return [...campaign.candidates].sort(
+      (a, b) => b._count.votes - a._count.votes
+    );
   };
 
   const getVotePercentage = (votes: number) => {
@@ -100,7 +107,9 @@ export default function VotingResultsPage() {
       <main className="flex-1 mt-24">
         <div className="py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-12">
-            <h2 className="text-3xl font-bold text-gray-900">Campaign Not Found</h2>
+            <h2 className="text-3xl font-bold text-gray-900">
+              Campaign Not Found
+            </h2>
             <p className="mt-4 text-gray-500">
               The voting campaign you're looking for doesn't exist.
             </p>
@@ -145,7 +154,7 @@ export default function VotingResultsPage() {
                   />
                 </div>
               )}
-              
+
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h1 className="text-3xl font-bold text-gray-900">
@@ -159,16 +168,14 @@ export default function VotingResultsPage() {
                     Share
                   </button>
                 </div>
-                
-                <p className="text-gray-600 mb-6">
-                  {campaign.description}
-                </p>
+
+                <p className="text-gray-600 mb-6">{campaign.description}</p>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-500 mb-6">
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-2" />
                     <span>
-                      {new Date(campaign.startDate).toLocaleDateString()} - {" "}
+                      {new Date(campaign.startDate).toLocaleDateString()} -{" "}
                       {new Date(campaign.endDate).toLocaleDateString()}
                     </span>
                   </div>
@@ -182,19 +189,22 @@ export default function VotingResultsPage() {
                   </div>
                 </div>
 
-                {campaign.status === "COMPLETED" && winner && campaign._count.votes > 0 && (
-                  <div className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white p-4 rounded-lg mb-6">
-                    <div className="flex items-center">
-                      <Trophy className="h-6 w-6 mr-3" />
-                      <div>
-                        <h3 className="font-semibold">Winner</h3>
-                        <p className="text-yellow-100">
-                          {winner.name} with {winner._count.votes} votes ({getVotePercentage(winner._count.votes)}%)
-                        </p>
+                {campaign.status === "COMPLETED" &&
+                  winner &&
+                  campaign._count.votes > 0 && (
+                    <div className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white p-4 rounded-lg mb-6">
+                      <div className="flex items-center">
+                        <Trophy className="h-6 w-6 mr-3" />
+                        <div>
+                          <h3 className="font-semibold">Winner</h3>
+                          <p className="text-yellow-100">
+                            {winner.name} with {winner._count.votes} votes (
+                            {getVotePercentage(winner._count.votes)}%)
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
             </div>
           </div>
@@ -223,14 +233,18 @@ export default function VotingResultsPage() {
               </div>
             ) : (
               sortedCandidates.map((candidate, index) => {
-                const percentage = parseFloat(getVotePercentage(candidate._count.votes));
+                const percentage = parseFloat(
+                  getVotePercentage(candidate._count.votes)
+                );
                 const isWinner = index === 0 && campaign.status === "COMPLETED";
-                
+
                 return (
                   <div
                     key={candidate.id}
                     className={`bg-white rounded-lg border p-6 ${
-                      isWinner ? "border-yellow-400 bg-yellow-50" : "border-gray-200"
+                      isWinner
+                        ? "border-yellow-400 bg-yellow-50"
+                        : "border-gray-200"
                     }`}
                   >
                     <div className="flex items-center space-x-4">
@@ -257,7 +271,7 @@ export default function VotingResultsPage() {
                           #{index + 1}
                         </div>
                       </div>
-                      
+
                       <div className="flex-grow">
                         <div className="flex items-center justify-between mb-2">
                           <div>
@@ -282,19 +296,19 @@ export default function VotingResultsPage() {
                             </div>
                           </div>
                         </div>
-                        
+
                         {candidate.description && (
                           <p className="text-gray-600 text-sm mb-3">
                             {candidate.description}
                           </p>
                         )}
-                        
+
                         {/* Vote Progress Bar */}
                         <div className="w-full bg-gray-200 rounded-full h-3">
                           <div
                             className={`h-3 rounded-full transition-all duration-500 ${
-                              isWinner 
-                                ? "bg-gradient-to-r from-yellow-400 to-yellow-600" 
+                              isWinner
+                                ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
                                 : "bg-gradient-to-r from-indigo-500 to-indigo-600"
                             }`}
                             style={{ width: `${percentage}%` }}
@@ -316,18 +330,25 @@ export default function VotingResultsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="font-medium text-gray-700">Status:</span>
-                <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
-                  campaign.status === "ACTIVE" ? "bg-green-100 text-green-800" :
-                  campaign.status === "COMPLETED" ? "bg-gray-100 text-gray-800" :
-                  campaign.status === "UPCOMING" ? "bg-blue-100 text-blue-800" :
-                  "bg-red-100 text-red-800"
-                }`}>
+                <span
+                  className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                    campaign.status === "ACTIVE"
+                      ? "bg-green-100 text-green-800"
+                      : campaign.status === "COMPLETED"
+                      ? "bg-gray-100 text-gray-800"
+                      : campaign.status === "UPCOMING"
+                      ? "bg-blue-100 text-blue-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
                   {campaign.status}
                 </span>
               </div>
               <div>
                 <span className="font-medium text-gray-700">Type:</span>
-                <span className="ml-2 text-gray-600 capitalize">{campaign.type}</span>
+                <span className="ml-2 text-gray-600 capitalize">
+                  {campaign.type}
+                </span>
               </div>
               <div>
                 <span className="font-medium text-gray-700">Start Date:</span>

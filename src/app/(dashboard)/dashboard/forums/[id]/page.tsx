@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { MessageCircle, ArrowLeft, Send, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
 
 interface Forum {
   id: string;
@@ -34,6 +35,8 @@ export default function ForumDetail() {
 
   useEffect(() => {
     const fetchForumAndComments = async () => {
+      const canAccess = await checkMembershipAndRedirect(router);
+      if (!canAccess) return;
       try {
         // Fetch forum details
         const forumResponse = await fetch(`/api/forums/${params.id}`);

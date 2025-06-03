@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
 
 export default function Membership() {
   const router = useRouter();
@@ -11,6 +12,11 @@ export default function Membership() {
 
   useEffect(() => {
     const fetchMembershipStatus = async () => {
+      // Add membership check first
+      const canAccess = await checkMembershipAndRedirect(router);
+      if (!canAccess) return;
+
+      // Your existing code continues here
       const response = await fetch("/api/user/membership");
       const data = await response.json();
       setMembershipStatus(data.membershipStatus);
@@ -18,7 +24,7 @@ export default function Membership() {
     };
 
     fetchMembershipStatus();
-  }, []);
+  }, [router]);
 
   const handleActivateMembership = async () => {
     try {
@@ -59,7 +65,8 @@ export default function Membership() {
                 Welcome, Member!
               </h2>
               <p className="mt-4 text-xl text-gray-500">
-                Your membership is active. You now have full access to all features.
+                Your membership is active. You now have full access to all
+                features.
               </p>
               <div className="mt-8 flex justify-center gap-4">
                 <button
@@ -105,7 +112,9 @@ export default function Membership() {
                         Lifetime access to member features
                       </p>
                     </div>
-                    <div className="text-4xl font-bold text-indigo-600">$30</div>
+                    <div className="text-4xl font-bold text-indigo-600">
+                      $30
+                    </div>
                   </div>
                   <ul className="space-y-4 mb-8">
                     <li className="flex items-center">
@@ -168,7 +177,7 @@ export default function Membership() {
                         Processing...
                       </>
                     ) : (
-                      'Pay $30 to Activate'
+                      "Pay $30 to Activate"
                     )}
                   </button>
                 </div>

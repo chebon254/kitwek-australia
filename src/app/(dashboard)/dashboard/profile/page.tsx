@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { UserCircle } from "lucide-react";
+import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
+import { useRouter } from "next/navigation";
 
 interface UserProfile {
   username: string;
@@ -21,12 +23,15 @@ interface UserProfile {
 }
 
 export default function Profile() {
+  const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [accountAge, setAccountAge] = useState(0);
 
   useEffect(() => {
     const fetchProfile = async () => {
+      const canAccess = await checkMembershipAndRedirect(router);
+      if (!canAccess) return;
       try {
         const response = await fetch("/api/user");
         if (!response.ok) throw new Error("Failed to fetch profile");
@@ -39,7 +44,7 @@ export default function Profile() {
           (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
         );
         setAccountAge(ageInDays);
-        
+
         setProfile(data);
       } catch (error) {
         console.error("Error fetching profile:", error);

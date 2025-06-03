@@ -12,6 +12,7 @@ import {
   Ticket
 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface DashboardData {
   user: {
@@ -31,6 +32,7 @@ interface DashboardData {
 }
 
 export default function Dashboard() {
+  const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [accountAge, setAccountAge] = useState(0);
@@ -41,6 +43,12 @@ export default function Dashboard() {
         // Fetch user data
         const userResponse = await fetch("/api/user");
         const userData = await userResponse.json();
+
+        // Check membership status and redirect if inactive
+        if (userData.membershipStatus === "INACTIVE") {
+          router.push("/dashboard/subscription");
+          return;
+        }
 
         // Calculate account age in days
         const createdAt = new Date(userData.createdAt);

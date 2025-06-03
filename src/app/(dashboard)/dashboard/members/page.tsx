@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, Users, MapPin } from "lucide-react";
+import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
+import { useRouter } from "next/navigation";
 
 interface Member {
   id: string;
@@ -19,6 +21,7 @@ interface Member {
 }
 
 export default function Members() {
+  const router = useRouter();
   const [members, setMembers] = useState<Member[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all"); // 'all', 'active', 'new'
@@ -26,6 +29,8 @@ export default function Members() {
 
   useEffect(() => {
     const fetchMembers = async () => {
+      const canAccess = await checkMembershipAndRedirect(router);
+      if (!canAccess) return;
       try {
         const response = await fetch("/api/members");
         const data = await response.json();
@@ -38,7 +43,7 @@ export default function Members() {
     };
 
     fetchMembers();
-  }, []);
+  }, [router]);
 
   const filteredMembers = members.filter((member) => {
     const matchesSearch =
