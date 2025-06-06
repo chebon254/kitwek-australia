@@ -111,7 +111,7 @@ export default function VotingResultsPage() {
               Campaign Not Found
             </h2>
             <p className="mt-4 text-gray-500">
-              The voting campaign you're looking for doesn't exist.
+              The voting campaign you&apos;re looking for doesn&apos;t exist.
             </p>
             <button
               onClick={() => router.back()}

@@ -9,10 +9,11 @@ import {
   MessageSquare,
   Settings,
   ChevronRight,
-  Ticket
+  Ticket,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
 
 interface DashboardData {
   user: {
@@ -39,16 +40,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      const canAccess = await checkMembershipAndRedirect(router);
+      if (!canAccess) return;
       try {
         // Fetch user data
         const userResponse = await fetch("/api/user");
         const userData = await userResponse.json();
-
-        // Check membership status and redirect if inactive
-        if (userData.membershipStatus === "INACTIVE") {
-          router.push("/dashboard/subscription");
-          return;
-        }
 
         // Calculate account age in days
         const createdAt = new Date(userData.createdAt);

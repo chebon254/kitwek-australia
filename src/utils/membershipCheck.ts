@@ -1,6 +1,6 @@
-import { useRouter } from 'next/navigation';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-export const checkMembershipAndRedirect = async (router: any) => {
+export const checkMembershipAndRedirect = async (router: AppRouterInstance) => {
   try {
     const response = await fetch('/api/user');
     if (!response.ok) {
