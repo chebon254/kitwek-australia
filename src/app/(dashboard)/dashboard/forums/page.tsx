@@ -128,7 +128,7 @@ export default function Forums() {
             {filteredForums.map((forum) => (
               <Link
                 key={forum.id}
-                href={`dashboard/forums/${forum.id}`}
+                href={`/dashboard/forums/${forum.id}`}
                 className="block bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200"
               >
                 <div className="p-6">
