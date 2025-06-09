@@ -6,30 +6,30 @@ import { stripe } from "@/lib/stripe";
 
 
 //  TEST PRICES
-const MEMBERSHIP_PRICE = "price_1R08B404YgkEMOrNZkrYhBJV"; 
-const SUBSCRIPTION_PRICES = {
-  Premium: {
-    monthly: "price_1QxcIO01IgH6xBSRqv8oFNOa", 
-    annual: "price_1QxcIO01IgH6xBSRqv8oFNOa", 
-  },
-  VIP: {
-    monthly: "price_1QxcIO01IgH6xBSRqv8oFNOa", 
-    annual: "price_1QxcIO01IgH6xBSRqv8oFNOa", 
-  },
-} as const;
-
-// Live Fixed price IDs for membership and subscriptions
 // const MEMBERSHIP_PRICE = "price_1R08B404YgkEMOrNZkrYhBJV"; 
 // const SUBSCRIPTION_PRICES = {
 //   Premium: {
-//     monthly: "price_1R1nL304YgkEMOrNjtHJjh9p", 
-//     annual: "price_1R1nL304YgkEMOrNjtHJjh9p", 
+//     monthly: "price_1QxcIO01IgH6xBSRqv8oFNOa", 
+//     annual: "price_1QxcIO01IgH6xBSRqv8oFNOa", 
 //   },
 //   VIP: {
-//     monthly: "price_1R1nL304YgkEMOrNjtHJjh9p", 
-//     annual: "price_1R1nL304YgkEMOrNjtHJjh9p", 
+//     monthly: "price_1QxcIO01IgH6xBSRqv8oFNOa", 
+//     annual: "price_1QxcIO01IgH6xBSRqv8oFNOa", 
 //   },
 // } as const;
+
+//Live Fixed price IDs for membership and subscriptions
+const MEMBERSHIP_PRICE = "price_1R08B404YgkEMOrNZkrYhBJV"; 
+const SUBSCRIPTION_PRICES = {
+  Premium: {
+    monthly: "price_1R1nL304YgkEMOrNjtHJjh9p", 
+    annual: "price_1R1nL304YgkEMOrNjtHJjh9p", 
+  },
+  VIP: {
+    monthly: "price_1R1nL304YgkEMOrNjtHJjh9p", 
+    annual: "price_1R1nL304YgkEMOrNjtHJjh9p", 
+  },
+} as const;
 
 
 type PlanName = keyof typeof SUBSCRIPTION_PRICES;
