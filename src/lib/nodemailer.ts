@@ -10,15 +10,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendWelcomeEmail = async (
-  email: string,
-  username: string,
-  memberNumber?: string
-) => {
-  const memberInfo = memberNumber
-    ? `<p>Your member number is: <strong>${memberNumber}</strong></p>`
-    : "";
-
+export const sendWelcomeEmail = async (email: string, username: string) => {
   const html = `
     <!DOCTYPE html>
     <html>
@@ -47,80 +39,9 @@ export const sendWelcomeEmail = async (
             border: 1px solid #e5e7eb;
             border-radius: 0 0 8px 8px;
           }
-          .button {
-            display: inline-block;
-            background-color: #4F46E5;
-            color: white;
-            padding: 12px 24px;
-            text-decoration: none;
-            border-radius: 6px;
-            margin: 20px 0;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>Welcome to Kitwek Victoria!</h1>
-          </div>
-          <div class="content">
-            <h2>Hello ${username}!</h2>
-            <p>Thank you for joining our platform. We're excited to have you as part of our community!</p>
-            ${memberInfo}
-            <p>To complete your membership and unlock all features, please activate your account by clicking the button below:</p>
-            <a href="${process.env.NEXT_PUBLIC_URL}/dashboard/membership" style="color: #FFFFFF !important;" class="button">
-              Activate Membership
-            </a>
-            <p>If you have any questions or need assistance, don't hesitate to reach out to our support team.</p>
-            <p>Best regards,<br>The Team</p>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-
-  await transporter.sendMail({
-    from: process.env.SMTP_USER,
-    to: email,
-    subject: "Welcome to Our Platform!",
-    html,
-  });
-};
-
-export const sendMembershipConfirmationEmail = async (
-  email: string,
-  name: string
-) => {
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-          }
-          .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-          }
-          .header {
-            background-color: #4F46E5;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 8px 8px 0 0;
-          }
-          .content {
-            background-color: #ffffff;
-            padding: 20px;
-            border: 1px solid #e5e7eb;
-            border-radius: 0 0 8px 8px;
-          }
-          .payment-details {
-            background-color: #f3f4f6;
+          .payment-info {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
             padding: 20px;
             border-radius: 8px;
             margin: 20px 0;
@@ -134,38 +55,51 @@ export const sendMembershipConfirmationEmail = async (
             border-radius: 6px;
             margin: 20px 0;
           }
+          .amount {
+            font-size: 24px;
+            color: #f59e0b;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+          }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
-            <h1>Membership Activated!</h1>
+            <h1>Almost There - Complete Your Membership!</h1>
           </div>
           <div class="content">
-            <h2>Hello ${name}!</h2>
-            <p>Thank you for activating your membership. Your payment has been processed successfully!</p>
+            <h2>Hello ${username}!</h2>
+            <p>Thank you for signing up with Kitwek Victoria! Your account has been created successfully.</p>
             
-            <div class="payment-details">
-              <h3>Payment Details</h3>
-              <p><strong>Amount Paid:</strong> $30.00</p>
-              <p><strong>Type:</strong> One-time Membership Fee</p>
-              <p><strong>Status:</strong> Completed</p>
+            <div class="payment-info">
+              <h3 style="margin-top: 0; color: #92400e;">⚠️ You are not yet a member</h3>
+              <p>To become a full member of Kitwek Victoria and unlock all member benefits, you need to complete your membership payment.</p>
+              <div class="amount">$30.00</div>
+              <p style="text-align: center; margin-bottom: 0;"><strong>One-time Membership Fee</strong></p>
             </div>
 
-            <p>You now have full access to all member features including:</p>
+            <p><strong>What you'll get as a member:</strong></p>
             <ul>
+              <li>Official member number and status</li>
               <li>Access to member directory</li>
-              <li>Participation in forums</li>
-              <li>Access to events and activities</li>
+              <li>Participation in forums and discussions</li>
+              <li>Access to exclusive events and activities</li>
+              <li>Full community privileges</li>
             </ul>
 
-            <a href="${process.env.NEXT_PUBLIC_URL}/dashboard" style="color: #FFFFFF !important;" class="button">
-              Go to Dashboard
+            <p>Complete your membership payment now to join our community:</p>
+            
+            <a href="${process.env.NEXT_PUBLIC_URL}/dashboard/membership" style="color: #FFFFFF !important;" class="button">
+              Pay $30 & Become a Member
             </a>
-
-            <p>If you have any questions about your membership, please don't hesitate to contact our support team.</p>
-
-            <p>Best regards,<br>The Team</p>
+            
+            <p>If you have any questions about membership or need assistance with payment, don't hesitate to reach out to our support team.</p>
+            
+            <p>We look forward to welcoming you as a full member!</p>
+            
+            <p>Best regards,<br>The Kitwek Victoria Team</p>
           </div>
         </div>
       </body>
@@ -175,7 +109,140 @@ export const sendMembershipConfirmationEmail = async (
   await transporter.sendMail({
     from: process.env.SMTP_USER,
     to: email,
-    subject: "Membership Successfully Activated!",
+    subject: "Complete Your Kitwek Victoria Membership - Payment Required",
+    html,
+  });
+};
+
+export const sendMembershipConfirmationEmail = async (
+  email: string,
+  name: string,
+  memberNumber: string
+) => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            background-color: #10b981;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+          }
+          .content {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0 0 8px 8px;
+          }
+          .member-info {
+            background-color: #d1fae5;
+            border: 2px solid #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+          }
+          .member-number {
+            font-size: 28px;
+            color: #065f46;
+            font-weight: bold;
+            margin: 10px 0;
+          }
+          .payment-details {
+            background-color: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+          }
+          .button {
+            display: inline-block;
+            background-color: #10b981;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+          }
+          .success-icon {
+            font-size: 48px;
+            color: #10b981;
+            text-align: center;
+            margin: 20px 0;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🎉 Welcome to Kitwek Victoria!</h1>
+            <h2 style="margin: 0;">You are now an official member!</h2>
+          </div>
+          <div class="content">
+            <div class="success-icon">✅</div>
+            
+            <h2>Congratulations ${name}!</h2>
+            <p><strong>You are now an official member of Kitwek Victoria!</strong> Your membership payment has been processed successfully.</p>
+            
+            <div class="member-info">
+              <h3 style="margin-top: 0; color: #065f46;">Your Official Member Details</h3>
+              <p style="margin: 10px 0;">Member Number:</p>
+              <div class="member-number">${memberNumber}</div>
+              <p style="margin-bottom: 0; color: #047857;"><strong>Status: Active Member</strong></p>
+            </div>
+            
+            <div class="payment-details">
+              <h3>Payment Confirmation</h3>
+              <p><strong>Amount Paid:</strong> $30.00</p>
+              <p><strong>Type:</strong> One-time Membership Fee</p>
+              <p><strong>Status:</strong> ✅ Completed</p>
+              <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+            </div>
+
+            <p><strong>As a member, you now have full access to:</strong></p>
+            <ul>
+              <li>✅ Complete member directory access</li>
+              <li>✅ Full participation in community forums</li>
+              <li>✅ Access to all member events and activities</li>
+              <li>✅ Voting rights in community decisions</li>
+              <li>✅ Priority support and assistance</li>
+            </ul>
+
+            <a href="${
+              process.env.NEXT_PUBLIC_URL
+            }/dashboard" style="color: #FFFFFF !important;" class="button">
+              Access Your Member Dashboard
+            </a>
+
+            <p>Please save this email for your records, including your member number <strong>${memberNumber}</strong> for future reference.</p>
+
+            <p>If you have any questions about your membership or need assistance, please don't hesitate to contact our support team.</p>
+
+            <p>Welcome to the Kitwek Victoria community!</p>
+
+            <p>Best regards,<br>The Kitwek Victoria Team</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  await transporter.sendMail({
+    from: process.env.SMTP_USER,
+    to: email,
+    subject: "🎉 Welcome! You're Now an Official Kitwek Victoria Member",
     html,
   });
 };
@@ -250,7 +317,9 @@ export const sendSubscriptionConfirmationEmail = async (
               <p><strong>Billing Cycle:</strong> Annual</p>
             </div>
 
-            <a href="${process.env.NEXT_PUBLIC_URL}/dashboard" style="color: #FFFFFF !important;" class="button">
+            <a href="${
+              process.env.NEXT_PUBLIC_URL
+            }/dashboard" style="color: #FFFFFF !important;" class="button">
               Go to Dashboard
             </a>
 
@@ -338,12 +407,18 @@ export const sendTicketEmail = async (
           </div>
           <div class="content">
             <h2>Hello ${name}!</h2>
-            <p>Thank you for purchasing a ticket to ${event.title}. Here are your ticket details:</p>
+            <p>Thank you for purchasing a ticket to ${
+              event.title
+            }. Here are your ticket details:</p>
             
             <div class="ticket">
               <h3>${event.title}</h3>
-              <p><strong>Date:</strong> ${new Date(event.date).toLocaleDateString()}</p>
-              <p><strong>Time:</strong> ${new Date(event.date).toLocaleTimeString()}</p>
+              <p><strong>Date:</strong> ${new Date(
+                event.date
+              ).toLocaleDateString()}</p>
+              <p><strong>Time:</strong> ${new Date(
+                event.date
+              ).toLocaleTimeString()}</p>
               <p><strong>Location:</strong> ${event.location}</p>
               <p><strong>Ticket ID:</strong> ${ticketId}</p>
             </div>
@@ -354,7 +429,9 @@ export const sendTicketEmail = async (
 
             <p>Please keep this email for your records. You'll need to show your ticket (either printed or on your mobile device) at the event.</p>
             
-            <a href="${process.env.NEXT_PUBLIC_URL}/tickets" style="color: #FFFFFF !important;" class="button">
+            <a href="${
+              process.env.NEXT_PUBLIC_URL
+            }/tickets" style="color: #FFFFFF !important;" class="button">
               View My Tickets
             </a>
 
@@ -448,18 +525,24 @@ export const sendDonationEmail = async (
           </div>
           <div class="content">
             <h2>Dear ${name},</h2>
-            <p>Thank you for your generous donation to ${donation.name}. Your support means the world to us and will help make a real difference.</p>
+            <p>Thank you for your generous donation to ${
+              donation.name
+            }. Your support means the world to us and will help make a real difference.</p>
             
             <div class="donation-details">
               <div class="amount">$${donation.amount.toLocaleString()}</div>
-              <p style="text-align: center;">Your contribution to:<br><strong>${donation.name}</strong></p>
+              <p style="text-align: center;">Your contribution to:<br><strong>${
+                donation.name
+              }</strong></p>
             </div>
 
             <p>Your donation will be put to good use in supporting our cause. We're grateful for your commitment to making a positive impact in our community.</p>
 
             <p style="text-align: center;" class="heart">❤️</p>
 
-            <a href="${process.env.NEXT_PUBLIC_URL}/donations" class="button" style="color: #FFFFFF !important; display: block; text-align: center;">
+            <a href="${
+              process.env.NEXT_PUBLIC_URL
+            }/donations" class="button" style="color: #FFFFFF !important; display: block; text-align: center;">
               Support More Causes
             </a>
 
