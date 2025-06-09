@@ -50,9 +50,6 @@ export async function POST(request: Request) {
     }
 
     // If no user exists, create new user
-    // In src/app/api/auth/route.ts
-    // Modify the user creation part:
-
     if (!user) {
       const memberNumber = await generateMemberNumber();
 
@@ -77,8 +74,8 @@ export async function POST(request: Request) {
         );
       }
 
-      // Move email sending to a separate try-catch
-      sendWelcomeEmail(email, user.username || email, user.memberNumber || undefined ).catch(
+      // Send welcome email (user is not yet a member)
+      sendWelcomeEmail(email, user.username || email).catch(
         (error) => console.error("Welcome email error:", error)
       );
     }
@@ -90,10 +87,7 @@ export async function POST(request: Request) {
     });
 
     // Set cookie
-    (
-      await // Set cookie
-      cookies()
-    ).set("session", sessionCookie, {
+    (await cookies()).set("session", sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
       secure: true,
