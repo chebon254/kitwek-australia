@@ -8,6 +8,7 @@ import {
   sendMembershipConfirmationEmail,
   sendSubscriptionConfirmationEmail 
 } from '@/lib/nodemailer';
+import { generateMemberNumber } from '@/lib/memberNumber';
 import type Stripe from 'stripe';
 
 export async function POST(request: Request) {
@@ -39,11 +40,24 @@ export async function POST(request: Request) {
           data: { membershipStatus: 'ACTIVE' },
         });
 
-        // Send membership confirmation email
+        // Send membership confirmation email with member number
         if (user && session.customer_details?.email && session.customer_details?.name) {
+          let memberNumber = user.memberNumber;
+          
+          // If for some reason the user doesn't have a member number, generate one
+          if (!memberNumber) {
+            memberNumber = await generateMemberNumber();
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { memberNumber }
+            });
+            console.warn('Generated missing member number for user:', user.id);
+          }
+
           await sendMembershipConfirmationEmail(
             session.customer_details.email,
-            session.customer_details.name
+            session.customer_details.name,
+            memberNumber
           );
         }
       } else if (type === 'subscription') {
