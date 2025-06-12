@@ -10,6 +10,7 @@ import {
   Settings,
   ChevronRight,
   Ticket,
+  Vote,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -165,7 +166,7 @@ export default function Dashboard() {
                 >
                   <CreditCard className="h-6 w-6 text-gray-500" />
                   <span className="ml-3 text-sm font-medium text-gray-900">
-                    Manage Membership
+                    Membership
                   </span>
                 </Link>
                 <Link
@@ -187,10 +188,10 @@ export default function Dashboard() {
                   </span>
                 </Link>
                 <Link
-                  href="/voting"
+                  href="/dashboard/voting"
                   className="flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors"
                 >
-                  <Ticket className="h-6 w-6 text-gray-500" />
+                  <Vote className="h-6 w-6 text-gray-500" />
                   <span className="ml-3 text-sm font-medium text-gray-900">
                     Voting
                   </span>
