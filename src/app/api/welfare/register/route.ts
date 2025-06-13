@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
 
 // You'll need to create this price ID in Stripe for $200 welfare registration
-const WELFARE_REGISTRATION_PRICE = "price_welfare_registration_200"; // Replace with actual Stripe price ID
+// const WELFARE_REGISTRATION_PRICE = "price_welfare_registration_200"; // Replace with actual Stripe price ID
 
 export async function POST() {
   try {

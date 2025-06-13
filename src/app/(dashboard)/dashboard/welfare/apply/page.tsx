@@ -350,7 +350,7 @@ export default function WelfareApply() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Deceased Person's Full Name *
+                    Deceased Person&apos;s Full Name *
                   </label>
                   <input
                     type="text"

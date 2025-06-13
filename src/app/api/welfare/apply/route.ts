@@ -3,6 +3,30 @@ import { cookies } from 'next/headers';
 import { adminAuth } from '@/lib/firebase-admin';
 import { prisma } from '@/lib/prisma';
 
+// Type definitions for request data
+interface BeneficiaryData {
+  fullName: string;
+  relationship: string;
+  phone: string;
+  email?: string;
+  idNumber?: string;
+}
+
+interface DocumentData {
+  name: string;
+  url: string;
+  type: string;
+}
+
+interface ApplicationRequestData {
+  applicationType: string;
+  deceasedName: string;
+  relationToDeceased?: string;
+  reasonForApplication: string;
+  beneficiaries: BeneficiaryData[];
+  documents: DocumentData[];
+}
+
 export async function POST(request: Request) {
   try {
     const session = (await cookies()).get('session');
@@ -48,7 +72,7 @@ export async function POST(request: Request) {
       }, { status: 403 });
     }
 
-    const data = await request.json();
+    const data: ApplicationRequestData = await request.json();
     const { 
       applicationType, 
       deceasedName, 
@@ -97,7 +121,7 @@ export async function POST(request: Request) {
 
       // Create beneficiaries
       await Promise.all(
-        beneficiaries.map((beneficiary: any) =>
+        beneficiaries.map((beneficiary: BeneficiaryData) =>
           tx.welfareBeneficiary.create({
             data: {
               applicationId: newApplication.id,
@@ -113,7 +137,7 @@ export async function POST(request: Request) {
 
       // Create document records
       await Promise.all(
-        documents.map((doc: any) =>
+        documents.map((doc: DocumentData) =>
           tx.welfareDocument.create({
             data: {
               applicationId: newApplication.id,
