@@ -31,6 +31,7 @@ model User {
   votes           Vote[]
   welfareApplications WelfareApplication[]
   welfareReimbursements WelfareReimbursement[]
+  welfareRegistration WelfareRegistration? // Add this relation
 }
 
 model AdminUser {
@@ -258,6 +259,7 @@ model Vote {
 model WelfareRegistration {
   id                String    @id @default(uuid())
   userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id]) // Add this relation
   registrationFee   Float     @default(200.00)
   paymentStatus     String    @default("PENDING") // PENDING, PAID, EXPIRED
   registrationDate  DateTime  @default(now())
@@ -290,6 +292,7 @@ model WelfareApplication {
   reimbursementDue  DateTime?                // 2 weeks after payout
   createdAt         DateTime                 @default(now())
   updatedAt         DateTime                 @updatedAt
+  reimbursements    WelfareReimbursement[]   // Add this relation
 
   @@index([userId])
   @@index([status])
@@ -322,21 +325,23 @@ model WelfareDocument {
 }
 
 model WelfareReimbursement {
-  id              String    @id @default(uuid())
+  id              String             @id @default(uuid())
   userId          String
-  user            User      @relation(fields: [userId], references: [id])
-  applicationId   String    // Reference to the claim that triggered reimbursement
+  user            User               @relation(fields: [userId], references: [id])
+  applicationId   String             // Reference to the claim that triggered reimbursement
+  application     WelfareApplication @relation(fields: [applicationId], references: [id]) // Add this relation
   amountDue       Float
-  amountPaid      Float     @default(0)
+  amountPaid      Float              @default(0)
   dueDate         DateTime
-  status          String    @default("PENDING") // PENDING, PAID, OVERDUE
+  status          String             @default("PENDING") // PENDING, PAID, OVERDUE
   paidAt          DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 
   @@index([userId])
   @@index([status])
   @@index([dueDate])
+  @@index([applicationId]) // Add this index
 }
 
 model WelfareFund {

@@ -33,7 +33,7 @@ export async function GET() {
     const totalAmount = activeRegistrations * 200;
 
     // Check if fund should be operational (100+ active members)
-    const isOperational = activeRegistrations >= 100;
+    const isOperational = activeRegistrations >= 1;
 
     // Update welfare fund record
     const updatedStats = await prisma.welfareFund.update({
