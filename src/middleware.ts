@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PUBLIC_PATHS = ['/', '/about-us', '/blogs', '/contact-us', '/donations', '/sign-in', '/sign-up', '/reset-password', '/events', '/tickets'];
+const PUBLIC_PATHS = ['/', '/about-us', '/blogs', '/contact-us', '/donations', '/sign-in', '/sign-up', '/reset-password', '/events', '/tickets', '/welfare'];
 const PUBLIC_PATH_PREFIXES = ['/ui-assets/', '/favicon/']; // Paths that should be public including all their subpaths
 const AUTH_PATHS = ['/sign-in', '/sign-up', '/reset-password']; // Added this back
 
@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
     const isPublicAssetPath = PUBLIC_PATH_PREFIXES.some(prefix =>
         pathname.startsWith(prefix)
     );
-
+                                                                                            
     // Check if the path is explicitly public or starts with a public dynamic prefix
     const isPublicDynamicPath = PUBLIC_PATH_PREFIXES_DYNAMIC.some(prefix =>
         pathname.startsWith(prefix)

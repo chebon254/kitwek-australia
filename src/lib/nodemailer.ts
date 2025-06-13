@@ -638,3 +638,158 @@ export const sendContactEmail = async (data: {
     replyTo: data.email,
   });
 };
+
+export const sendWelfareRegistrationConfirmationEmail = async (
+  email: string,
+  name: string,
+  registration: {
+    registrationFee: number;
+    activatedAt: Date | null;
+  }
+) => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            background-color: #10b981;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+          }
+          .content {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0 0 8px 8px;
+          }
+          .welfare-info {
+            background-color: #d1fae5;
+            border: 2px solid #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+          }
+          .payment-details {
+            background-color: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+          }
+          .button {
+            display: inline-block;
+            background-color: #10b981;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+          }
+          .benefits {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+          }
+          .success-icon {
+            font-size: 48px;
+            color: #10b981;
+            text-align: center;
+            margin: 20px 0;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🎉 Welcome to Kitwek Victoria Welfare!</h1>
+            <h2 style="margin: 0;">You are now a welfare member!</h2>
+          </div>
+          <div class="content">
+            <div class="success-icon">✅</div>
+            
+            <h2>Congratulations ${name}!</h2>
+            <p><strong>You are now an active member of the Kitwek Victoria Welfare Department!</strong> Your registration payment has been processed successfully.</p>
+            
+            <div class="welfare-info">
+              <h3 style="margin-top: 0; color: #065f46;">Your Welfare Membership Details</h3>
+              <p style="margin: 10px 0;">Status: <strong>Active Member</strong></p>
+              <p style="margin: 10px 0;">Registration Fee: <strong>${registration.registrationFee.toFixed(
+                2
+              )}</strong></p>
+              <p style="margin-bottom: 0; color: #047857;">
+                <strong>Activated: ${
+                  registration.activatedAt
+                    ? new Date(registration.activatedAt).toLocaleDateString()
+                    : "Today"
+                }</strong>
+              </p>
+            </div>
+            
+            <div class="payment-details">
+              <h3>Payment Confirmation</h3>
+              <p><strong>Amount Paid:</strong> ${registration.registrationFee.toFixed(
+                2
+              )}</p>
+              <p><strong>Type:</strong> One-time Welfare Registration Fee</p>
+              <p><strong>Status:</strong> ✅ Completed</p>
+              <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+            </div>
+
+            <div class="benefits">
+              <h3 style="margin-top: 0; color: #92400e;">Your Welfare Benefits</h3>
+              <ul style="margin: 10px 0; padding-left: 20px;">
+                <li><strong>Family Death Support:</strong> $5,000 for immediate family members (spouse, child, or parent)</li>
+                <li><strong>Member Death Support:</strong> $8,000 to your immediate family if you pass away</li>
+                <li><strong>Community Support:</strong> Access to our caring community network</li>
+                <li><strong>Transparent Process:</strong> Clear claim procedures and timelines</li>
+              </ul>
+            </div>
+
+            <h3>Important Information:</h3>
+            <ul>
+              <li>The welfare fund needs a minimum of 100 active members to become operational</li>
+              <li>There is a 2-month waiting period after the fund becomes operational before claims can be made</li>
+              <li>All bereavements must be reported within 7 days of occurrence</li>
+              <li>After any claim is paid, all members will contribute to replenish the fund</li>
+              <li>Required documentation must be provided for all claims</li>
+            </ul>
+
+            <a href="${
+              process.env.NEXT_PUBLIC_URL
+            }/dashboard/welfare" style="color: #FFFFFF !important;" class="button">
+              Access Your Welfare Dashboard
+            </a>
+
+            <p>Please save this email for your records. If you have any questions about your welfare membership or the claims process, please don't hesitate to contact our support team.</p>
+
+            <p>Thank you for joining our caring community. Together, we support each other in times of need.</p>
+
+            <p>Best regards,<br>The Kitwek Victoria Welfare Department</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  await transporter.sendMail({
+    from: process.env.SMTP_USER,
+    to: email,
+    subject: "🎉 Welcome to Kitwek Victoria Welfare - Registration Confirmed!",
+    html,
+  });
+};

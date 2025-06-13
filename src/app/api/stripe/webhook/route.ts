@@ -6,7 +6,8 @@ import {
   sendTicketEmail, 
   sendDonationEmail, 
   sendMembershipConfirmationEmail,
-  sendSubscriptionConfirmationEmail 
+  sendSubscriptionConfirmationEmail,
+  sendWelfareRegistrationConfirmationEmail
 } from '@/lib/nodemailer';
 import { generateMemberNumber } from '@/lib/memberNumber';
 import type Stripe from 'stripe';
@@ -32,9 +33,68 @@ export async function POST(request: Request) {
 
   if (event.type === 'checkout.session.completed') {
     try {
-      const { type } = session.metadata as { type: 'membership' | 'subscription' | 'ticket' | 'donation' };
+      const { type } = session.metadata as { 
+        type: 'membership' | 'subscription' | 'ticket' | 'donation' | 'welfare_registration' 
+      };
 
-      if (type === 'membership') {
+      if (type === 'welfare_registration') {
+        const { userId, registrationId } = session.metadata as {
+          userId: string;
+          registrationId: string;
+        };
+
+        // Update welfare registration
+        const registration = await prisma.welfareRegistration.update({
+          where: { id: registrationId },
+          data: {
+            paymentStatus: 'PAID',
+            status: 'ACTIVE',
+            stripePaymentId: session.payment_intent as string,
+            activatedAt: new Date(),
+          }
+        });
+
+        // Get user details
+        const user = await prisma.user.findUnique({
+          where: { id: userId }
+        });
+
+        if (user && session.customer_details?.email && session.customer_details?.name) {
+          // Send welfare registration confirmation email
+          await sendWelfareRegistrationConfirmationEmail(
+            session.customer_details.email,
+            session.customer_details.name,
+            registration
+          );
+        }
+
+        // Update welfare fund statistics
+        const welfareStats = await prisma.welfareFund.findFirst({
+          orderBy: { createdAt: 'desc' }
+        });
+
+        if (welfareStats) {
+          const activeMembers = await prisma.welfareRegistration.count({
+            where: { status: 'ACTIVE', paymentStatus: 'PAID' }
+          });
+
+          const isOperational = activeMembers >= 100;
+
+          await prisma.welfareFund.update({
+            where: { id: welfareStats.id },
+            data: {
+              activeMembers,
+              totalAmount: activeMembers * 200,
+              isOperational,
+              launchDate: !welfareStats.launchDate && isOperational ? new Date() : welfareStats.launchDate,
+              waitingPeriodEnd: !welfareStats.waitingPeriodEnd && isOperational ? 
+                new Date(Date.now() + 60 * 24 * 60 * 60 * 1000) : // 60 days
+                welfareStats.waitingPeriodEnd,
+              lastUpdated: new Date(),
+            }
+          });
+        }
+      } else if (type === 'membership') {
         const user = await prisma.user.update({
           where: { stripeCustomerId: session.customer as string },
           data: { membershipStatus: 'ACTIVE' },

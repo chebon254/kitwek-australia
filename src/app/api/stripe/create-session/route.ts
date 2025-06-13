@@ -4,7 +4,6 @@ import { adminAuth } from "@/lib/firebase-admin";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 
-
 //  TEST PRICES
 // const MEMBERSHIP_PRICE = "price_1R08B404YgkEMOrNZkrYhBJV"; 
 // const SUBSCRIPTION_PRICES = {
@@ -18,7 +17,7 @@ import { stripe } from "@/lib/stripe";
 //   },
 // } as const;
 
-//Live Fixed price IDs for membership and subscriptions
+// Live Fixed price IDs for membership and subscriptions
 const MEMBERSHIP_PRICE = "price_1R08B404YgkEMOrNZkrYhBJV"; 
 const SUBSCRIPTION_PRICES = {
   Premium: {
@@ -30,7 +29,6 @@ const SUBSCRIPTION_PRICES = {
     annual: "price_1R1nL304YgkEMOrNjtHJjh9p", 
   },
 } as const;
-
 
 type PlanName = keyof typeof SUBSCRIPTION_PRICES;
 type BillingCycle = keyof (typeof SUBSCRIPTION_PRICES)[PlanName];
@@ -109,7 +107,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ url: session.url });
     }
 
-    // For other types (membership, subscription), require authentication
+    // For other types (membership, subscription, welfare), require authentication
     const session = (await cookies()).get("session");
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -174,6 +172,64 @@ export async function POST(request: Request) {
         },
         { status: 500 }
       );
+    }
+
+    // Handle welfare registration
+    if (type === "welfare") {
+      // Check if user is already registered
+      const existingRegistration = await prisma.welfareRegistration.findUnique({
+        where: { userId: user.id }
+      });
+
+      if (existingRegistration && existingRegistration.paymentStatus === 'PAID') {
+        return NextResponse.json(
+          { error: "Already registered for welfare" },
+          { status: 400 }
+        );
+      }
+
+      // Create or update welfare registration
+      let registration;
+      if (existingRegistration) {
+        registration = existingRegistration;
+      } else {
+        registration = await prisma.welfareRegistration.create({
+          data: {
+            userId: user.id,
+            registrationFee: 200.00,
+            paymentStatus: 'PENDING',
+            status: 'INACTIVE',
+          }
+        });
+      }
+
+      const checkoutSession = await stripe.checkout.sessions.create({
+        customer: stripeCustomerId,
+        mode: "payment",
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: "Kitwek Victoria Welfare Registration",
+                description: "One-time welfare fund registration fee",
+              },
+              unit_amount: 20000, // $200.00 in cents
+            },
+            quantity: 1,
+          },
+        ],
+        success_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/welfare?success=true`,
+        cancel_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/welfare/register?canceled=true`,
+        metadata: {
+          type: "welfare_registration",
+          userId: user.id,
+          registrationId: registration.id,
+        },
+      });
+
+      return NextResponse.json({ url: checkoutSession.url });
     }
 
     // Handle membership activation
