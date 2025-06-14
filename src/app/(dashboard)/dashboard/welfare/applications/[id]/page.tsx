@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -70,7 +70,7 @@ interface WelfareApplicationDetail {
   reimbursements: Reimbursement[];
 }
 
-export default function ApplicationDetail() {
+function ApplicationDetailContent() {
   const router = useRouter();
   const params = useParams();
   const applicationId = params.id as string;
@@ -558,5 +558,22 @@ export default function ApplicationDetail() {
         </div>
       </div>
     </main>
+  );
+}
+
+// Main component with Suspense wrapper
+export default function ApplicationDetail() {
+  return (
+    <Suspense fallback={
+      <main className="flex-1 mt-24">
+        <div className="py-6">
+          <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          </div>
+        </div>
+      </main>
+    }>
+      <ApplicationDetailContent />
+    </Suspense>
   );
 }

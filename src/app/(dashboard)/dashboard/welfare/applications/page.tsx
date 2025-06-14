@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -44,7 +44,8 @@ interface WelfareReimbursement {
   applicationId: string;
 }
 
-export default function WelfareApplications() {
+// Component to handle search params with Suspense
+function WelfareApplicationsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const success = searchParams.get('success');
@@ -462,5 +463,22 @@ export default function WelfareApplications() {
         </div>
       </div>
     </main>
+  );
+}
+
+// Main component with Suspense wrapper
+export default function WelfareApplications() {
+  return (
+    <Suspense fallback={
+      <main className="flex-1 mt-24">
+        <div className="py-6">
+          <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          </div>
+        </div>
+      </main>
+    }>
+      <WelfareApplicationsContent />
+    </Suspense>
   );
 }
