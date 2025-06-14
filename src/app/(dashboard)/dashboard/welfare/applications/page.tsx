@@ -8,7 +8,6 @@ import {
   FileText,
   Calendar,
   DollarSign,
-  User,
   Clock,
   CheckCircle,
   XCircle,

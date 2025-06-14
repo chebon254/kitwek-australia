@@ -6,7 +6,6 @@ import Link from "next/link";
 import {
   ArrowLeft,
   FileText,
-  Calendar,
   DollarSign,
   User,
   Clock,
@@ -19,7 +18,6 @@ import {
   Mail,
   IdCard,
   Heart,
-  MapPin,
   MessageSquare,
   CreditCard,
   History
