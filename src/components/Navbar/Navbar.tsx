@@ -38,7 +38,7 @@ export default function Navbar({ className }: NavbarProps) {
   const navigation = [
     { name: "Home", href: "/" },
     { name: "About Us", href: "/about-us" },
-    { name: "News & Blogs", href: "/blogs" },
+    { name: "News", href: "/blogs" },
     { name: "Events", href: "/events" },
   ];
 

@@ -39,7 +39,7 @@ function Footer() {
                 href={"/blogs"}
                 className="w-full py-[5px] font-normal hover:text-[#2C2C2C] text-xl leading-6 text-black"
               >
-                Blogs & News
+                News
               </Link>
             </div>
           </div>
@@ -48,7 +48,6 @@ function Footer() {
               Programs
             </h2>
             <div className="">
-              <br />
               <Link
                 href={"/donations"}
                 className="w-full py-[5px] font-normal hover:text-[#2C2C2C] text-xl leading-6 text-black"
@@ -61,6 +60,13 @@ function Footer() {
                 className="w-full py-[5px] font-normal hover:text-[#2C2C2C] text-xl leading-6 text-black"
               >
                 Tickets
+              </Link>
+              <br />
+              <Link
+                href="/welfare"
+                className="w-full py-[5px] font-normal hover:text-[#2C2C2C] text-xl leading-6 text-black"
+              >
+                Welfare
               </Link>
             </div>
           </div>
