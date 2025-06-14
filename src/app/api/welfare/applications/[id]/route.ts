@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = (await cookies()).get('session');
@@ -22,7 +22,7 @@ export async function GET(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const applicationId = params.id;
+    const applicationId = (await params).id;
 
     // Get the specific welfare application with all related data
     const application = await prisma.welfareApplication.findFirst({
