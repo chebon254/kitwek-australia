@@ -9,11 +9,20 @@ export const checkMembershipAndRedirect = async (router: AppRouterInstance) => {
     }
 
     const userData = await response.json();
+    
+    // Allow access if user has ACTIVE membership
+    if (userData.membershipStatus === 'ACTIVE') {
+      return true;
+    }
+
+    // For INACTIVE users, redirect to subscription page
+    // This allows both new users and expired users to pay
     if (userData.membershipStatus === 'INACTIVE') {
       router.push('/dashboard/subscription');
       return false;
     }
 
+    // Default: allow access (shouldn't reach here normally)
     return true;
   } catch (error) {
     console.error('Error checking membership:', error);

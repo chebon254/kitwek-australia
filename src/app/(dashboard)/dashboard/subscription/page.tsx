@@ -39,6 +39,7 @@ function Subscription() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [accountAge, setAccountAge] = useState(0); // in days
   const [showRenewalModal, setShowRenewalModal] = useState(false);
+  const [isReturningUser, setIsReturningUser] = useState(false);
 
   const fetchSubscription = async () => {
     try {
@@ -60,11 +61,19 @@ function Subscription() {
       );
       setAccountAge(ageInDays);
 
-      // Show renewal modal if:
-      // 1. Account is at least 1 year old
-      // 2. User is not currently on Premium plan
-      // 3. User's current plan is Free (meaning they either never subscribed or cancelled)
-      if (ageInDays >= 365 && membershipData.subscription === "Free") {
+      // Determine if this is a returning user whose membership expired
+      // A returning user is someone who:
+      // 1. Has an account older than 1 year AND
+      // 2. Currently has INACTIVE membership status AND 
+      // 3. Currently has Free subscription
+      const isReturning = ageInDays >= 365 && 
+                         userData.membershipStatus === "INACTIVE" && 
+                         membershipData.subscription === "Free";
+      
+      setIsReturningUser(isReturning);
+
+      // Show renewal modal only for returning users
+      if (isReturning) {
         setShowRenewalModal(true);
       }
     } catch (error) {
@@ -78,20 +87,13 @@ function Subscription() {
     fetchSubscription();
 
     const success = searchParams.get("success");
-
     if (success === "true") {
       fetchSubscription();
     }
   }, [searchParams]);
 
   const handleSubscribe = async (planName: string) => {
-    if (accountAge < 365) {
-      alert(
-        "Your account must be at least 1 year old to subscribe to Premium. Please try again after your account reaches 1 year."
-      );
-      return;
-    }
-
+    // Remove the 1-year restriction - allow all users to subscribe
     if (planName === currentPlan) {
       return;
     }
@@ -136,7 +138,6 @@ function Subscription() {
       });
 
       if (response.ok) {
-        // Update UI to show Free plan
         setCurrentPlan("Free");
       }
     } catch (error) {
@@ -165,11 +166,21 @@ function Subscription() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-12">
             <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-              Pay to Become a Member
+              {isReturningUser ? "Renew Your Membership" : "Pay to Become a Member"}
             </h1>
             <p className="mt-4 text-xl text-gray-500">
-              Take control of your subscription
+              {isReturningUser 
+                ? "Welcome back! Your annual membership has expired. Renew to continue accessing member features." 
+                : "Take control of your subscription"
+              }
             </p>
+            {accountAge < 30 && (
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-blue-800">
+                  🎉 Welcome! You are <strong className="text-xl">not yet</strong> a member, you can subscribe to become a member.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="max-w-lg mx-auto">
@@ -228,28 +239,38 @@ function Subscription() {
                         : "Cancel Subscription"}
                     </button>
                   ) : (
-                    // User is on Free plan - show subscribe button
+                    // User is on Free plan - show subscribe button (no age restriction)
                     <button
                       onClick={() => handleSubscribe(plan.name)}
-                      disabled={
-                        processingPlan === plan.name || accountAge < 365
-                      }
-                      className={`mt-8 w-full px-4 py-2 rounded-md text-sm font-medium ${
-                        accountAge < 365
-                          ? "bg-gray-300 cursor-not-allowed"
-                          : "bg-indigo-600 hover:bg-indigo-700"
-                      } text-white`}
+                      disabled={processingPlan === plan.name}
+                      className="mt-8 w-full px-4 py-2 rounded-md text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white"
                     >
                       {processingPlan === plan.name
                         ? "Processing..."
-                        : accountAge < 365
-                        ? "Available after 1 year"
+                        : isReturningUser
+                        ? "Renew Subscription"
                         : "Subscribe Now"}
                     </button>
                   )}
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Account Status Info */}
+          <div className="mt-8 max-w-lg mx-auto hidden">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="font-medium text-gray-900 mb-2">Account Information</h3>
+              <div className="text-sm text-gray-600 space-y-1">
+                <p>Account age: {accountAge} days</p>
+                <p>Status: {isReturningUser ? "Returning Member" : "New Member"}</p>
+                {isReturningUser && (
+                  <p className="text-amber-600">
+                    ⚠️ Your annual membership expired. Renew to restore access to member features.
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -283,14 +304,14 @@ function Subscription() {
         </div>
       )}
 
-      {/* Renewal Modal */}
-      {showRenewalModal && (
+      {/* Renewal Modal - Only for returning users */}
+      {showRenewalModal && isReturningUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">Time to Renew!</h3>
+            <h3 className="text-xl font-bold mb-4">Welcome Back!</h3>
             <p className="mb-6">
-              Your account is now one year old! You can now renew your
-              subscription.
+              Your annual membership has expired. Would you like to renew your subscription 
+              to continue accessing member features?
             </p>
             <div className="flex justify-end space-x-4">
               <button
@@ -302,7 +323,7 @@ function Subscription() {
               <button
                 onClick={() => {
                   setShowRenewalModal(false);
-                  handleSubscribe("Membership");
+                  handleSubscribe("Premium");
                 }}
                 className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
               >
