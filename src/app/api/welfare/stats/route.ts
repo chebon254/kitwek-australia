@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
     // Get or create welfare fund record
     let welfareStats = await prisma.welfareFund.findFirst({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     if (!welfareStats) {
@@ -16,7 +16,7 @@ export async function GET() {
           totalMembers: 0,
           activeMembers: 0,
           isOperational: false,
-        }
+        },
       });
     }
 
@@ -24,9 +24,9 @@ export async function GET() {
     const totalRegistrations = await prisma.welfareRegistration.count();
     const activeRegistrations = await prisma.welfareRegistration.count({
       where: {
-        status: 'ACTIVE',
-        paymentStatus: 'PAID'
-      }
+        status: "ACTIVE",
+        paymentStatus: "PAID",
+      },
     });
 
     // Calculate total fund amount (initial registration fees)
@@ -45,12 +45,19 @@ export async function GET() {
         isOperational: isOperational,
         lastUpdated: new Date(),
         // Set launch date when first becoming operational
-        launchDate: !welfareStats.launchDate && isOperational ? new Date() : welfareStats.launchDate,
+        launchDate:
+          !welfareStats.launchDate && isOperational
+            ? new Date()
+            : welfareStats.launchDate,
         // Set waiting period end (2 months after launch)
-        waitingPeriodEnd: !welfareStats.waitingPeriodEnd && isOperational ? 
-          new Date(Date.now() + 60 * 24 * 60 * 60 * 1000) : // 60 days
-          welfareStats.waitingPeriodEnd
-      }
+        // waitingPeriodEnd: !welfareStats.waitingPeriodEnd && isOperational ?
+        //   new Date(Date.now() + 60 * 24 * 60 * 60 * 1000) : // 60 days
+        //   welfareStats.waitingPeriodEnd
+        waitingPeriodEnd:
+          !welfareStats.waitingPeriodEnd && isOperational
+            ? new Date() // Set to current time (no waiting)
+            : welfareStats.waitingPeriodEnd,
+      },
     });
 
     return NextResponse.json({
@@ -62,9 +69,9 @@ export async function GET() {
       waitingPeriodEnd: updatedStats.waitingPeriodEnd,
     });
   } catch (error) {
-    console.error('Error fetching welfare stats:', error);
+    console.error("Error fetching welfare stats:", error);
     return NextResponse.json(
-      { error: 'Error fetching welfare statistics' },
+      { error: "Error fetching welfare statistics" },
       { status: 500 }
     );
   }
