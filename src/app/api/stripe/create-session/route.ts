@@ -81,7 +81,7 @@ export async function POST(request: Request) {
         line_items: [
           {
             price_data: {
-              currency: "usd",
+              currency: "aud", // Changed from "usd" to "aud"
               product_data: {
                 name: donation.name,
                 description: "One-time donation",
@@ -210,12 +210,12 @@ export async function POST(request: Request) {
         line_items: [
           {
             price_data: {
-              currency: "usd",
+              currency: "aud", // Changed from "usd" to "aud"
               product_data: {
                 name: "Kitwek Victoria Welfare Registration",
                 description: "One-time welfare fund registration fee",
               },
-              unit_amount: 20000, // $200.00 in cents
+              unit_amount: 20000, // $200.00 in cents (AUD)
             },
             quantity: 1,
           },
