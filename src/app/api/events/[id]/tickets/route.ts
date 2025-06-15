@@ -42,13 +42,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const session = (await cookies()).get('session');
     
     if (session) {
-      const decodedClaims = await adminAuth.verifySessionCookie(session.value, true);
-      const user = await prisma.user.findUnique({
-        where: { email: decodedClaims.email },
-      });
-      if (user) {
-        userId = user.id;
-        userEmail = user.email;
+      try {
+        const decodedClaims = await adminAuth.verifySessionCookie(session.value, true);
+        const user = await prisma.user.findUnique({
+          where: { email: decodedClaims.email },
+        });
+        if (user) {
+          userId = user.id;
+          userEmail = user.email;
+        }
+      } catch (authError) {
+        console.error("Auth error in ticket purchase:", authError || "Unknown auth error");
+        // Continue without user authentication for guest purchases
       }
     }
 
@@ -60,7 +65,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         line_items: [
           {
             price_data: {
-              currency: 'usd',
+              currency: 'aud', // Changed from 'usd' to 'aud'
               product_data: {
                 name: event.title,
                 description: `${quantity} ticket${quantity > 1 ? 's' : ''}`,
@@ -75,7 +80,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         metadata: {
           type: 'ticket',
           eventId,
-          userId: userId || null, // Changed from undefined to null
+          userId: userId || '', // Changed from null to empty string to avoid null issues
           quantity: quantity.toString(),
           attendees: JSON.stringify(attendees),
         },
@@ -146,7 +151,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     return NextResponse.json(ticket);
   } catch (error) {
-    console.error('Error creating ticket:', error);
+    console.error('Error creating ticket:', error || "Unknown ticket creation error");
     return NextResponse.json(
       { error: 'Error creating ticket' },
       { status: 500 }

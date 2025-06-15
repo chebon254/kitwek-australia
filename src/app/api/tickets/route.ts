@@ -15,21 +15,26 @@ export async function GET(request: Request) {
     const session = cookieStore.get('session');
     
     if (session) {
-      const decodedClaims = await adminAuth.verifySessionCookie(session.value, true);
-      const user = await prisma.user.findUnique({
-        where: { email: decodedClaims.email },
-      });
-
-      if (user) {
-        // Get tickets for logged-in user
-        tickets = await prisma.ticket.findMany({
-          where: { userId: user.id },
-          include: {
-            event: true,
-            attendees: true,
-          },
-          orderBy: { purchaseDate: 'desc' },
+      try {
+        const decodedClaims = await adminAuth.verifySessionCookie(session.value, true);
+        const user = await prisma.user.findUnique({
+          where: { email: decodedClaims.email },
         });
+
+        if (user) {
+          // Get tickets for logged-in user
+          tickets = await prisma.ticket.findMany({
+            where: { userId: user.id },
+            include: {
+              event: true,
+              attendees: true,
+            },
+            orderBy: { purchaseDate: 'desc' },
+          });
+        }
+      } catch (authError) {
+        console.error("Auth error in tickets route:", authError || "Unknown auth error");
+        return NextResponse.json({ error: "Authentication failed" }, { status: 401 });
       }
     } else if (email) {
       // Get tickets by attendee email for non-logged-in users
@@ -52,9 +57,9 @@ export async function GET(request: Request) {
       );
     }
 
-    return NextResponse.json(tickets);
+    return NextResponse.json(tickets || []);
   } catch (error) {
-    console.error('Error fetching tickets:', error);
+    console.error('Error fetching tickets:', error || "Unknown tickets fetch error");
     return NextResponse.json(
       { error: 'Error fetching tickets' },
       { status: 500 }

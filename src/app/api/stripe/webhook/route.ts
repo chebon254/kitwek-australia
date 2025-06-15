@@ -1,20 +1,20 @@
-import { NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import { stripe } from '@/lib/stripe';
-import { prisma } from '@/lib/prisma';
-import { 
-  sendTicketEmail, 
-  sendDonationEmail, 
+import { NextResponse } from "next/server";
+import { headers } from "next/headers";
+import { stripe } from "@/lib/stripe";
+import { prisma } from "@/lib/prisma";
+import {
+  sendTicketEmail,
+  sendDonationEmail,
   sendMembershipConfirmationEmail,
   sendSubscriptionConfirmationEmail,
-  sendWelfareRegistrationConfirmationEmail
-} from '@/lib/nodemailer';
-import { generateMemberNumber } from '@/lib/memberNumber';
-import type Stripe from 'stripe';
+  sendWelfareRegistrationConfirmationEmail,
+} from "@/lib/nodemailer";
+import { generateMemberNumber } from "@/lib/memberNumber";
+import type Stripe from "stripe";
 
 export async function POST(request: Request) {
   const body = await request.text();
-  const signature = (await headers()).get('stripe-signature') as string;
+  const signature = (await headers()).get("stripe-signature") as string;
 
   let event: Stripe.Event;
 
@@ -25,19 +25,25 @@ export async function POST(request: Request) {
       process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (error) {
-    console.error("Webhook error:", error);
-    return NextResponse.json({ error: 'Webhook error' }, { status: 400 });
+    const errorMessage = error instanceof Error ? error.message : "Unknown webhook error";
+    console.error("Webhook error:", { error: errorMessage });
+    return NextResponse.json({ error: "Webhook error" }, { status: 400 });
   }
 
   const session = event.data.object as Stripe.Checkout.Session;
 
-  if (event.type === 'checkout.session.completed') {
+  if (event.type === "checkout.session.completed") {
     try {
-      const { type } = session.metadata as { 
-        type: 'membership' | 'subscription' | 'ticket' | 'donation' | 'welfare_registration' 
+      const { type } = session.metadata as {
+        type:
+          | "membership"
+          | "subscription"
+          | "ticket"
+          | "donation"
+          | "welfare_registration";
       };
 
-      if (type === 'welfare_registration') {
+      if (type === "welfare_registration") {
         const { userId, registrationId } = session.metadata as {
           userId: string;
           registrationId: string;
@@ -47,19 +53,23 @@ export async function POST(request: Request) {
         const registration = await prisma.welfareRegistration.update({
           where: { id: registrationId },
           data: {
-            paymentStatus: 'PAID',
-            status: 'ACTIVE',
+            paymentStatus: "PAID",
+            status: "ACTIVE",
             stripePaymentId: session.payment_intent as string,
             activatedAt: new Date(),
-          }
+          },
         });
 
         // Get user details
         const user = await prisma.user.findUnique({
-          where: { id: userId }
+          where: { id: userId },
         });
 
-        if (user && session.customer_details?.email && session.customer_details?.name) {
+        if (
+          user &&
+          session.customer_details?.email &&
+          session.customer_details?.name
+        ) {
           // Send welfare registration confirmation email
           await sendWelfareRegistrationConfirmationEmail(
             session.customer_details.email,
@@ -70,12 +80,12 @@ export async function POST(request: Request) {
 
         // Update welfare fund statistics
         const welfareStats = await prisma.welfareFund.findFirst({
-          orderBy: { createdAt: 'desc' }
+          orderBy: { createdAt: "desc" },
         });
 
         if (welfareStats) {
           const activeMembers = await prisma.welfareRegistration.count({
-            where: { status: 'ACTIVE', paymentStatus: 'PAID' }
+            where: { status: "ACTIVE", paymentStatus: "PAID" },
           });
 
           const isOperational = activeMembers >= 100;
@@ -86,32 +96,40 @@ export async function POST(request: Request) {
               activeMembers,
               totalAmount: activeMembers * 200,
               isOperational,
-              launchDate: !welfareStats.launchDate && isOperational ? new Date() : welfareStats.launchDate,
-              waitingPeriodEnd: !welfareStats.waitingPeriodEnd && isOperational ? 
-                new Date(Date.now() + 60 * 24 * 60 * 60 * 1000) : // 60 days
-                welfareStats.waitingPeriodEnd,
+              launchDate:
+                !welfareStats.launchDate && isOperational
+                  ? new Date()
+                  : welfareStats.launchDate,
+              waitingPeriodEnd:
+                !welfareStats.waitingPeriodEnd && isOperational
+                  ? new Date(Date.now() + 60 * 24 * 60 * 60 * 1000) // 60 days
+                  : welfareStats.waitingPeriodEnd,
               lastUpdated: new Date(),
-            }
+            },
           });
         }
-      } else if (type === 'membership') {
+      } else if (type === "membership") {
         const user = await prisma.user.update({
           where: { stripeCustomerId: session.customer as string },
-          data: { membershipStatus: 'ACTIVE' },
+          data: { membershipStatus: "ACTIVE" },
         });
 
         // Send membership confirmation email with member number
-        if (user && session.customer_details?.email && session.customer_details?.name) {
+        if (
+          user &&
+          session.customer_details?.email &&
+          session.customer_details?.name
+        ) {
           let memberNumber = user.memberNumber;
-          
+
           // If for some reason the user doesn't have a member number, generate one
           if (!memberNumber) {
             memberNumber = await generateMemberNumber();
             await prisma.user.update({
               where: { id: user.id },
-              data: { memberNumber }
+              data: { memberNumber },
             });
-            console.warn('Generated missing member number for user:', user.id);
+            console.warn("Generated missing member number for user:", user.id);
           }
 
           await sendMembershipConfirmationEmail(
@@ -120,19 +138,23 @@ export async function POST(request: Request) {
             memberNumber
           );
         }
-      } else if (type === 'subscription') {
-        const planName = session.metadata?.planName || 'Premium';
-        
+      } else if (type === "subscription") {
+        const planName = session.metadata?.planName || "Premium";
+
         const user = await prisma.user.update({
           where: { stripeCustomerId: session.customer as string },
           data: {
-            membershipStatus: 'ACTIVE', // Set to ACTIVE when subscribing to Premium
+            membershipStatus: "ACTIVE", // Set to ACTIVE when subscribing to Premium
             subscription: planName,
           },
         });
 
         // Send subscription confirmation email
-        if (user && session.customer_details?.email && session.customer_details?.name) {
+        if (
+          user &&
+          session.customer_details?.email &&
+          session.customer_details?.name
+        ) {
           await sendSubscriptionConfirmationEmail(
             session.customer_details.email,
             session.customer_details.name,
@@ -142,7 +164,7 @@ export async function POST(request: Request) {
             }
           );
         }
-      } else if (type === 'ticket') {
+      } else if (type === "ticket") {
         const metadata = session.metadata as {
           eventId: string;
           quantity: string;
@@ -151,7 +173,7 @@ export async function POST(request: Request) {
         };
 
         if (!metadata.eventId || !metadata.quantity || !metadata.attendees) {
-          throw new Error('Missing required metadata for ticket purchase');
+          throw new Error("Missing required metadata for ticket purchase");
         }
 
         const attendeesData = JSON.parse(metadata.attendees);
@@ -165,44 +187,45 @@ export async function POST(request: Request) {
           });
 
           if (!event) {
-            throw new Error('Event not found');
+            throw new Error("Event not found");
           }
 
           if (event.remainingSlots < quantity) {
-            throw new Error('Not enough remaining slots');
+            throw new Error("Not enough remaining slots");
           }
 
           // Create the ticket
           const ticket = await tx.ticket.create({
             data: {
               eventId: metadata.eventId,
-              userId: metadata.userId,
+              userId: metadata.userId || null,
               quantity,
               totalAmount: (session.amount_total || 0) / 100,
-              status: 'ACTIVE',
+              status: "ACTIVE",
             },
           });
 
           // Create attendees
           const attendees = await Promise.all(
-            attendeesData.map((attendee: {
-              firstName: string;
-              lastName: string;
-              email: string;
-              phone?: string;
-            }) =>
-              tx.eventAttendee.create({
-                data: {
-                  eventId: metadata.eventId,
-                  ticketId: ticket.id,
-                  firstName: attendee.firstName,
-                  lastName: attendee.lastName,
-                  email: attendee.email,
-                  phone: attendee.phone,
-                  paid: true,
-                  amount: amountPerTicket,
-                },
-              })
+            attendeesData.map(
+              (attendee: {
+                firstName: string;
+                lastName: string;
+                email: string;
+                phone?: string;
+              }) =>
+                tx.eventAttendee.create({
+                  data: {
+                    eventId: metadata.eventId,
+                    ticketId: ticket.id,
+                    firstName: attendee.firstName,
+                    lastName: attendee.lastName,
+                    email: attendee.email,
+                    phone: attendee.phone,
+                    paid: true,
+                    amount: amountPerTicket,
+                  },
+                })
             )
           );
 
@@ -226,7 +249,7 @@ export async function POST(request: Request) {
             )
           )
         );
-      } else if (type === 'donation') {
+      } else if (type === "donation") {
         const metadata = session.metadata as {
           donationId: string;
           name: string;
@@ -241,7 +264,7 @@ export async function POST(request: Request) {
         });
 
         if (!donation) {
-          throw new Error('Donation not found');
+          throw new Error("Donation not found");
         }
 
         // Create donor record
@@ -251,27 +274,26 @@ export async function POST(request: Request) {
             name: metadata.name,
             email: metadata.email,
             message: metadata.message,
-            anonymous: metadata.anonymous === 'true',
+            anonymous: metadata.anonymous === "true",
             amount: (session.amount_total || 0) / 100,
           },
         });
 
         // Send confirmation email
-        await sendDonationEmail(
-          metadata.email,
-          metadata.name,
-          {
-            name: donation.name,
-            amount: (session.amount_total || 0) / 100,
-          }
-        );
+        await sendDonationEmail(metadata.email, metadata.name, {
+          name: donation.name,
+          amount: (session.amount_total || 0) / 100,
+        });
       }
 
       return NextResponse.json({ received: true });
     } catch (error) {
-      console.error('Error processing webhook:', error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown processing error";
+      console.error("Error processing webhook:", { error: errorMessage });
       return NextResponse.json(
-        { error: error instanceof Error ? error.message : 'Error processing webhook' },
+        {
+          error: errorMessage,
+        },
         { status: 500 }
       );
     }

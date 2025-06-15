@@ -18,15 +18,15 @@ import { stripe } from "@/lib/stripe";
 // } as const;
 
 // Live Fixed price IDs for membership and subscriptions
-const MEMBERSHIP_PRICE = "price_1R08B404YgkEMOrNZkrYhBJV"; 
+const MEMBERSHIP_PRICE = "price_1R08B404YgkEMOrNZkrYhBJV";
 const SUBSCRIPTION_PRICES = {
   Premium: {
-    monthly: "price_1R1nL304YgkEMOrNjtHJjh9p", 
-    annual: "price_1R1nL304YgkEMOrNjtHJjh9p", 
+    monthly: "price_1R1nL304YgkEMOrNjtHJjh9p",
+    annual: "price_1R1nL304YgkEMOrNjtHJjh9p",
   },
   VIP: {
-    monthly: "price_1R1nL304YgkEMOrNjtHJjh9p", 
-    annual: "price_1R1nL304YgkEMOrNjtHJjh9p", 
+    monthly: "price_1R1nL304YgkEMOrNjtHJjh9p",
+    annual: "price_1R1nL304YgkEMOrNjtHJjh9p",
   },
 } as const;
 
@@ -145,7 +145,8 @@ export async function POST(request: Request) {
         } catch (customerRetrieveError) {
           // If customer not found, create a new one
           console.warn(
-            "Existing Stripe customer not found, creating new customer: ", customerRetrieveError
+            "Existing Stripe customer not found, creating new customer: ",
+            customerRetrieveError
           );
           const customer = await stripe.customers.create({
             email: user.email,
@@ -164,7 +165,10 @@ export async function POST(request: Request) {
         data: { stripeCustomerId },
       });
     } catch (error) {
-      console.error("Stripe customer creation/verification failed:", error);
+      console.error(
+        "Stripe customer creation/verification failed:",
+        error || "Unknown stripe error"
+      );
       return NextResponse.json(
         {
           error: "Failed to create or verify Stripe customer",
@@ -178,10 +182,13 @@ export async function POST(request: Request) {
     if (type === "welfare") {
       // Check if user is already registered
       const existingRegistration = await prisma.welfareRegistration.findUnique({
-        where: { userId: user.id }
+        where: { userId: user.id },
       });
 
-      if (existingRegistration && existingRegistration.paymentStatus === 'PAID') {
+      if (
+        existingRegistration &&
+        existingRegistration.paymentStatus === "PAID"
+      ) {
         return NextResponse.json(
           { error: "Already registered for welfare" },
           { status: 400 }
@@ -196,10 +203,10 @@ export async function POST(request: Request) {
         registration = await prisma.welfareRegistration.create({
           data: {
             userId: user.id,
-            registrationFee: 200.00,
-            paymentStatus: 'PENDING',
-            status: 'INACTIVE',
-          }
+            registrationFee: 200.0,
+            paymentStatus: "PENDING",
+            status: "INACTIVE",
+          },
         });
       }
 
@@ -322,7 +329,10 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   } catch (error) {
-    console.error("Stripe session error:", error);
+    console.error(
+      "Stripe session error:",
+      error || "Unknown stripe session error"
+    );
     return NextResponse.json(
       { error: "Failed to create checkout session" },
       { status: 500 }

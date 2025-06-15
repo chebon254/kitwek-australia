@@ -15,7 +15,7 @@ export async function GET() {
     try {
       decodedClaims = await adminAuth.verifySessionCookie(session.value, true);
     } catch (error) {
-      console.error("Session verification error:", error);
+      console.error("Session verification error:", error || "Unknown session error");
       // Clear invalid session cookie
       (await cookies()).delete("session");
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
@@ -64,7 +64,7 @@ export async function GET() {
 
     return NextResponse.json(user);
   } catch (error) {
-    console.error("User fetch error:", error);
+    console.error("User fetch error:", error || "Unknown user fetch error");
     return NextResponse.json(
       { error: "Failed to fetch user data" },
       { status: 500 }
