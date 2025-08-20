@@ -4,9 +4,6 @@ import { adminAuth } from '@/lib/firebase-admin';
 import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
 
-// You'll need to create this price ID in Stripe for $200 AUD welfare registration
-// const WELFARE_REGISTRATION_PRICE = "price_welfare_registration_200"; // Replace with actual Stripe price ID
-
 export async function POST() {
   try {
     const session = (await cookies()).get('session');
@@ -22,6 +19,7 @@ export async function POST() {
       console.error('Session verification failed:', verifyError);
       return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
     }
+
     const user = await prisma.user.findUnique({
       where: { email: decodedClaims.email },
     });
@@ -31,26 +29,20 @@ export async function POST() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    console.log('Processing registration for user:', user.id, user.email);
+    console.log('Processing payment completion for user:', user.id, user.email);
 
-    // Check if user is already registered
-    const existingRegistration = await prisma.welfareRegistration.findUnique({
+    // Check if user has a pending registration
+    const registration = await prisma.welfareRegistration.findUnique({
       where: { userId: user.id }
     });
 
-    if (existingRegistration) {
-      return NextResponse.json({ error: 'Already registered for welfare' }, { status: 400 });
+    if (!registration) {
+      return NextResponse.json({ error: 'No registration found' }, { status: 404 });
     }
 
-    // Create welfare registration record
-    const registration = await prisma.welfareRegistration.create({
-      data: {
-        userId: user.id,
-        registrationFee: 200.00,
-        paymentStatus: 'PENDING',
-        status: 'INACTIVE',
-      }
-    });
+    if (registration.paymentStatus === 'PAID') {
+      return NextResponse.json({ error: 'Payment already completed' }, { status: 400 });
+    }
 
     // Create or get Stripe customer
     let stripeCustomerId = user.stripeCustomerId;
@@ -70,7 +62,7 @@ export async function POST() {
       });
     }
 
-    // Create Stripe checkout session
+    // Create new Stripe checkout session for pending payment
     const checkoutSession = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       mode: 'payment',
@@ -81,7 +73,7 @@ export async function POST() {
             currency: 'aud',
             product_data: {
               name: 'Kitwek Victoria Welfare Registration',
-              description: 'One-time welfare fund registration fee',
+              description: 'Complete your welfare fund registration payment',
             },
             unit_amount: 20000, // $200.00 AUD in cents
           },
@@ -100,13 +92,13 @@ export async function POST() {
     console.log('Checkout session created successfully:', checkoutSession.id);
     return NextResponse.json({ url: checkoutSession.url });
   } catch (error) {
-    console.error('Error creating welfare registration:', error);
+    console.error('Error completing welfare payment:', error);
     
     // More detailed error response
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
       { 
-        error: 'Error creating welfare registration',
+        error: 'Error completing welfare payment',
         details: errorMessage 
       },
       { status: 500 }

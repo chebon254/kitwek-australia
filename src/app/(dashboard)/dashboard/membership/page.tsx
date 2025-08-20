@@ -113,7 +113,7 @@ export default function Membership() {
                       </p>
                     </div>
                     <div className="text-4xl font-bold text-indigo-600">
-                      $30
+                      AUD $30
                     </div>
                   </div>
                   <ul className="space-y-4 mb-8">
@@ -177,7 +177,7 @@ export default function Membership() {
                         Processing...
                       </>
                     ) : (
-                      "Pay $30 to Activate"
+                      "Pay AUD $30 to Activate"
                     )}
                   </button>
                 </div>

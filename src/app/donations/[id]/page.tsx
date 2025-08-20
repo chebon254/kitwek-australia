@@ -75,7 +75,7 @@ export default function DonationDetail() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.amount < 1) {
-      setError("Minimum donation amount is $1");
+      setError("Minimum donation amount is AUD $1");
       return;
     }
 
@@ -200,7 +200,7 @@ export default function DonationDetail() {
                       <div className="flex items-center justify-between text-sm mb-2">
                         <span className="text-gray-500">Progress</span>
                         <span className="font-medium text-indigo-600">
-                          ${totalRaised.toLocaleString()} of $
+                          AUD ${totalRaised.toLocaleString()} of AUD $
                           {donation.goal.toLocaleString()}
                         </span>
                       </div>
@@ -241,7 +241,7 @@ export default function DonationDetail() {
                     htmlFor="amount"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Donation Amount (USD)
+                    Donation Amount (AUD)
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

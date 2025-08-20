@@ -52,14 +52,17 @@ export default function WelfareRegister() {
     setError('');
 
     try {
+      // Add credentials to ensure cookies are sent
       const response = await fetch('/api/welfare/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Ensure cookies are sent
       });
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Registration failed');
+        console.error('Registration API error:', data);
+        throw new Error(data.details ? `${data.error}: ${data.details}` : data.error || 'Registration failed');
       }
 
       const data = await response.json();
@@ -86,11 +89,12 @@ export default function WelfareRegister() {
       const response = await fetch('/api/welfare/complete-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Ensure cookies are sent
       });
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Payment completion failed');
+        throw new Error(data.details ? `${data.error}: ${data.details}` : data.error || 'Payment completion failed');
       }
 
       const data = await response.json();
@@ -189,7 +193,7 @@ export default function WelfareRegister() {
                         {registrationStatus.paymentStatus === 'PENDING' && (
                           <div>
                             <p className="text-sm text-gray-600 mb-4">
-                              Complete your $200 registration payment to activate your welfare membership.
+                              Complete your AUD $200 registration payment to activate your welfare membership.
                             </p>
                             <button
                               onClick={handleCompletePayment}
@@ -204,7 +208,7 @@ export default function WelfareRegister() {
                               ) : (
                                 <>
                                   <DollarSign className="h-5 w-5 mr-2" />
-                                  Complete Payment - $200
+                                  Complete Payment - AUD $200
                                 </>
                               )}
                             </button>
@@ -234,7 +238,7 @@ export default function WelfareRegister() {
                           </li>
                           <li className="flex items-start">
                             <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                            Pay one-time registration fee of $200
+                            Pay one-time registration fee of AUD $200
                           </li>
                           <li className="flex items-start">
                             <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
@@ -249,7 +253,7 @@ export default function WelfareRegister() {
                         <div className="bg-gray-50 rounded-lg p-4 max-h-60 overflow-y-auto text-sm text-gray-700 space-y-2">
                           <p><strong>By registering, you agree to:</strong></p>
                           <ul className="list-disc list-inside space-y-1 ml-4">
-                            <li>Pay the one-time registration fee of $200</li>
+                            <li>Pay the one-time registration fee of AUD $200</li>
                             <li>Participate in the community reimbursement system after claims</li>
                             <li>Provide accurate information for all applications</li>
                             <li>Report bereavements within 7 days of occurrence</li>
@@ -259,8 +263,8 @@ export default function WelfareRegister() {
                             <li>Comply with all welfare department constitution provisions</li>
                           </ul>
                           <p className="mt-4">
-                            <strong>Benefits:</strong> $5,000 for immediate family member death, 
-                            $8,000 for registered member death paid to family.
+                            <strong>Benefits:</strong> AUD $5,000 for immediate family member death, 
+                            AUD $8,000 for registered member death paid to family.
                           </p>
                         </div>
                       </div>
@@ -296,7 +300,7 @@ export default function WelfareRegister() {
                         ) : (
                           <>
                             <DollarSign className="h-5 w-5 mr-2" />
-                            Register & Pay $200
+                            Register & Pay AUD $200
                           </>
                         )}
                       </button>
@@ -316,7 +320,7 @@ export default function WelfareRegister() {
                 <div className="px-6 py-5">
                   <div className="flex items-center justify-between text-2xl font-bold text-gray-900">
                     <span>One-time Fee</span>
-                    <span>$200</span>
+                    <span>AUD $200</span>
                   </div>
                   <p className="mt-2 text-sm text-gray-500">
                     This fee covers your lifetime membership in the welfare fund
@@ -332,12 +336,12 @@ export default function WelfareRegister() {
                 <div className="px-6 py-5 space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Family Death Support</span>
-                    <span className="text-lg font-semibold text-gray-900">$5,000</span>
+                    <span className="text-lg font-semibold text-gray-900">AUD $5,000</span>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Member Death Support</span>
-                    <span className="text-lg font-semibold text-gray-900">$8,000</span>
+                    <span className="text-lg font-semibold text-gray-900">AUD $8,000</span>
                   </div>
                   
                   <div className="pt-2 border-t">

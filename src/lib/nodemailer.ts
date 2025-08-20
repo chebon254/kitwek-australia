@@ -76,7 +76,7 @@ export const sendWelcomeEmail = async (email: string, username: string) => {
             <div class="payment-info">
               <h3 style="margin-top: 0; color: #92400e;">⚠️ You are not yet a member</h3>
               <p>To become a full member of Kitwek Victoria and unlock all member benefits, you need to complete your membership payment.</p>
-              <div class="amount">$30.00</div>
+              <div class="amount">AUD $30.00</div>
               <p style="text-align: center; margin-bottom: 0;"><strong>One-time Membership Fee</strong></p>
             </div>
 
@@ -92,7 +92,7 @@ export const sendWelcomeEmail = async (email: string, username: string) => {
             <p>Complete your membership payment now to join our community:</p>
             
             <a href="${process.env.NEXT_PUBLIC_URL}/dashboard/membership" style="color: #FFFFFF !important;" class="button">
-              Pay $30 & Become a Member
+              Pay AUD $30 & Become a Member
             </a>
             
             <p>If you have any questions about membership or need assistance with payment, don't hesitate to reach out to our support team.</p>
@@ -205,7 +205,7 @@ export const sendMembershipConfirmationEmail = async (
             
             <div class="payment-details">
               <h3>Payment Confirmation</h3>
-              <p><strong>Amount Paid:</strong> $30.00</p>
+              <p><strong>Amount Paid:</strong> AUD $30.00</p>
               <p><strong>Type:</strong> One-time Membership Fee</p>
               <p><strong>Status:</strong> ✅ Completed</p>
               <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
@@ -312,7 +312,7 @@ export const sendSubscriptionConfirmationEmail = async (
             <div class="subscription-details">
               <h3>Subscription Details</h3>
               <p><strong>Plan:</strong> Annual Membership</p>
-              <p><strong>Amount:</strong> $${plan.amount.toFixed(2)}/year</p>
+              <p><strong>Amount:</strong> AUD $${plan.amount.toFixed(2)}/year</p>
               <p><strong>Status:</strong> Active</p>
               <p><strong>Billing Cycle:</strong> Annual</p>
             </div>
@@ -530,7 +530,7 @@ export const sendDonationEmail = async (
             }. Your support means the world to us and will help make a real difference.</p>
             
             <div class="donation-details">
-              <div class="amount">$${donation.amount.toLocaleString()}</div>
+              <div class="amount">AUD $${donation.amount.toLocaleString()}</div>
               <p style="text-align: center;">Your contribution to:<br><strong>${
                 donation.name
               }</strong></p>
@@ -728,7 +728,7 @@ export const sendWelfareRegistrationConfirmationEmail = async (
             <div class="welfare-info">
               <h3 style="margin-top: 0; color: #065f46;">Your Welfare Membership Details</h3>
               <p style="margin: 10px 0;">Status: <strong>Active Member</strong></p>
-              <p style="margin: 10px 0;">Registration Fee: <strong>${registration.registrationFee.toFixed(
+              <p style="margin: 10px 0;">Registration Fee: <strong>AUD ${registration.registrationFee.toFixed(
                 2
               )}</strong></p>
               <p style="margin-bottom: 0; color: #047857;">
@@ -742,7 +742,7 @@ export const sendWelfareRegistrationConfirmationEmail = async (
             
             <div class="payment-details">
               <h3>Payment Confirmation</h3>
-              <p><strong>Amount Paid:</strong> ${registration.registrationFee.toFixed(
+              <p><strong>Amount Paid:</strong> AUD ${registration.registrationFee.toFixed(
                 2
               )}</p>
               <p><strong>Type:</strong> One-time Welfare Registration Fee</p>
@@ -753,8 +753,8 @@ export const sendWelfareRegistrationConfirmationEmail = async (
             <div class="benefits">
               <h3 style="margin-top: 0; color: #92400e;">Your Welfare Benefits</h3>
               <ul style="margin: 10px 0; padding-left: 20px;">
-                <li><strong>Family Death Support:</strong> $5,000 for immediate family members (spouse, child, or parent)</li>
-                <li><strong>Member Death Support:</strong> $8,000 to your immediate family if you pass away</li>
+                <li><strong>Family Death Support:</strong> AUD $5,000 for immediate family members (spouse, child, or parent)</li>
+                <li><strong>Member Death Support:</strong> AUD $8,000 to your immediate family if you pass away</li>
                 <li><strong>Community Support:</strong> Access to our caring community network</li>
                 <li><strong>Transparent Process:</strong> Clear claim procedures and timelines</li>
               </ul>

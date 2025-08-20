@@ -181,7 +181,7 @@ export default function WelfareDashboard() {
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-500">Fund Balance</p>
-                    <p className="text-2xl font-semibold text-gray-900">${fundStats.totalAmount.toLocaleString()}</p>
+                    <p className="text-2xl font-semibold text-gray-900">AUD ${fundStats.totalAmount.toLocaleString()}</p>
                   </div>
                 </div>
               </div>
@@ -280,7 +280,7 @@ export default function WelfareDashboard() {
                         className="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
                       >
                         <CreditCard className="h-5 w-5 mr-2" />
-                        Register & Pay $200
+                        Register & Pay AUD $200
                       </Link>
                     ) : welfareStatus.paymentStatus === 'PENDING' ? (
                       <Link
@@ -339,7 +339,7 @@ export default function WelfareDashboard() {
                             </p>
                             <p className="text-sm text-gray-500">
                               {application.applicationType === 'MEMBER_DEATH' ? 'Member Death' : 'Family Death'} • 
-                              ${application.claimAmount.toLocaleString()}
+                              AUD ${application.claimAmount.toLocaleString()}
                             </p>
                             <p className="text-xs text-gray-400">
                               Applied {new Date(application.createdAt).toLocaleDateString()}
@@ -368,7 +368,7 @@ export default function WelfareDashboard() {
                     <Heart className="h-5 w-5 text-red-500 mt-1 flex-shrink-0" />
                     <div>
                       <p className="text-sm font-medium text-gray-900">Family Loss</p>
-                      <p className="text-sm text-gray-500">$5,000 for spouse, child, or parent</p>
+                      <p className="text-sm text-gray-500">AUD $5,000 for spouse, child, or parent</p>
                     </div>
                   </div>
                   
@@ -376,7 +376,7 @@ export default function WelfareDashboard() {
                     <Shield className="h-5 w-5 text-blue-500 mt-1 flex-shrink-0" />
                     <div>
                       <p className="text-sm font-medium text-gray-900">Member Death</p>
-                      <p className="text-sm text-gray-500">$8,000 to immediate family</p>
+                      <p className="text-sm text-gray-500">AUD $8,000 to immediate family</p>
                     </div>
                   </div>
                 </div>
@@ -399,7 +399,7 @@ export default function WelfareDashboard() {
                           <div className="flex items-center justify-between">
                             <div>
                               <p className="text-sm font-medium text-gray-900">
-                                ${reimbursement.amountDue.toFixed(2)}
+                                AUD ${reimbursement.amountDue.toFixed(2)}
                               </p>
                               <p className="text-sm text-gray-500">
                                 Due: {new Date(reimbursement.dueDate).toLocaleDateString()}

@@ -343,8 +343,8 @@ export default function WelfareApply() {
                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   >
                     <option value="">Select application type</option>
-                    <option value="FAMILY_DEATH">Family Member Death ($5,000)</option>
-                    <option value="MEMBER_DEATH">Member Death ($8,000)</option>
+                    <option value="FAMILY_DEATH">Family Member Death (AUD $5,000)</option>
+                    <option value="MEMBER_DEATH">Member Death (AUD $8,000)</option>
                   </select>
                 </div>
 

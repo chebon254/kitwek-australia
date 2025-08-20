@@ -39,20 +39,20 @@ export default function WelfarePage() {
     {
       icon: <Heart className="h-8 w-8 text-red-500" />,
       title: "Family Support",
-      description: "$5,000 support for immediate family members (spouse, child, or parent)",
-      amount: "$5,000"
+      description: "AUD $5,000 support for immediate family members (spouse, child, or parent)",
+      amount: "AUD $5,000"
     },
     {
       icon: <Shield className="h-8 w-8 text-blue-500" />,
       title: "Member Support", 
-      description: "$8,000 support for registered member's family",
-      amount: "$8,000"
+      description: "AUD $8,000 support for registered member's family",
+      amount: "AUD $8,000"
     }
   ];
 
   const requirements = [
     "Be a registered member of Kitwek Victoria Association",
-    "Pay one-time registration fee of $200",
+    "Pay one-time registration fee of AUD $200",
     "Minimum 100 members required for operation",
     "2-month waiting period after launch before first claim"
   ];
@@ -61,7 +61,7 @@ export default function WelfarePage() {
     {
       step: 1,
       title: "Register & Pay",
-      description: "Pay the one-time $200 registration fee to join the welfare fund"
+      description: "Pay the one-time AUD $200 registration fee to join the welfare fund"
     },
     {
       step: 2,
