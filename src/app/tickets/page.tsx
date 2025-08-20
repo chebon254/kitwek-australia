@@ -46,7 +46,12 @@ export default function MyTickets() {
 
       if (response.status === 401) {
         setIsLoggedIn(false);
+        setLoading(false);
         return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
@@ -54,7 +59,8 @@ export default function MyTickets() {
       setError("");
     } catch (error) {
       console.error("Error fetching tickets:", error);
-      setError("Failed to fetch tickets");
+      setError("Failed to fetch tickets. Please try searching by email.");
+      setIsLoggedIn(false);
     } finally {
       setLoading(false);
     }

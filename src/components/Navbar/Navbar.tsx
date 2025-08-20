@@ -48,15 +48,27 @@ export default function Navbar({ className }: NavbarProps) {
       if (firebaseUser) {
         try {
           const response = await fetch('/api/user');
-          const userData = await response.json();
-          // Reset image loading state when user changes
-          if (userData.profileImage) {
-            setImageLoading(true);
+          
+          // Handle non-OK responses gracefully
+          if (!response.ok) {
+            // If 401, user session is invalid
+            if (response.status === 401) {
+              setUser({ email: firebaseUser.email! });
+            } else {
+              console.warn('Failed to fetch user data:', response.status);
+              setUser({ email: firebaseUser.email! });
+            }
+          } else {
+            const userData = await response.json();
+            // Reset image loading state when user changes
+            if (userData.profileImage) {
+              setImageLoading(true);
+            }
+            setUser({
+              email: firebaseUser.email!,
+              profileImage: userData.profileImage,
+            });
           }
-          setUser({
-            email: firebaseUser.email!,
-            profileImage: userData.profileImage,
-          });
         } catch (error) {
           console.error('Error fetching user data:', error);
           setUser({ email: firebaseUser.email! });

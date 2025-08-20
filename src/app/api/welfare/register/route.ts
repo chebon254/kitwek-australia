@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { adminAuth } from '@/lib/firebase-admin';
 import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
+import { STRIPE_CONFIG } from '@/lib/stripe-config';
 
 // You'll need to create this price ID in Stripe for $200 AUD welfare registration
 // const WELFARE_REGISTRATION_PRICE = "price_welfare_registration_200"; // Replace with actual Stripe price ID
@@ -78,10 +79,10 @@ export async function POST() {
       line_items: [
         {
           price_data: {
-            currency: 'aud',
+            currency: STRIPE_CONFIG.currency,
             product_data: {
-              name: 'Kitwek Victoria Welfare Registration',
-              description: 'One-time welfare fund registration fee',
+              name: STRIPE_CONFIG.products.welfare.name,
+              description: STRIPE_CONFIG.products.welfare.description,
             },
             unit_amount: 20000, // $200.00 AUD in cents
           },

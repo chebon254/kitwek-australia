@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { adminAuth } from "@/lib/firebase-admin";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
+import { STRIPE_CONFIG } from "@/lib/stripe-config";
 
 //  TEST PRICES
 // const MEMBERSHIP_PRICE = "price_1R08B404YgkEMOrNZkrYhBJV"; 
@@ -81,10 +82,10 @@ export async function POST(request: Request) {
         line_items: [
           {
             price_data: {
-              currency: "aud", // Changed from "usd" to "aud"
+              currency: STRIPE_CONFIG.currency,
               product_data: {
-                name: donation.name,
-                description: "One-time donation",
+                name: STRIPE_CONFIG.products.donation.getName(donation.name),
+                description: STRIPE_CONFIG.products.donation.description,
               },
               unit_amount: amount * 100, // Convert to cents
             },
@@ -217,10 +218,10 @@ export async function POST(request: Request) {
         line_items: [
           {
             price_data: {
-              currency: "aud", // Changed from "usd" to "aud"
+              currency: STRIPE_CONFIG.currency,
               product_data: {
-                name: "Kitwek Victoria Welfare Registration",
-                description: "One-time welfare fund registration fee",
+                name: STRIPE_CONFIG.products.welfare.name,
+                description: STRIPE_CONFIG.products.welfare.description,
               },
               unit_amount: 20000, // $200.00 in cents (AUD)
             },

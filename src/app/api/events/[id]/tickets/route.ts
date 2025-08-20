@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { adminAuth } from '@/lib/firebase-admin';
 import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
+import { STRIPE_CONFIG } from '@/lib/stripe-config';
 import { sendTicketEmail } from '@/lib/nodemailer';
 import type Stripe from 'stripe';
 
@@ -65,10 +66,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         line_items: [
           {
             price_data: {
-              currency: 'aud', // Changed from 'usd' to 'aud'
+              currency: STRIPE_CONFIG.currency,
               product_data: {
-                name: event.title,
-                description: `${quantity} ticket${quantity > 1 ? 's' : ''}`,
+                name: STRIPE_CONFIG.products.event.getName(event.title),
+                description: STRIPE_CONFIG.products.event.getDescription(quantity),
               },
               unit_amount: Math.round(event.price * 100), // Convert to cents
             },

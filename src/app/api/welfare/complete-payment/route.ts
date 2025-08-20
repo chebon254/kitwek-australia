@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { adminAuth } from '@/lib/firebase-admin';
 import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
+import { STRIPE_CONFIG } from '@/lib/stripe-config';
 
 export async function POST() {
   try {
@@ -70,9 +71,9 @@ export async function POST() {
       line_items: [
         {
           price_data: {
-            currency: 'aud',
+            currency: STRIPE_CONFIG.currency,
             product_data: {
-              name: 'Kitwek Victoria Welfare Registration',
+              name: STRIPE_CONFIG.products.welfare.name,
               description: 'Complete your welfare fund registration payment',
             },
             unit_amount: 20000, // $200.00 AUD in cents
