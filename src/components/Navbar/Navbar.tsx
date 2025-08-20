@@ -21,6 +21,7 @@ export default function Navbar({ className }: NavbarProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [imageLoading, setImageLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -48,6 +49,10 @@ export default function Navbar({ className }: NavbarProps) {
         try {
           const response = await fetch('/api/user');
           const userData = await response.json();
+          // Reset image loading state when user changes
+          if (userData.profileImage) {
+            setImageLoading(true);
+          }
           setUser({
             email: firebaseUser.email!,
             profileImage: userData.profileImage,
@@ -103,22 +108,37 @@ export default function Navbar({ className }: NavbarProps) {
                 </Link>
               ))}
 
-              {!loading && (
-                <div className="flex items-center space-x-4">
-                  {user ? (
+              <div className="flex items-center space-x-4">
+                {loading ? (
+                  // Skeleton loader for user profile
+                  <div className="animate-pulse">
+                    <div className="h-10 w-10 rounded-full bg-gray-300/50"></div>
+                  </div>
+                ) : user ? (
                     <div className="relative">
                       <button
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                         className="flex items-center space-x-2 focus:outline-none"
                       >
                         {user.profileImage ? (
-                          <Image
-                            src={user.profileImage || '/ui-assets/avatar.webp'}
-                            alt="Profile"
-                            width={40}
-                            height={40}
-                            className="rounded-full border-2 border-white"
-                          />
+                          <div className="relative">
+                            {imageLoading && (
+                              <div className="absolute inset-0 animate-pulse">
+                                <div className="h-10 w-10 rounded-full bg-gray-300/50"></div>
+                              </div>
+                            )}
+                            <Image
+                              src={user.profileImage || '/ui-assets/avatar.webp'}
+                              alt="Profile"
+                              width={40}
+                              height={40}
+                              className={`rounded-full border-2 border-white transition-opacity duration-300 ${
+                                imageLoading ? 'opacity-0' : 'opacity-100'
+                              }`}
+                              onLoad={() => setImageLoading(false)}
+                              onError={() => setImageLoading(false)}
+                            />
+                          </div>
                         ) : (
                           <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center">
                             <UserCircle className={`h-6 w-6 ${isLightBackground ? 'text-black' : 'text-white'}`} />
@@ -167,8 +187,7 @@ export default function Navbar({ className }: NavbarProps) {
                       </Link>
                     </>
                   )}
-                </div>
-              )}
+              </div>
             </div>
           </div>
 
@@ -223,7 +242,13 @@ export default function Navbar({ className }: NavbarProps) {
                       {item.name}
                     </Link>
                   ))}
-                  {!loading && (
+                  {loading ? (
+                    <div className="flex justify-center py-4">
+                      <div className="animate-pulse">
+                        <div className="h-14 w-60 rounded-lg bg-gray-300"></div>
+                      </div>
+                    </div>
+                  ) : (
                     <>
                       {user ? (
                         <>
