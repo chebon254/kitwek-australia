@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Shield, DollarSign, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface WelfareRegistrationStatus {
   isRegistered: boolean;
@@ -117,8 +118,24 @@ export default function WelfareRegister() {
     return (
       <main className="flex-1 mt-24">
         <div className="py-6">
-          <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="mb-8">
+              <Skeleton className="h-4 w-48 mb-4" />
+              <Skeleton className="h-8 w-64 mb-2" />
+              <Skeleton className="h-4 w-80" />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2">
+                <Skeleton className="h-96 rounded-lg" />
+              </div>
+              <div className="space-y-6">
+                <Skeleton className="h-32 rounded-lg" />
+                <Skeleton className="h-48 rounded-lg" />
+                <Skeleton className="h-40 rounded-lg" />
+                <Skeleton className="h-32 rounded-lg" />
+              </div>
+            </div>
           </div>
         </div>
       </main>

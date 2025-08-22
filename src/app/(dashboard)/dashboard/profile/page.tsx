@@ -6,6 +6,7 @@ import Image from "next/image";
 import { UserCircle } from "lucide-react";
 import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
 import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface UserProfile {
   username: string;
@@ -60,8 +61,37 @@ export default function Profile() {
     return (
       <main className="flex-1 mt-24">
         <div className="py-6">
-          <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="mb-8">
+              <Skeleton className="h-10 w-48 mb-2" />
+              <Skeleton className="h-6 w-64" />
+            </div>
+
+            <div className="bg-white shadow rounded-lg">
+              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <Skeleton className="h-6 w-32" />
+                <Skeleton className="h-10 w-24" />
+              </div>
+              
+              <div className="p-6">
+                <div className="flex items-center mb-6">
+                  <Skeleton className="h-24 w-24 rounded-full mr-6" />
+                  <div>
+                    <Skeleton className="h-8 w-48 mb-2" />
+                    <Skeleton className="h-4 w-32" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[...Array(8)].map((_, i) => (
+                    <div key={i}>
+                      <Skeleton className="h-4 w-24 mb-2" />
+                      <Skeleton className="h-6 w-full" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>

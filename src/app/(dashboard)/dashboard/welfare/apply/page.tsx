@@ -15,6 +15,7 @@ import {
   Heart
 } from "lucide-react";
 import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Beneficiary {
   fullName: string;
@@ -261,8 +262,42 @@ export default function WelfareApply() {
     return (
       <main className="flex-1 mt-24">
         <div className="py-6">
-          <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="mb-8">
+              <Skeleton className="h-4 w-48 mb-4" />
+              <Skeleton className="h-8 w-64 mb-2" />
+              <Skeleton className="h-4 w-80" />
+            </div>
+
+            <div className="bg-white shadow rounded-lg p-6">
+              <Skeleton className="h-6 w-48 mb-6" />
+              
+              <div className="space-y-6">
+                <div>
+                  <Skeleton className="h-4 w-32 mb-2" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                
+                <div>
+                  <Skeleton className="h-4 w-40 mb-2" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                
+                <div>
+                  <Skeleton className="h-4 w-48 mb-2" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                
+                <div>
+                  <Skeleton className="h-4 w-56 mb-2" />
+                  <Skeleton className="h-32 w-full" />
+                </div>
+                
+                <Skeleton className="h-48 w-full rounded-lg" />
+                
+                <Skeleton className="h-12 w-full" />
+              </div>
+            </div>
           </div>
         </div>
       </main>

@@ -47,7 +47,7 @@ export async function POST() {
     const registration = await prisma.welfareRegistration.create({
       data: {
         userId: user.id,
-        registrationFee: 200.00,
+        registrationFee: 1.00, // Testing amount (UI still shows $200)
         paymentStatus: 'PENDING',
         status: 'INACTIVE',
       }
@@ -84,7 +84,7 @@ export async function POST() {
               name: STRIPE_CONFIG.products.welfare.name,
               description: STRIPE_CONFIG.products.welfare.description,
             },
-            unit_amount: 20000, // $200.00 AUD in cents
+            unit_amount: 100, // $1.00 AUD in cents (TESTING ONLY)
           },
           quantity: 1,
         },

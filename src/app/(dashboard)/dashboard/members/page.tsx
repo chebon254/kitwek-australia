@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Search, Users, MapPin } from "lucide-react";
 import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
 import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Member {
   id: string;
@@ -69,8 +70,43 @@ export default function Members() {
     return (
       <main className="flex-1 mt-24">
         <div className="py-6">
-          <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="mb-8">
+              <Skeleton className="h-10 w-48 mb-2" />
+              <Skeleton className="h-6 w-80" />
+            </div>
+
+            <div className="mb-8 flex flex-col sm:flex-row gap-4">
+              <Skeleton className="h-10 flex-1 max-w-md" />
+              <div className="flex gap-2">
+                <Skeleton className="h-10 w-20" />
+                <Skeleton className="h-10 w-20" />
+                <Skeleton className="h-10 w-20" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(9)].map((_, i) => (
+                <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden">
+                  <Skeleton className="h-32" />
+                  <div className="p-6">
+                    <div className="flex items-center mb-4">
+                      <Skeleton className="h-16 w-16 rounded-full mr-4" />
+                      <div className="flex-1">
+                        <Skeleton className="h-5 w-32 mb-2" />
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-4 w-full mb-2" />
+                    <Skeleton className="h-4 w-3/4 mb-4" />
+                    <div className="flex justify-between">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-4 w-28" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </main>

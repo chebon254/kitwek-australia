@@ -16,6 +16,7 @@ import {
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DashboardData {
   user: {
@@ -84,8 +85,27 @@ export default function Dashboard() {
     return (
       <main className="flex-1 mt-24">
         <div className="py-6">
-          <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="mb-8">
+              <Skeleton className="h-10 w-48 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-32 rounded-lg" />
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+              <div className="lg:col-span-2">
+                <Skeleton className="h-64 rounded-lg mb-6" />
+                <Skeleton className="h-48 rounded-lg" />
+              </div>
+              <div>
+                <Skeleton className="h-96 rounded-lg" />
+              </div>
+            </div>
           </div>
         </div>
       </main>
