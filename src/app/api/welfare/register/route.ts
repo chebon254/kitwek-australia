@@ -47,7 +47,7 @@ export async function POST() {
     const registration = await prisma.welfareRegistration.create({
       data: {
         userId: user.id,
-        registrationFee: 1.00, // Testing amount (UI still shows $200)
+        registrationFee: 200.00, // Production amount
         paymentStatus: 'PENDING',
         status: 'INACTIVE',
       }
@@ -71,8 +71,14 @@ export async function POST() {
       });
     }
 
-    // Create Stripe checkout session
-    const checkoutSession = await stripe.checkout.sessions.create({
+    // Create Stripe checkout session with retry logic
+    let checkoutSession;
+    let retries = 0;
+    const maxRetries = 2;
+    
+    while (retries <= maxRetries) {
+      try {
+        checkoutSession = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       mode: 'payment',
       payment_method_types: ['card'],
@@ -84,7 +90,7 @@ export async function POST() {
               name: STRIPE_CONFIG.products.welfare.name,
               description: STRIPE_CONFIG.products.welfare.description,
             },
-            unit_amount: 100, // $1.00 AUD in cents (TESTING ONLY)
+            unit_amount: 20000, // $200.00 AUD in cents
           },
           quantity: 1,
         },
@@ -96,19 +102,60 @@ export async function POST() {
         userId: user.id,
         registrationId: registration.id,
       },
-    });
+        });
+        break; // Success, exit retry loop
+      } catch (stripeError: any) {
+        console.error(`Stripe API attempt ${retries + 1} failed:`, stripeError);
+        
+        if (stripeError.type === 'StripeConnectionError' && retries < maxRetries) {
+          retries++;
+          console.log(`Retrying Stripe API call (attempt ${retries + 1}/${maxRetries + 1})...`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * retries)); // Exponential backoff
+        } else {
+          throw stripeError; // Re-throw if not a connection error or max retries reached
+        }
+      }
+    }
+
+    if (!checkoutSession) {
+      throw new Error('Failed to create checkout session after multiple attempts');
+    }
 
     console.log('Checkout session created successfully:', checkoutSession.id);
     return NextResponse.json({ url: checkoutSession.url });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating welfare registration:', error);
     
-    // More detailed error response
+    // Handle specific error types
+    if (error.type === 'StripeConnectionError') {
+      return NextResponse.json(
+        { 
+          error: 'Connection to payment service failed',
+          details: 'Unable to connect to Stripe. Please try again in a moment.',
+          retryable: true
+        },
+        { status: 503 }
+      );
+    }
+    
+    if (error.type === 'StripeAPIError') {
+      return NextResponse.json(
+        { 
+          error: 'Payment service error',
+          details: 'There was an error with the payment service. Please try again.',
+          retryable: true
+        },
+        { status: 502 }
+      );
+    }
+    
+    // Generic error response
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
       { 
         error: 'Error creating welfare registration',
-        details: errorMessage 
+        details: errorMessage,
+        retryable: false
       },
       { status: 500 }
     );

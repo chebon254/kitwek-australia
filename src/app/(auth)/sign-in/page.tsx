@@ -15,7 +15,9 @@ export default function SignInForm() {
         <LoadingSpinner />
       </div>
     }>
-      <SignIn />
+      <div className='mt-28'>
+        <SignIn />
+      </div>
     </Suspense>
   );
 }

@@ -63,8 +63,14 @@ export async function POST() {
       });
     }
 
-    // Create new Stripe checkout session for pending payment
-    const checkoutSession = await stripe.checkout.sessions.create({
+    // Create new Stripe checkout session for pending payment with retry logic
+    let checkoutSession;
+    let retries = 0;
+    const maxRetries = 2;
+    
+    while (retries <= maxRetries) {
+      try {
+        checkoutSession = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       mode: 'payment',
       payment_method_types: ['card'],
@@ -76,7 +82,7 @@ export async function POST() {
               name: STRIPE_CONFIG.products.welfare.name,
               description: 'Complete your welfare fund registration payment',
             },
-            unit_amount: 100, // $1.00 AUD in cents (TESTING ONLY)
+            unit_amount: 20000, // $200.00 AUD in cents
           },
           quantity: 1,
         },
@@ -88,19 +94,60 @@ export async function POST() {
         userId: user.id,
         registrationId: registration.id,
       },
-    });
+        });
+        break; // Success, exit retry loop
+      } catch (stripeError: any) {
+        console.error(`Stripe API attempt ${retries + 1} failed:`, stripeError);
+        
+        if (stripeError.type === 'StripeConnectionError' && retries < maxRetries) {
+          retries++;
+          console.log(`Retrying Stripe API call (attempt ${retries + 1}/${maxRetries + 1})...`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * retries)); // Exponential backoff
+        } else {
+          throw stripeError; // Re-throw if not a connection error or max retries reached
+        }
+      }
+    }
+
+    if (!checkoutSession) {
+      throw new Error('Failed to create checkout session after multiple attempts');
+    }
 
     console.log('Checkout session created successfully:', checkoutSession.id);
     return NextResponse.json({ url: checkoutSession.url });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error completing welfare payment:', error);
     
-    // More detailed error response
+    // Handle specific error types
+    if (error.type === 'StripeConnectionError') {
+      return NextResponse.json(
+        { 
+          error: 'Connection to payment service failed',
+          details: 'Unable to connect to Stripe. Please try again in a moment.',
+          retryable: true
+        },
+        { status: 503 }
+      );
+    }
+    
+    if (error.type === 'StripeAPIError') {
+      return NextResponse.json(
+        { 
+          error: 'Payment service error',
+          details: 'There was an error with the payment service. Please try again.',
+          retryable: true
+        },
+        { status: 502 }
+      );
+    }
+    
+    // Generic error response
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
       { 
         error: 'Error completing welfare payment',
-        details: errorMessage 
+        details: errorMessage,
+        retryable: false
       },
       { status: 500 }
     );

@@ -754,7 +754,7 @@ export const sendWelfareRegistrationConfirmationEmail = async (
               <h3 style="margin-top: 0; color: #92400e;">Your Welfare Benefits</h3>
               <ul style="margin: 10px 0; padding-left: 20px;">
                 <li><strong>Family Death Support:</strong> AUD $5,000 for immediate family members (spouse, child, or parent)</li>
-                <li><strong>Member Death Support:</strong> AUD $8,000 to your immediate family if you pass away</li>
+                <li><strong>Member Death Support:</strong> AUD $8,000 to immediate family if a member passes away</li>
                 <li><strong>Community Support:</strong> Access to our caring community network</li>
                 <li><strong>Transparent Process:</strong> Clear claim procedures and timelines</li>
               </ul>
