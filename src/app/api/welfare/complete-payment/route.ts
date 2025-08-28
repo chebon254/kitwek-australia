@@ -96,10 +96,10 @@ export async function POST() {
       },
         });
         break; // Success, exit retry loop
-      } catch (stripeError: any) {
+      } catch (stripeError: unknown) {
         console.error(`Stripe API attempt ${retries + 1} failed:`, stripeError);
         
-        if (stripeError.type === 'StripeConnectionError' && retries < maxRetries) {
+        if (stripeError && typeof stripeError === 'object' && 'type' in stripeError && stripeError.type === 'StripeConnectionError' && retries < maxRetries) {
           retries++;
           console.log(`Retrying Stripe API call (attempt ${retries + 1}/${maxRetries + 1})...`);
           await new Promise(resolve => setTimeout(resolve, 1000 * retries)); // Exponential backoff
@@ -115,11 +115,11 @@ export async function POST() {
 
     console.log('Checkout session created successfully:', checkoutSession.id);
     return NextResponse.json({ url: checkoutSession.url });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error completing welfare payment:', error);
     
     // Handle specific error types
-    if (error.type === 'StripeConnectionError') {
+    if (error && typeof error === 'object' && 'type' in error && error.type === 'StripeConnectionError') {
       return NextResponse.json(
         { 
           error: 'Connection to payment service failed',
@@ -130,7 +130,7 @@ export async function POST() {
       );
     }
     
-    if (error.type === 'StripeAPIError') {
+    if (error && typeof error === 'object' && 'type' in error && error.type === 'StripeAPIError') {
       return NextResponse.json(
         { 
           error: 'Payment service error',
