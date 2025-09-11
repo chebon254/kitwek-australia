@@ -30,7 +30,7 @@ export async function GET() {
     });
 
     // Calculate total fund amount (initial registration fees)
-    const totalAmount = activeRegistrations * 200;
+    const totalAmount = activeRegistrations * 100;
 
     // Check if fund should be operational (100+ active members)
     const isOperational = activeRegistrations >= 1;

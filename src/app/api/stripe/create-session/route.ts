@@ -223,7 +223,7 @@ export async function POST(request: Request) {
                 name: STRIPE_CONFIG.products.welfare.name,
                 description: STRIPE_CONFIG.products.welfare.description,
               },
-              unit_amount: 20000, // $200.00 in cents (AUD)
+              unit_amount: 10000, // $100.00 in cents (AUD)
             },
             quantity: 1,
           },

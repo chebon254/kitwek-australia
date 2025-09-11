@@ -260,7 +260,7 @@ model WelfareRegistration {
   id                String    @id @default(uuid())
   userId            String    @unique
   user              User      @relation(fields: [userId], references: [id]) // Add this relation
-  registrationFee   Float     @default(200.00)
+  registrationFee   Float     @default(100.00)
   paymentStatus     String    @default("PENDING") // PENDING, PAID, EXPIRED
   registrationDate  DateTime  @default(now())
   stripePaymentId   String?

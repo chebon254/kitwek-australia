@@ -5,8 +5,8 @@ import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
 import { STRIPE_CONFIG } from '@/lib/stripe-config';
 
-// You'll need to create this price ID in Stripe for $200 AUD welfare registration
-// const WELFARE_REGISTRATION_PRICE = "price_welfare_registration_200"; // Replace with actual Stripe price ID
+// You'll need to create this price ID in Stripe for $100 AUD welfare registration
+// const WELFARE_REGISTRATION_PRICE = "price_welfare_registration_100"; // Replace with actual Stripe price ID
 
 export async function POST() {
   try {
@@ -47,7 +47,7 @@ export async function POST() {
     const registration = await prisma.welfareRegistration.create({
       data: {
         userId: user.id,
-        registrationFee: 200.00, // Production amount
+        registrationFee: 100.00, // Production amount
         paymentStatus: 'PENDING',
         status: 'INACTIVE',
       }
@@ -90,7 +90,7 @@ export async function POST() {
               name: STRIPE_CONFIG.products.welfare.name,
               description: STRIPE_CONFIG.products.welfare.description,
             },
-            unit_amount: 20000, // $200.00 AUD in cents
+            unit_amount: 10000, // $100.00 AUD in cents
           },
           quantity: 1,
         },

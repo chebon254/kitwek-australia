@@ -303,7 +303,7 @@ export default function WelfareDashboard() {
                         className="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
                       >
                         <CreditCard className="h-5 w-5 mr-2" />
-                        Register & Pay AUD $200
+                        Register & Pay AUD $100
                       </Link>
                     ) : welfareStatus.paymentStatus === 'PENDING' ? (
                       <Link

@@ -52,7 +52,7 @@ export default function WelfarePage() {
 
   const requirements = [
     "Be a registered member of Kitwek Victoria Association",
-    "Pay one-time registration fee of AUD $200",
+    "Pay one-time registration fee of AUD $100",
     "Minimum 100 members required for operation",
     "2-month waiting period after launch before first claim"
   ];
@@ -61,7 +61,7 @@ export default function WelfarePage() {
     {
       step: 1,
       title: "Register & Pay",
-      description: "Pay the one-time AUD $200 registration fee to join the welfare fund"
+      description: "Pay the one-time AUD $100 registration fee to join the welfare fund"
     },
     {
       step: 2,
@@ -100,7 +100,7 @@ export default function WelfarePage() {
               </p>
               
               {!loading && stats && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-8">
+                <div className="g3 hidden gap-6 max-w-3xl mx-auto mt-8">
                   <div className="bg-white/10 backdrop-blur-md rounded-lg p-6">
                     <div className="flex items-center justify-center mb-2">
                       <Users className="h-8 w-8" />

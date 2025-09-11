@@ -82,7 +82,7 @@ export async function POST() {
               name: STRIPE_CONFIG.products.welfare.name,
               description: 'Complete your welfare fund registration payment',
             },
-            unit_amount: 20000, // $200.00 AUD in cents
+            unit_amount: 10000, // $100.00 AUD in cents
           },
           quantity: 1,
         },
