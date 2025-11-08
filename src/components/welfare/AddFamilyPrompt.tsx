@@ -83,7 +83,7 @@ export default function AddFamilyPrompt({ hasPaidRegistration, hasFamilyMembers 
                   Add Your Immediate Family Members
                 </h4>
                 <p className="text-sm text-gray-600 mb-4">
-                  We've updated our welfare system. Before you can apply for welfare support,
+                  We&apos;ve updated our welfare system. Before you can apply for welfare support,
                   please add your immediate family members who will be your beneficiaries.
                 </p>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">

@@ -2,13 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  ArrowLeft, 
-  Upload, 
-  X, 
-  Plus, 
-  Minus, 
-  AlertCircle, 
+import {
+  ArrowLeft,
+  Upload,
+  X,
+  Plus,
+  AlertCircle,
   Loader2,
   FileText,
   User,
