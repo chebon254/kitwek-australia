@@ -15,7 +15,7 @@ interface UpdateFamilyData {
 // PATCH - Update immediate family member
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = (await cookies()).get('session');
@@ -32,7 +32,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // Check if family member exists and belongs to user
     const existingMember = await prisma.immediateFamily.findFirst({
@@ -99,7 +99,7 @@ export async function PATCH(
 // DELETE - Remove immediate family member
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = (await cookies()).get('session');
@@ -116,7 +116,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // Check if family member exists and belongs to user
     const existingMember = await prisma.immediateFamily.findFirst({
