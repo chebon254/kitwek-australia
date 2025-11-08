@@ -43,6 +43,18 @@ export async function POST() {
       return NextResponse.json({ error: 'Already registered for welfare' }, { status: 400 });
     }
 
+    // Check if user has at least one immediate family member
+    const familyCount = await prisma.immediateFamily.count({
+      where: { userId: user.id }
+    });
+
+    if (familyCount === 0) {
+      return NextResponse.json({
+        error: 'Please add at least one immediate family member before registering',
+        details: 'You must add your immediate family members who will be your beneficiaries.'
+      }, { status: 400 });
+    }
+
     // Create welfare registration record
     const registration = await prisma.welfareRegistration.create({
       data: {

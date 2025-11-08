@@ -17,12 +17,13 @@ import {
 import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
 import { Skeleton } from "@/components/ui/skeleton";
 
-interface Beneficiary {
+interface FamilyMember {
+  id: string;
   fullName: string;
   relationship: string;
   phone: string;
-  email: string;
-  idNumber: string;
+  email?: string;
+  idNumber?: string;
 }
 
 interface UploadedFile {
@@ -34,7 +35,7 @@ interface UploadedFile {
 export default function WelfareApply() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [canApply, setCanApply] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -48,15 +49,8 @@ export default function WelfareApply() {
     reasonForApplication: "",
   });
 
-  const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([
-    {
-      fullName: "",
-      relationship: "",
-      phone: "",
-      email: "",
-      idNumber: "",
-    },
-  ]);
+  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
+  const [selectedFamilyIds, setSelectedFamilyIds] = useState<string[]>([]);
 
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
@@ -66,15 +60,25 @@ export default function WelfareApply() {
       if (!canAccess) return;
 
       try {
-        const response = await fetch('/api/welfare/eligibility');
-        if (response.ok) {
-          const data = await response.json();
+        // Fetch eligibility and family members in parallel
+        const [eligibilityResponse, familyResponse] = await Promise.all([
+          fetch('/api/welfare/eligibility'),
+          fetch('/api/welfare/immediate-family')
+        ]);
+
+        if (eligibilityResponse.ok) {
+          const data = await eligibilityResponse.json();
           setCanApply(data.canApply);
           if (!data.canApply) {
             setError(data.reason || 'You are not eligible to apply at this time');
           }
         } else {
           setError('Failed to check eligibility');
+        }
+
+        if (familyResponse.ok) {
+          const familyData = await familyResponse.json();
+          setFamilyMembers(familyData.familyMembers || []);
         }
       } catch (error) {
         console.error('Error checking eligibility:', error);
@@ -92,30 +96,15 @@ export default function WelfareApply() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleBeneficiaryChange = (index: number, field: keyof Beneficiary, value: string) => {
-    setBeneficiaries(prev => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], [field]: value };
-      return updated;
+  const toggleFamilySelection = (familyId: string) => {
+    setSelectedFamilyIds(prev => {
+      if (prev.includes(familyId)) {
+        return prev.filter(id => id !== familyId);
+      } else if (prev.length < 5) {
+        return [...prev, familyId];
+      }
+      return prev;
     });
-  };
-
-  const addBeneficiary = () => {
-    if (beneficiaries.length < 5) {
-      setBeneficiaries(prev => [...prev, {
-        fullName: "",
-        relationship: "",
-        phone: "",
-        email: "",
-        idNumber: "",
-      }]);
-    }
-  };
-
-  const removeBeneficiary = (index: number) => {
-    if (beneficiaries.length > 1) {
-      setBeneficiaries(prev => prev.filter((_, i) => i !== index));
-    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,26 +181,11 @@ export default function WelfareApply() {
       setError('Please provide reason for application');
       return false;
     }
-    
-    // Validate beneficiaries
-    for (let i = 0; i < beneficiaries.length; i++) {
-      const beneficiary = beneficiaries[i];
-      if (!beneficiary.fullName.trim()) {
-        setError(`Please enter full name for beneficiary ${i + 1}`);
-        return false;
-      }
-      if (!beneficiary.relationship.trim()) {
-        setError(`Please enter relationship for beneficiary ${i + 1}`);
-        return false;
-      }
-      if (!beneficiary.phone.trim()) {
-        setError(`Please enter phone number for beneficiary ${i + 1}`);
-        return false;
-      }
-      if (beneficiary.email && !beneficiary.email.includes('@')) {
-        setError(`Please enter valid email for beneficiary ${i + 1}`);
-        return false;
-      }
+
+    // Validate beneficiaries selection
+    if (selectedFamilyIds.length === 0) {
+      setError('Please select at least one beneficiary');
+      return false;
     }
 
     if (uploadedFiles.length === 0) {
@@ -224,7 +198,7 @@ export default function WelfareApply() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setSubmitting(true);
@@ -233,7 +207,7 @@ export default function WelfareApply() {
     try {
       const applicationData = {
         ...formData,
-        beneficiaries: beneficiaries.filter(b => b.fullName.trim()),
+        immediateFamilyIds: selectedFamilyIds,
         documents: uploadedFiles,
       };
 
@@ -435,117 +409,78 @@ export default function WelfareApply() {
               </div>
             </div>
 
-            {/* Beneficiaries */}
+            {/* Beneficiaries Selection */}
             <div className="bg-white shadow rounded-lg">
               <div className="px-6 py-5 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium text-gray-900 flex items-center">
                     <User className="h-5 w-5 mr-2" />
-                    Beneficiaries ({beneficiaries.length}/5)
+                    Select Beneficiaries ({selectedFamilyIds.length}/5)
                   </h3>
                   <button
                     type="button"
-                    onClick={addBeneficiary}
-                    disabled={beneficiaries.length >= 5}
-                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                    onClick={() => router.push('/dashboard/welfare/beneficiaries')}
+                    className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
                   >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add Beneficiary
+                    Manage Family
                   </button>
                 </div>
                 <p className="mt-1 text-sm text-gray-500">
-                  Add up to 5 beneficiaries who will receive the welfare support
+                  Select up to 5 of your immediate family members as beneficiaries for this claim
                 </p>
               </div>
-              <div className="px-6 py-5 space-y-6">
-                {beneficiaries.map((beneficiary, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-md font-medium text-gray-900">
-                        Beneficiary {index + 1}
-                      </h4>
-                      {beneficiaries.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeBeneficiary(index)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <Minus className="h-5 w-5" />
-                        </button>
-                      )}
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Full Name *
-                        </label>
+              <div className="px-6 py-5">
+                {familyMembers.length > 0 ? (
+                  <div className="space-y-3">
+                    {familyMembers.map((member) => (
+                      <label
+                        key={member.id}
+                        className={`flex items-start p-4 border rounded-lg cursor-pointer transition ${
+                          selectedFamilyIds.includes(member.id)
+                            ? 'border-indigo-500 bg-indigo-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        } ${selectedFamilyIds.length >= 5 && !selectedFamilyIds.includes(member.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
                         <input
-                          type="text"
-                          value={beneficiary.fullName}
-                          onChange={(e) => handleBeneficiaryChange(index, 'fullName', e.target.value)}
-                          required
-                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                          placeholder="Enter full name"
+                          type="checkbox"
+                          checked={selectedFamilyIds.includes(member.id)}
+                          onChange={() => toggleFamilySelection(member.id)}
+                          disabled={selectedFamilyIds.length >= 5 && !selectedFamilyIds.includes(member.id)}
+                          className="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                         />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Relationship to Deceased *
-                        </label>
-                        <input
-                          type="text"
-                          value={beneficiary.relationship}
-                          onChange={(e) => handleBeneficiaryChange(index, 'relationship', e.target.value)}
-                          required
-                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                          placeholder="e.g., Spouse, Child, Parent"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Phone Number *
-                        </label>
-                        <input
-                          type="tel"
-                          value={beneficiary.phone}
-                          onChange={(e) => handleBeneficiaryChange(index, 'phone', e.target.value)}
-                          required
-                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                          placeholder="+1 (555) 123-4567"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Email (Optional)
-                        </label>
-                        <input
-                          type="email"
-                          value={beneficiary.email}
-                          onChange={(e) => handleBeneficiaryChange(index, 'email', e.target.value)}
-                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                          placeholder="email@example.com"
-                        />
-                      </div>
-                      
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          ID Number (Optional)
-                        </label>
-                        <input
-                          type="text"
-                          value={beneficiary.idNumber}
-                          onChange={(e) => handleBeneficiaryChange(index, 'idNumber', e.target.value)}
-                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                          placeholder="Government ID or Social Security Number"
-                        />
-                      </div>
-                    </div>
+                        <div className="ml-3 flex-1">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium text-gray-900">
+                              {member.fullName}
+                            </p>
+                            <span className="text-xs text-gray-500">
+                              {member.relationship}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-500 mt-1">
+                            {member.phone}
+                            {member.email && ` • ${member.email}`}
+                          </p>
+                        </div>
+                      </label>
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  <div className="text-center py-8">
+                    <User className="mx-auto h-12 w-12 text-gray-400" />
+                    <p className="mt-2 text-sm text-gray-600">
+                      No family members found. Please add your immediate family first.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => router.push('/dashboard/welfare/beneficiaries')}
+                      className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Family Members
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 

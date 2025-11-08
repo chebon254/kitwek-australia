@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Shield, DollarSign, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, Shield, DollarSign, CheckCircle, AlertCircle, Loader2, Users } from "lucide-react";
 import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -13,9 +13,17 @@ interface WelfareRegistrationStatus {
   status: string;
 }
 
+interface FamilyMember {
+  id: string;
+  fullName: string;
+  relationship: string;
+  phone: string;
+}
+
 export default function WelfareRegister() {
   const router = useRouter();
   const [registrationStatus, setRegistrationStatus] = useState<WelfareRegistrationStatus | null>(null);
+  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
@@ -27,10 +35,20 @@ export default function WelfareRegister() {
       if (!canAccess) return;
 
       try {
-        const response = await fetch('/api/welfare/status');
-        if (response.ok) {
-          const data = await response.json();
+        // Fetch both registration status and family members
+        const [statusResponse, familyResponse] = await Promise.all([
+          fetch('/api/welfare/status'),
+          fetch('/api/welfare/immediate-family')
+        ]);
+
+        if (statusResponse.ok) {
+          const data = await statusResponse.json();
           setRegistrationStatus(data);
+        }
+
+        if (familyResponse.ok) {
+          const familyData = await familyResponse.json();
+          setFamilyMembers(familyData.familyMembers || []);
         }
       } catch (error) {
         console.error('Error checking registration status:', error);
@@ -44,6 +62,12 @@ export default function WelfareRegister() {
   }, [router]);
 
   const handleRegister = async () => {
+    // Check family members first
+    if (familyMembers.length === 0) {
+      setError('Please add at least one immediate family member before registering');
+      return;
+    }
+
     if (!agreed) {
       setError('Please agree to the terms and conditions');
       return;
@@ -67,7 +91,7 @@ export default function WelfareRegister() {
       }
 
       const data = await response.json();
-      
+
       // Redirect to Stripe checkout
       if (data.url) {
         window.location.href = data.url;
@@ -255,6 +279,10 @@ export default function WelfareRegister() {
                           </li>
                           <li className="flex items-start">
                             <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                            Add at least one immediate family member
+                          </li>
+                          <li className="flex items-start">
+                            <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
                             Pay one-time registration fee of AUD $100
                           </li>
                           <li className="flex items-start">
@@ -262,6 +290,69 @@ export default function WelfareRegister() {
                             Agree to welfare fund constitution and terms
                           </li>
                         </ul>
+                      </div>
+
+                      {/* Immediate Family Members Section */}
+                      <div className="border-t pt-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-md font-medium text-gray-900 flex items-center">
+                            <Users className="h-5 w-5 mr-2" />
+                            Your Immediate Family
+                          </h4>
+                          <button
+                            onClick={() => router.push('/dashboard/welfare/beneficiaries')}
+                            className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+                          >
+                            {familyMembers.length > 0 ? 'Manage' : 'Add Family'}
+                          </button>
+                        </div>
+
+                        {familyMembers.length > 0 ? (
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <div className="flex items-start">
+                              <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-green-800 mb-2">
+                                  {familyMembers.length} family {familyMembers.length === 1 ? 'member' : 'members'} added
+                                </p>
+                                <div className="space-y-1">
+                                  {familyMembers.slice(0, 3).map((member, idx) => (
+                                    <p key={member.id} className="text-sm text-green-700">
+                                      {idx + 1}. {member.fullName} ({member.relationship})
+                                    </p>
+                                  ))}
+                                  {familyMembers.length > 3 && (
+                                    <p className="text-sm text-green-700">
+                                      + {familyMembers.length - 3} more
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div className="flex items-start">
+                              <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" />
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-yellow-800 mb-2">
+                                  Action Required: Add Immediate Family Members
+                                </p>
+                                <p className="text-sm text-yellow-700 mb-3">
+                                  You must add at least one family member before registering for welfare.
+                                  These will be your beneficiaries.
+                                </p>
+                                <button
+                                  onClick={() => router.push('/dashboard/welfare/beneficiaries')}
+                                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                                >
+                                  <Users className="h-4 w-4 mr-2" />
+                                  Add Family Members
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {/* Terms and Conditions */}
@@ -306,7 +397,7 @@ export default function WelfareRegister() {
                       {/* Register Button */}
                       <button
                         onClick={handleRegister}
-                        disabled={!agreed || processing}
+                        disabled={!agreed || processing || familyMembers.length === 0}
                         className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                       >
                         {processing ? (

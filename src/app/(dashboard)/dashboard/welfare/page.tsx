@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
 import { Skeleton } from "@/components/ui/skeleton";
+import AddFamilyPrompt from "@/components/welfare/AddFamilyPrompt";
 
 interface WelfareStatus {
   isRegistered: boolean;
@@ -61,6 +62,7 @@ export default function WelfareDashboard() {
   const router = useRouter();
   const [welfareStatus, setWelfareStatus] = useState<WelfareStatus | null>(null);
   const [fundStats, setFundStats] = useState<FundStats | null>(null);
+  const [familyMembersCount, setFamilyMembersCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -70,9 +72,10 @@ export default function WelfareDashboard() {
       if (!canAccess) return;
 
       try {
-        const [statusResponse, statsResponse] = await Promise.all([
+        const [statusResponse, statsResponse, familyResponse] = await Promise.all([
           fetch('/api/welfare/status'),
-          fetch('/api/welfare/stats')
+          fetch('/api/welfare/stats'),
+          fetch('/api/welfare/immediate-family')
         ]);
 
         if (statusResponse.ok) {
@@ -83,6 +86,11 @@ export default function WelfareDashboard() {
         if (statsResponse.ok) {
           const statsData = await statsResponse.json();
           setFundStats(statsData);
+        }
+
+        if (familyResponse.ok) {
+          const familyData = await familyResponse.json();
+          setFamilyMembersCount(familyData.count || 0);
         }
       } catch (error) {
         console.error('Error fetching welfare data:', error);
@@ -160,6 +168,12 @@ export default function WelfareDashboard() {
 
   return (
     <main className="flex-1 mt-24">
+      {/* Add Family Prompt Modal for Existing Users */}
+      <AddFamilyPrompt
+        hasPaidRegistration={welfareStatus?.paymentStatus === 'PAID'}
+        hasFamilyMembers={familyMembersCount > 0}
+      />
+
       <div className="py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}

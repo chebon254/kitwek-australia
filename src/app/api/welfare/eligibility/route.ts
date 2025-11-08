@@ -45,6 +45,18 @@ export async function GET() {
       });
     }
 
+    // Check if user has immediate family members
+    const familyCount = await prisma.immediateFamily.count({
+      where: { userId: user.id }
+    });
+
+    if (familyCount === 0) {
+      return NextResponse.json({
+        canApply: false,
+        reason: 'Please add your immediate family members before applying for welfare'
+      });
+    }
+
     // Check welfare fund status
     const welfareStats = await prisma.welfareFund.findFirst({
       orderBy: { createdAt: 'desc' }

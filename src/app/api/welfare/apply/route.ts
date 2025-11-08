@@ -4,14 +4,6 @@ import { adminAuth } from '@/lib/firebase-admin';
 import { prisma } from '@/lib/prisma';
 
 // Type definitions for request data
-interface BeneficiaryData {
-  fullName: string;
-  relationship: string;
-  phone: string;
-  email?: string;
-  idNumber?: string;
-}
-
 interface DocumentData {
   name: string;
   url: string;
@@ -23,7 +15,7 @@ interface ApplicationRequestData {
   deceasedName: string;
   relationToDeceased?: string;
   reasonForApplication: string;
-  beneficiaries: BeneficiaryData[];
+  immediateFamilyIds: string[];
   documents: DocumentData[];
 }
 
@@ -73,31 +65,51 @@ export async function POST(request: Request) {
     }
 
     const data: ApplicationRequestData = await request.json();
-    const { 
-      applicationType, 
-      deceasedName, 
-      relationToDeceased, 
-      reasonForApplication, 
-      beneficiaries, 
-      documents 
+    const {
+      applicationType,
+      deceasedName,
+      relationToDeceased,
+      reasonForApplication,
+      immediateFamilyIds,
+      documents
     } = data;
 
     // Validate required fields
     if (!applicationType || !deceasedName || !reasonForApplication) {
-      return NextResponse.json({ 
-        error: 'Missing required application fields' 
+      return NextResponse.json({
+        error: 'Missing required application fields'
       }, { status: 400 });
     }
 
-    if (!beneficiaries || beneficiaries.length === 0) {
-      return NextResponse.json({ 
-        error: 'At least one beneficiary is required' 
+    if (!immediateFamilyIds || immediateFamilyIds.length === 0) {
+      return NextResponse.json({
+        error: 'At least one beneficiary is required'
+      }, { status: 400 });
+    }
+
+    if (immediateFamilyIds.length > 5) {
+      return NextResponse.json({
+        error: 'Maximum 5 beneficiaries allowed'
       }, { status: 400 });
     }
 
     if (!documents || documents.length === 0) {
-      return NextResponse.json({ 
-        error: 'Supporting documents are required' 
+      return NextResponse.json({
+        error: 'Supporting documents are required'
+      }, { status: 400 });
+    }
+
+    // Fetch the selected family members to validate they belong to user
+    const familyMembers = await prisma.immediateFamily.findMany({
+      where: {
+        id: { in: immediateFamilyIds },
+        userId: user.id
+      }
+    });
+
+    if (familyMembers.length !== immediateFamilyIds.length) {
+      return NextResponse.json({
+        error: 'Invalid family member selection'
       }, { status: 400 });
     }
 
@@ -119,17 +131,17 @@ export async function POST(request: Request) {
         }
       });
 
-      // Create beneficiaries
+      // Create beneficiaries from family members
       await Promise.all(
-        beneficiaries.map((beneficiary: BeneficiaryData) =>
+        familyMembers.map((member) =>
           tx.welfareBeneficiary.create({
             data: {
               applicationId: newApplication.id,
-              fullName: beneficiary.fullName,
-              relationship: beneficiary.relationship,
-              phone: beneficiary.phone,
-              email: beneficiary.email || null,
-              idNumber: beneficiary.idNumber || null,
+              fullName: member.fullName,
+              relationship: member.relationship,
+              phone: member.phone,
+              email: member.email || null,
+              idNumber: member.idNumber || null,
             }
           })
         )
