@@ -815,7 +815,6 @@ export default function ImmediateFamilyPage() {
         )}
         </div>
       </div>
-      </div>
 
       {/* Confirm Dialog */}
       {confirmDialog && confirmDialog.show && (
