@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { ArrowLeft, Trophy, User, Vote, Calendar, Share2 } from "lucide-react";
 import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
+import { Toast } from "@/components/ui/toast";
 
 interface VotingCandidate {
   id: string;
@@ -34,6 +35,7 @@ export default function VotingResultsPage() {
   const [campaign, setCampaign] = useState<VotingCampaign | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     const fetchCampaign = async () => {
@@ -86,7 +88,7 @@ export default function VotingResultsPage() {
     } else {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
-      alert("Link copied to clipboard!");
+      setShowToast(true);
     }
   };
 
@@ -366,6 +368,15 @@ export default function VotingResultsPage() {
           </div>
         </div>
       </div>
+
+      {/* Toast notification */}
+      {showToast && (
+        <Toast
+          message="Link copied to clipboard!"
+          type="success"
+          onClose={() => setShowToast(false)}
+        />
+      )}
     </main>
   );
 }

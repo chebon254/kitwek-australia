@@ -340,6 +340,14 @@ export default function WelfareDashboard() {
                     )}
 
                     <Link
+                      href="/dashboard/welfare/beneficiaries"
+                      className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                    >
+                      <Users className="h-5 w-5 mr-2" />
+                      Manage Beneficiaries
+                    </Link>
+
+                    <Link
                       href="/welfare"
                       className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                     >

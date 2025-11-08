@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   ArrowLeft,
   Plus,
@@ -14,10 +15,13 @@ import {
   Upload,
   FileText,
   X,
-  Download
+  Download,
+  CheckCircle,
+  CreditCard
 } from "lucide-react";
 import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface FamilyDocument {
   id: string;
@@ -56,6 +60,12 @@ export default function ImmediateFamilyPage() {
     idNumber: "",
   });
   const [isAdding, setIsAdding] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    show: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  } | null>(null);
 
   useEffect(() => {
     const loadFamilyMembers = async () => {
@@ -246,10 +256,17 @@ export default function ImmediateFamilyPage() {
     }
   };
 
-  const handleDelete = async (index: number, memberId: string) => {
-    if (!confirm('Are you sure you want to remove this family member?')) {
-      return;
-    }
+  const handleDelete = (index: number, memberId: string) => {
+    setConfirmDialog({
+      show: true,
+      title: "Remove Family Member",
+      message: "Are you sure you want to remove this family member? This action cannot be undone.",
+      onConfirm: () => performDelete(index, memberId),
+    });
+  };
+
+  const performDelete = async (index: number, memberId: string) => {
+    setConfirmDialog(null);
 
     setSaving(true);
     setError("");
@@ -321,10 +338,17 @@ export default function ImmediateFamilyPage() {
     }
   };
 
-  const handleDocumentDelete = async (memberId: string, documentId: string) => {
-    if (!confirm('Are you sure you want to delete this document?')) {
-      return;
-    }
+  const handleDocumentDelete = (memberId: string, documentId: string) => {
+    setConfirmDialog({
+      show: true,
+      title: "Delete Document",
+      message: "Are you sure you want to delete this document? This action cannot be undone.",
+      onConfirm: () => performDocumentDelete(memberId, documentId),
+    });
+  };
+
+  const performDocumentDelete = async (memberId: string, documentId: string) => {
+    setConfirmDialog(null);
 
     setError("");
 
@@ -359,18 +383,21 @@ export default function ImmediateFamilyPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Skeleton className="h-10 w-64 mb-6" />
-          <Skeleton className="h-96 w-full" />
+      <main className="flex-1 mt-24">
+        <div className="py-6">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <Skeleton className="h-10 w-64 mb-6" />
+            <Skeleton className="h-96 w-full" />
+          </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <main className="flex-1 mt-24">
+      <div className="py-6">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-6">
           <button
@@ -400,6 +427,30 @@ export default function ImmediateFamilyPage() {
           <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-start">
             <AlertCircle className="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
             <p className="text-green-800">{success}</p>
+          </div>
+        )}
+
+        {/* Next Steps - Show when user has added family members */}
+        {familyMembers.length > 0 && !isAdding && (
+          <div className="mb-6 bg-indigo-50 border border-indigo-200 rounded-lg p-6">
+            <div className="flex items-start">
+              <CheckCircle className="h-6 w-6 text-indigo-600 mt-0.5 mr-3 flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-lg font-medium text-indigo-900 mb-2">
+                  Great! You&apos;ve added {familyMembers.length} family {familyMembers.length === 1 ? 'member' : 'members'}
+                </h3>
+                <p className="text-indigo-700 mb-4">
+                  You&apos;re all set to proceed with your welfare registration. Your family members will be your beneficiaries.
+                </p>
+                <Link
+                  href="/dashboard/welfare/register"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Continue to Registration & Payment
+                </Link>
+              </div>
+            </div>
           </div>
         )}
 
@@ -762,7 +813,21 @@ export default function ImmediateFamilyPage() {
             </button>
           </div>
         )}
+        </div>
       </div>
-    </div>
+      </div>
+
+      {/* Confirm Dialog */}
+      {confirmDialog && confirmDialog.show && (
+        <ConfirmDialog
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          confirmText="Delete"
+          cancelText="Cancel"
+          onConfirm={confirmDialog.onConfirm}
+          onCancel={() => setConfirmDialog(null)}
+        />
+      )}
+    </main>
   );
 }
