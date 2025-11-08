@@ -137,6 +137,7 @@ export async function POST(request: Request) {
           tx.welfareBeneficiary.create({
             data: {
               applicationId: newApplication.id,
+              immediateFamilyId: member.id,  // Store reference to original family member
               fullName: member.fullName,
               relationship: member.relationship,
               phone: member.phone,

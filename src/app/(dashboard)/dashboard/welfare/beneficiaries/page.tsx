@@ -10,10 +10,22 @@ import {
   User,
   Save,
   Trash2,
-  Edit2
+  Edit2,
+  Upload,
+  FileText,
+  X,
+  Download
 } from "lucide-react";
 import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
 import { Skeleton } from "@/components/ui/skeleton";
+
+interface FamilyDocument {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  uploadedAt: string;
+}
 
 interface FamilyMember {
   id?: string;
@@ -22,6 +34,7 @@ interface FamilyMember {
   phone: string;
   email: string;
   idNumber: string;
+  documents?: FamilyDocument[];
 }
 
 export default function ImmediateFamilyPage() {
@@ -29,10 +42,12 @@ export default function ImmediateFamilyPage() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [uploadingForMember, setUploadingForMember] = useState<string | null>(null);
   const [newMember, setNewMember] = useState<FamilyMember>({
     fullName: "",
     relationship: "",
@@ -264,6 +279,84 @@ export default function ImmediateFamilyPage() {
     }
   };
 
+  const handleDocumentUpload = async (memberId: string, fileType: string, file: File) => {
+    setUploading(true);
+    setUploadingForMember(memberId);
+    setError("");
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fileType', fileType);
+
+      const response = await fetch(`/api/welfare/immediate-family/${memberId}/documents`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Update the family member's documents
+        setFamilyMembers(prev => prev.map(member => {
+          if (member.id === memberId) {
+            return {
+              ...member,
+              documents: [...(member.documents || []), data.document]
+            };
+          }
+          return member;
+        }));
+        setSuccess('Document uploaded successfully');
+        setTimeout(() => setSuccess(""), 3000);
+      } else {
+        setError(data.error || 'Failed to upload document');
+      }
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      setError('Failed to upload document');
+    } finally {
+      setUploading(false);
+      setUploadingForMember(null);
+    }
+  };
+
+  const handleDocumentDelete = async (memberId: string, documentId: string) => {
+    if (!confirm('Are you sure you want to delete this document?')) {
+      return;
+    }
+
+    setError("");
+
+    try {
+      const response = await fetch(`/api/welfare/immediate-family/${memberId}/documents?documentId=${documentId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Remove document from the member's documents
+        setFamilyMembers(prev => prev.map(member => {
+          if (member.id === memberId) {
+            return {
+              ...member,
+              documents: member.documents?.filter(doc => doc.id !== documentId)
+            };
+          }
+          return member;
+        }));
+        setSuccess('Document deleted successfully');
+        setTimeout(() => setSuccess(""), 3000);
+      } else {
+        setError(data.error || 'Failed to delete document');
+      }
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      setError('Failed to delete document');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
@@ -419,6 +512,83 @@ export default function ImmediateFamilyPage() {
                       />
                     </div>
                   </div>
+
+                  {/* Documents Section */}
+                  {member.id && (
+                    <div className="mt-6 border-t pt-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h5 className="text-sm font-medium text-gray-700 flex items-center">
+                          <FileText className="h-4 w-4 mr-2" />
+                          Proof Documents ({member.documents?.length || 0})
+                        </h5>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-3">
+                        Upload ID cards, photos, or other documents to verify family relationship
+                      </p>
+
+                      {/* Document Upload */}
+                      <div className="mb-3">
+                        <label className="cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*,application/pdf"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleDocumentUpload(member.id!, 'id_card', file);
+                              }
+                              e.target.value = '';
+                            }}
+                            className="hidden"
+                            disabled={uploading && uploadingForMember === member.id}
+                          />
+                          <span className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                            {uploading && uploadingForMember === member.id ? (
+                              <>
+                                <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                                Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="h-4 w-4 mr-2" />
+                                Upload Document
+                              </>
+                            )}
+                          </span>
+                        </label>
+                      </div>
+
+                      {/* Uploaded Documents */}
+                      {member.documents && member.documents.length > 0 && (
+                        <div className="space-y-2">
+                          {member.documents.map((doc) => (
+                            <div key={doc.id} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
+                              <div className="flex items-center flex-1 min-w-0">
+                                <FileText className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                                <span className="ml-2 text-sm text-gray-700 truncate">{doc.fileName}</span>
+                              </div>
+                              <div className="flex items-center gap-2 ml-2">
+                                <a
+                                  href={doc.fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-indigo-600 hover:text-indigo-800"
+                                >
+                                  <Download className="h-4 w-4" />
+                                </a>
+                                <button
+                                  onClick={() => handleDocumentDelete(member.id!, doc.id)}
+                                  className="text-red-600 hover:text-red-800"
+                                >
+                                  <X className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {editingIndex === index && (
                     <div className="mt-4 flex gap-3">

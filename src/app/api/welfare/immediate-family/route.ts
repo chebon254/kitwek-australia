@@ -29,9 +29,14 @@ export async function GET() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Fetch all immediate family members for this user
+    // Fetch all immediate family members for this user with documents
     const familyMembers = await prisma.immediateFamily.findMany({
       where: { userId: user.id },
+      include: {
+        documents: {
+          orderBy: { uploadedAt: 'desc' }
+        }
+      },
       orderBy: { createdAt: 'asc' }
     });
 
@@ -44,6 +49,7 @@ export async function GET() {
         phone: member.phone,
         email: member.email,
         idNumber: member.idNumber,
+        documents: member.documents,
         createdAt: member.createdAt,
         updatedAt: member.updatedAt,
       })),
