@@ -10,11 +10,8 @@ import {
   Loader2,
   User,
   Save,
-  Trash2,
-  Edit2,
   Upload,
   FileText,
-  X,
   Download,
   CheckCircle,
   CreditCard
@@ -174,97 +171,6 @@ export default function ImmediateFamilyPage() {
     }
   };
 
-  const handleEdit = (index: number) => {
-    setEditingIndex(index);
-    setIsAdding(false);
-    setError("");
-    setSuccess("");
-  };
-
-  const handleCancelEdit = () => {
-    setEditingIndex(null);
-    // Reset to original values by refetching
-    fetch('/api/welfare/immediate-family')
-      .then(res => res.json())
-      .then(data => setFamilyMembers(data.familyMembers || []));
-  };
-
-  const handleMemberChange = (index: number, field: keyof FamilyMember, value: string) => {
-    setFamilyMembers(prev => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], [field]: value };
-      return updated;
-    });
-  };
-
-  const handleSaveEdit = async (index: number) => {
-    const member = familyMembers[index];
-
-    // Validate required fields
-    if (!member.fullName || !member.relationship || !member.phone) {
-      setError('Please fill in all required fields (Name, Relationship, Phone)');
-      return;
-    }
-
-    // Validate email if provided
-    if (member.email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(member.email)) {
-        setError('Please enter a valid email address');
-        return;
-      }
-    }
-
-    setSaving(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      const response = await fetch(`/api/welfare/immediate-family/${member.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: member.fullName,
-          relationship: member.relationship,
-          phone: member.phone,
-          email: member.email,
-          idNumber: member.idNumber,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setFamilyMembers(prev => {
-          const updated = [...prev];
-          updated[index] = data.familyMember;
-          return updated;
-        });
-        setSuccess('Family member updated successfully');
-        setEditingIndex(null);
-
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccess(""), 3000);
-      } else {
-        setError(data.error || 'Failed to update family member');
-      }
-    } catch (error) {
-      console.error('Error updating family member:', error);
-      setError('Failed to update family member');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = (index: number, memberId: string) => {
-    setConfirmDialog({
-      show: true,
-      title: "Remove Family Member",
-      message: "Are you sure you want to remove this family member? This action cannot be undone.",
-      onConfirm: () => performDelete(index, memberId),
-    });
-  };
-
   const performDelete = async (index: number, memberId: string) => {
     setConfirmDialog(null);
 
@@ -336,15 +242,6 @@ export default function ImmediateFamilyPage() {
       setUploading(false);
       setUploadingForMember(null);
     }
-  };
-
-  const handleDocumentDelete = (memberId: string, documentId: string) => {
-    setConfirmDialog({
-      show: true,
-      title: "Delete Document",
-      message: "Are you sure you want to delete this document? This action cannot be undone.",
-      onConfirm: () => performDocumentDelete(memberId, documentId),
-    });
   };
 
   const performDocumentDelete = async (memberId: string, documentId: string) => {
@@ -498,7 +395,6 @@ export default function ImmediateFamilyPage() {
                       <input
                         type="text"
                         value={member.relationship}
-                        onChange={(e) => handleMemberChange(index, 'relationship', e.target.value)}
                         disabled={true}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
                         placeholder="e.g., Spouse, Child, Parent, Sibling"
@@ -512,7 +408,6 @@ export default function ImmediateFamilyPage() {
                       <input
                         type="tel"
                         value={member.phone}
-                        onChange={(e) => handleMemberChange(index, 'phone', e.target.value)}
                         disabled={true}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
                         placeholder="+1 (555) 123-4567"
@@ -526,7 +421,6 @@ export default function ImmediateFamilyPage() {
                       <input
                         type="email"
                         value={member.email || ''}
-                        onChange={(e) => handleMemberChange(index, 'email', e.target.value)}
                         disabled={true}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
                         placeholder="email@example.com"
@@ -540,7 +434,6 @@ export default function ImmediateFamilyPage() {
                       <input
                         type="text"
                         value={member.idNumber || ''}
-                        onChange={(e) => handleMemberChange(index, 'idNumber', e.target.value)}
                         disabled={true}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
                         placeholder="Government ID or Social Security Number"
