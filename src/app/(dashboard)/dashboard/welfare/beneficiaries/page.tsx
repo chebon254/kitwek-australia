@@ -472,24 +472,9 @@ export default function ImmediateFamilyPage() {
                     <h4 className="text-md font-medium text-gray-900">
                       Family Member {index + 1}
                     </h4>
-                    {editingIndex !== index && (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEdit(index)}
-                          disabled={saving || editingIndex !== null}
-                          className="text-indigo-600 hover:text-indigo-800 disabled:opacity-50"
-                        >
-                          <Edit2 className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={() => member.id && handleDelete(index, member.id)}
-                          disabled={saving}
-                          className="text-red-600 hover:text-red-800 disabled:opacity-50"
-                        >
-                          <Trash2 className="h-5 w-5" />
-                        </button>
-                      </div>
-                    )}
+                    <div className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                      Saved
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -500,8 +485,7 @@ export default function ImmediateFamilyPage() {
                       <input
                         type="text"
                         value={member.fullName}
-                        onChange={(e) => handleMemberChange(index, 'fullName', e.target.value)}
-                        disabled={editingIndex !== index}
+                        disabled={true}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
                         placeholder="Enter full name"
                       />
@@ -515,7 +499,7 @@ export default function ImmediateFamilyPage() {
                         type="text"
                         value={member.relationship}
                         onChange={(e) => handleMemberChange(index, 'relationship', e.target.value)}
-                        disabled={editingIndex !== index}
+                        disabled={true}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
                         placeholder="e.g., Spouse, Child, Parent, Sibling"
                       />
@@ -529,7 +513,7 @@ export default function ImmediateFamilyPage() {
                         type="tel"
                         value={member.phone}
                         onChange={(e) => handleMemberChange(index, 'phone', e.target.value)}
-                        disabled={editingIndex !== index}
+                        disabled={true}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
                         placeholder="+1 (555) 123-4567"
                       />
@@ -543,7 +527,7 @@ export default function ImmediateFamilyPage() {
                         type="email"
                         value={member.email || ''}
                         onChange={(e) => handleMemberChange(index, 'email', e.target.value)}
-                        disabled={editingIndex !== index}
+                        disabled={true}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
                         placeholder="email@example.com"
                       />
@@ -557,7 +541,7 @@ export default function ImmediateFamilyPage() {
                         type="text"
                         value={member.idNumber || ''}
                         onChange={(e) => handleMemberChange(index, 'idNumber', e.target.value)}
-                        disabled={editingIndex !== index}
+                        disabled={true}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500"
                         placeholder="Government ID or Social Security Number"
                       />
@@ -627,46 +611,11 @@ export default function ImmediateFamilyPage() {
                                 >
                                   <Download className="h-4 w-4" />
                                 </a>
-                                <button
-                                  onClick={() => handleDocumentDelete(member.id!, doc.id)}
-                                  className="text-red-600 hover:text-red-800"
-                                >
-                                  <X className="h-4 w-4" />
-                                </button>
                               </div>
                             </div>
                           ))}
                         </div>
                       )}
-                    </div>
-                  )}
-
-                  {editingIndex === index && (
-                    <div className="mt-4 flex gap-3">
-                      <button
-                        onClick={() => handleSaveEdit(index)}
-                        disabled={saving}
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                      >
-                        {saving ? (
-                          <>
-                            <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                            Saving...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="h-4 w-4 mr-2" />
-                            Save Changes
-                          </>
-                        )}
-                      </button>
-                      <button
-                        onClick={handleCancelEdit}
-                        disabled={saving}
-                        className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                      >
-                        Cancel
-                      </button>
                     </div>
                   )}
                 </div>
