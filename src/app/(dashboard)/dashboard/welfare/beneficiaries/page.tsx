@@ -171,37 +171,6 @@ export default function ImmediateFamilyPage() {
     }
   };
 
-  const performDelete = async (index: number, memberId: string) => {
-    setConfirmDialog(null);
-
-    setSaving(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      const response = await fetch(`/api/welfare/immediate-family/${memberId}`, {
-        method: 'DELETE',
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setFamilyMembers(prev => prev.filter((_, i) => i !== index));
-        setSuccess('Family member removed successfully');
-
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccess(""), 3000);
-      } else {
-        setError(data.error || 'Failed to remove family member');
-      }
-    } catch (error) {
-      console.error('Error deleting family member:', error);
-      setError('Failed to remove family member');
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const handleDocumentUpload = async (memberId: string, fileType: string, file: File) => {
     setUploading(true);
     setUploadingForMember(memberId);
@@ -241,40 +210,6 @@ export default function ImmediateFamilyPage() {
     } finally {
       setUploading(false);
       setUploadingForMember(null);
-    }
-  };
-
-  const performDocumentDelete = async (memberId: string, documentId: string) => {
-    setConfirmDialog(null);
-
-    setError("");
-
-    try {
-      const response = await fetch(`/api/welfare/immediate-family/${memberId}/documents?documentId=${documentId}`, {
-        method: 'DELETE',
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Remove document from the member's documents
-        setFamilyMembers(prev => prev.map(member => {
-          if (member.id === memberId) {
-            return {
-              ...member,
-              documents: member.documents?.filter(doc => doc.id !== documentId)
-            };
-          }
-          return member;
-        }));
-        setSuccess('Document deleted successfully');
-        setTimeout(() => setSuccess(""), 3000);
-      } else {
-        setError(data.error || 'Failed to delete document');
-      }
-    } catch (error) {
-      console.error('Error deleting document:', error);
-      setError('Failed to delete document');
     }
   };
 
