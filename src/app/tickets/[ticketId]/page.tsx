@@ -38,6 +38,7 @@ export default function PublicTicketView() {
     if (ticketId) {
       fetchTicket();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticketId]);
 
   const fetchTicket = async () => {
@@ -88,7 +89,7 @@ export default function PublicTicketView() {
               <AlertCircle className="mx-auto h-12 w-12 text-red-600 mb-4" />
               <h1 className="text-2xl font-bold text-gray-900 mb-2">{error}</h1>
               <p className="text-gray-600 mb-6">
-                The ticket you're looking for could not be found or is no longer valid.
+                The ticket you&apos;re looking for could not be found or is no longer valid.
               </p>
               <Link
                 href="/events"
@@ -216,6 +217,7 @@ export default function PublicTicketView() {
                 <div className="text-center">
                   <h3 className="text-sm font-medium text-gray-500 mb-4">Ticket QR Code</h3>
                   <div className="inline-block p-4 bg-white border-2 border-gray-200 rounded-lg">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${ticket.id}`}
                       alt="Ticket QR Code"

@@ -63,6 +63,7 @@ export default function MemberDetail() {
     };
 
     fetchMember();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
   if (loading) {

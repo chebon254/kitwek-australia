@@ -46,6 +46,7 @@ export default function Forums() {
     };
 
     fetchForums();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filteredForums = forums.filter((forum) => {

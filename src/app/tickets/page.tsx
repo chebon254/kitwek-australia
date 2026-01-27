@@ -33,10 +33,10 @@ export default function MyTickets() {
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   useEffect(() => {
     fetchTickets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchTickets = async (searchEmail?: string) => {

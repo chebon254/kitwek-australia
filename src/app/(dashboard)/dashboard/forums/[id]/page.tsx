@@ -60,6 +60,7 @@ export default function ForumDetail() {
     };
 
     fetchForumAndComments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
   const handleSubmitComment = async (e: React.FormEvent) => {

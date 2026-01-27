@@ -60,6 +60,7 @@ export default function VotingResultsPage() {
     };
 
     fetchCampaign();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.campaignId]);
 
   const getSortedCandidates = () => {
