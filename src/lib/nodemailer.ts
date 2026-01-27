@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import path from "path";
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -220,6 +221,10 @@ export const sendMembershipConfirmationEmail = async (
               <li>✅ Priority support and assistance</li>
             </ul>
 
+            <p style="background-color: #dbeafe; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 4px; margin: 20px 0;">
+              <strong>📄 Constitution Attached:</strong> Please find attached our organization's constitution document which outlines our principles, guidelines, and community values. We encourage all members to review this important document.
+            </p>
+
             <a href="${
               process.env.NEXT_PUBLIC_URL
             }/dashboard" style="color: #FFFFFF !important;" class="button">
@@ -244,6 +249,15 @@ export const sendMembershipConfirmationEmail = async (
     to: email,
     subject: "🎉 Welcome! You're Now an Official Kitwek Victoria Member",
     html,
+    attachments: [
+      {
+        filename: "Kitwek Victoria - Strengthening the Kalenjin Community.pdf",
+        path: path.join(
+          process.cwd(),
+          "public/files/Kitwek Victoria - Strengthening the Kalenjin Community.pdf"
+        ),
+      },
+    ],
   });
 };
 
@@ -348,8 +362,16 @@ export const sendTicketEmail = async (
     date: string | Date;
     location: string;
   },
-  ticketId: string
+  ticketId: string,
+  isPublic: boolean = false
 ) => {
+  const ticketUrl = isPublic
+    ? `${process.env.NEXT_PUBLIC_URL}/tickets/${ticketId}`
+    : `${process.env.NEXT_PUBLIC_URL}/tickets`;
+
+  const ticketLinkText = isPublic
+    ? 'View Your Ticket'
+    : 'View My Tickets';
   const html = `
     <!DOCTYPE html>
     <html>
@@ -428,12 +450,22 @@ export const sendTicketEmail = async (
             </div>
 
             <p>Please keep this email for your records. You'll need to show your ticket (either printed or on your mobile device) at the event.</p>
-            
-            <a href="${
-              process.env.NEXT_PUBLIC_URL
-            }/tickets" style="color: #FFFFFF !important;" class="button">
-              View My Tickets
+
+            <a href="${ticketUrl}" style="color: #FFFFFF !important;" class="button">
+              ${ticketLinkText}
             </a>
+
+            ${isPublic ? `
+            <div style="background-color: #dbeafe; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 4px; margin: 20px 0;">
+              <p style="margin: 0;"><strong>📱 Your Ticket Link:</strong></p>
+              <p style="margin: 5px 0; word-break: break-all;">
+                <a href="${ticketUrl}" style="color: #2563eb;">${ticketUrl}</a>
+              </p>
+              <p style="margin: 5px 0 0 0; font-size: 14px; color: #1e40af;">
+                You can access your ticket anytime using this link. No login required!
+              </p>
+            </div>
+            ` : ''}
 
             <p>If you have any questions or need to make changes to your ticket, please contact our support team.</p>
 
@@ -791,5 +823,251 @@ export const sendWelfareRegistrationConfirmationEmail = async (
     to: email,
     subject: "🎉 Welcome to Kitwek Victoria Welfare - Registration Confirmed!",
     html,
+  });
+};
+
+export const sendInactiveMemberReminderEmail = async (
+  email: string,
+  name: string
+) => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            background-color: #f59e0b;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+          }
+          .content {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0 0 8px 8px;
+          }
+          .button {
+            display: inline-block;
+            background-color: #10b981;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+          }
+          .reminder-box {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>⏰ Membership Activation Reminder</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${name}!</h2>
+            <p>We noticed your Kitwek Victoria membership is still <strong>inactive</strong>. You're missing out on exclusive benefits and community engagement!</p>
+
+            <div class="reminder-box">
+              <h3 style="margin-top: 0; color: #92400e;">Complete Your Activation Today</h3>
+              <p style="margin-bottom: 0;">Activate your membership for just <strong>AUD $30</strong> and unlock full access to our community.</p>
+            </div>
+
+            <p><strong>What you'll get as an active member:</strong></p>
+            <ul>
+              <li>✅ Official member number and status</li>
+              <li>✅ Access to member directory</li>
+              <li>✅ Participation in forums and discussions</li>
+              <li>✅ Access to exclusive events and activities</li>
+              <li>✅ Voting rights in community decisions</li>
+              <li>✅ Welfare program eligibility</li>
+            </ul>
+
+            <div style="text-align: center;">
+              <a href="${process.env.NEXT_PUBLIC_URL}/dashboard/membership" style="color: #FFFFFF !important;" class="button">
+                Activate Membership Now
+              </a>
+            </div>
+
+            <p style="background-color: #dbeafe; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 4px; margin: 20px 0;">
+              <strong>📄 Constitution Attached:</strong> Please find attached our organization's constitution document which outlines our principles and community values.
+            </p>
+
+            <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+
+            <p>Best regards,<br>The Kitwek Victoria Team</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  await transporter.sendMail({
+    from: process.env.SMTP_USER,
+    to: email,
+    subject: "⏰ Reminder: Activate Your Kitwek Victoria Membership",
+    html,
+    attachments: [
+      {
+        filename: "Kitwek Victoria - Strengthening the Kalenjin Community.pdf",
+        path: path.join(
+          process.cwd(),
+          "public/files/Kitwek Victoria - Strengthening the Kalenjin Community.pdf"
+        ),
+      },
+    ],
+  });
+};
+
+export const sendInactiveWelfareReminderEmail = async (
+  email: string,
+  name: string,
+  registrationStatus: "not_registered" | "pending_payment"
+) => {
+  const isNotRegistered = registrationStatus === "not_registered";
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            background-color: #8b5cf6;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+          }
+          .content {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0 0 8px 8px;
+          }
+          .button {
+            display: inline-block;
+            background-color: #10b981;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+          }
+          .welfare-box {
+            background-color: #f3e8ff;
+            border: 2px solid #8b5cf6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+          }
+          .benefits-box {
+            background-color: #d1fae5;
+            border: 1px solid #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🤝 Join Kitwek Victoria Welfare</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${name}!</h2>
+            <p>${
+              isNotRegistered
+                ? "You haven't registered for the Kitwek Victoria Welfare program yet. Don't miss this opportunity to be part of our caring community!"
+                : "Your welfare registration payment is still pending. Complete your payment today to activate your welfare membership!"
+            }</p>
+
+            <div class="welfare-box">
+              <h3 style="margin-top: 0; color: #5b21b6;">${
+                isNotRegistered ? "Register Today" : "Complete Your Payment"
+              }</h3>
+              <p><strong>Registration Fee:</strong> AUD $100 (one-time)</p>
+              <p style="margin-bottom: 0;">Secure your place in our community support network.</p>
+            </div>
+
+            <div class="benefits-box">
+              <h3 style="margin-top: 0; color: #065f46;">Welfare Benefits</h3>
+              <ul style="margin: 10px 0; padding-left: 20px;">
+                <li><strong>Family Death Support:</strong> AUD $5,000 for immediate family members</li>
+                <li><strong>Member Death Support:</strong> AUD $8,000 to immediate family when a member passes</li>
+                <li><strong>Community Support:</strong> Access to our caring community network</li>
+                <li><strong>Transparent Process:</strong> Clear claim procedures and timelines</li>
+              </ul>
+            </div>
+
+            <div style="text-align: center;">
+              <a href="${
+                process.env.NEXT_PUBLIC_URL
+              }/dashboard/welfare" style="color: #FFFFFF !important;" class="button">
+                ${isNotRegistered ? "Register Now" : "Complete Payment"}
+              </a>
+            </div>
+
+            <h3>Important Information:</h3>
+            <ul>
+              <li>The welfare fund needs a minimum of 100 active members to become operational</li>
+              <li>There is a 2-month waiting period after the fund becomes operational</li>
+              <li>All bereavements must be reported within 7 days</li>
+            </ul>
+
+            <p style="background-color: #dbeafe; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 4px; margin: 20px 0;">
+              <strong>📄 Constitution Attached:</strong> Please review our organization's constitution which outlines our principles and welfare program guidelines.
+            </p>
+
+            <p>If you have any questions about the welfare program, please contact our support team.</p>
+
+            <p>Best regards,<br>The Kitwek Victoria Welfare Department</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  await transporter.sendMail({
+    from: process.env.SMTP_USER,
+    to: email,
+    subject: "🤝 Join Kitwek Victoria Welfare - Community Support Program",
+    html,
+    attachments: [
+      {
+        filename: "Kitwek Victoria - Strengthening the Kalenjin Community.pdf",
+        path: path.join(
+          process.cwd(),
+          "public/files/Kitwek Victoria - Strengthening the Kalenjin Community.pdf"
+        ),
+      },
+    ],
   });
 };

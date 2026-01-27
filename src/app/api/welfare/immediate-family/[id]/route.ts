@@ -48,6 +48,18 @@ export async function PATCH(
       }, { status: 404 });
     }
 
+    // RESTRICTION: Users cannot edit beneficiaries after welfare registration payment
+    // Only admins can edit through the admin panel
+    const welfareRegistration = await prisma.welfareRegistration.findUnique({
+      where: { userId: user.id }
+    });
+
+    if (welfareRegistration && welfareRegistration.paymentStatus === 'PAID') {
+      return NextResponse.json({
+        error: 'Beneficiaries cannot be edited once welfare registration is paid. Please contact an administrator for changes.'
+      }, { status: 403 });
+    }
+
     const data: UpdateFamilyData = await request.json();
     const { fullName, relationship, phone, email, idNumber } = data;
 

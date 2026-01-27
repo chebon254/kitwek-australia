@@ -22,6 +22,7 @@ export const checkMembershipAndRedirect = async (router: AppRouterInstance) => {
       return false;
     }
 
+
     // Default: allow access (shouldn't reach here normally)
     return true;
   } catch (error) {

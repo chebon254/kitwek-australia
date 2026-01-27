@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/inactive-members-reminder",
+      "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/cron/inactive-welfare-reminder",
+      "schedule": "0 9 * * 1"
+    }
+  ]
+}

@@ -117,7 +117,7 @@ export default function ImmediateFamilyPage() {
     });
   };
 
-  const handleSaveNew = async () => {
+  const handleSaveNewClick = () => {
     // Validate required fields
     if (!newMember.fullName || !newMember.relationship || !newMember.phone) {
       setError('Please fill in all required fields (Name, Relationship, Phone)');
@@ -132,6 +132,19 @@ export default function ImmediateFamilyPage() {
         return;
       }
     }
+
+    // Show confirmation dialog
+    setConfirmDialog({
+      show: true,
+      title: "Confirm Beneficiary Submission",
+      message: "Once submitted, you will not be able to edit this beneficiary's information. Only administrators can make changes after submission. Are you sure the information is correct and you want to proceed?",
+      onConfirm: handleSaveNew,
+    });
+  };
+
+  const handleSaveNew = async () => {
+    // Close confirmation dialog
+    setConfirmDialog(null);
 
     setSaving(true);
     setError("");
@@ -296,6 +309,9 @@ export default function ImmediateFamilyPage() {
                   Saved Family Members ({familyMembers.length})
                 </h3>
               </div>
+              <p className="mt-2 text-sm text-gray-500">
+                Note: Beneficiary information cannot be edited once saved. Contact an administrator if you need to make changes.
+              </p>
             </div>
             <div className="px-6 py-5 space-y-6">
               {familyMembers.map((member, index) => (
@@ -529,9 +545,23 @@ export default function ImmediateFamilyPage() {
                 </div>
               </div>
 
+              {/* Warning Notice */}
+              <div className="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <AlertCircle className="h-5 w-5 text-yellow-400" />
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-yellow-700">
+                      <strong>Important:</strong> Once you submit this beneficiary, you will not be able to edit their information. Please ensure all details are correct before proceeding. Only administrators can make changes after submission.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div className="mt-6 flex gap-3">
                 <button
-                  onClick={handleSaveNew}
+                  onClick={handleSaveNewClick}
                   disabled={saving}
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                 >
@@ -598,8 +628,9 @@ export default function ImmediateFamilyPage() {
         <ConfirmDialog
           title={confirmDialog.title}
           message={confirmDialog.message}
-          confirmText="Delete"
+          confirmText="Yes, Submit"
           cancelText="Cancel"
+          confirmButtonClass="bg-indigo-600 hover:bg-indigo-700"
           onConfirm={confirmDialog.onConfirm}
           onCancel={() => setConfirmDialog(null)}
         />

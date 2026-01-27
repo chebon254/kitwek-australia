@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Calendar, MapPin, Clock, Users, Search } from "lucide-react";
@@ -27,6 +28,7 @@ interface Ticket {
 }
 
 export default function MyTickets() {
+  const router = useRouter();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
@@ -44,9 +46,9 @@ export default function MyTickets() {
         : "/api/tickets";
       const response = await fetch(url);
 
-      if (response.status === 401) {
-        setIsLoggedIn(false);
-        setLoading(false);
+      if (response.status === 401 || response.status === 400) {
+        // Redirect to login if not authenticated
+        router.push('/sign-in');
         return;
       }
 
@@ -59,8 +61,8 @@ export default function MyTickets() {
       setError("");
     } catch (error) {
       console.error("Error fetching tickets:", error);
-      setError("Failed to fetch tickets. Please try searching by email.");
-      setIsLoggedIn(false);
+      setError("Failed to fetch tickets. Redirecting to login...");
+      setTimeout(() => router.push('/sign-in'), 2000);
     } finally {
       setLoading(false);
     }

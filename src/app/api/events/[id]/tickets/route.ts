@@ -141,12 +141,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     });
 
     // Send ticket emails to all attendees
+    // Ticket is public if there's no userId (non-logged-in user)
+    const isPublic = !userId;
+
     for (const attendee of ticket.attendees) {
       await sendTicketEmail(
         attendee.email,
         attendee.firstName,
         ticket.event,
-        ticket.id
+        ticket.id,
+        isPublic
       );
     }
 

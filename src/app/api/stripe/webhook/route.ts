@@ -239,13 +239,17 @@ export async function POST(request: Request) {
         });
 
         // Send confirmation emails
+        // Ticket is public if there's no userId (guest purchase)
+        const isPublic = !metadata.userId || metadata.userId === '';
+
         await Promise.all(
           result.attendees.map((attendee) =>
             sendTicketEmail(
               attendee.email,
               attendee.firstName,
               result.event,
-              result.ticket.id
+              result.ticket.id,
+              isPublic
             )
           )
         );
