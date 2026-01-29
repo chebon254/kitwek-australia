@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, MapPin, Clock, Users, ChevronRight } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, ChevronRight, Lock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import MembersOnlyModal from "@/components/events/MembersOnlyModal";
 
 interface Event {
   id: string;
@@ -18,6 +19,7 @@ interface Event {
   isPaid: boolean;
   price?: number;
   status: string;
+  visibility: string;
   _count: {
     tickets: number;
   };
@@ -26,6 +28,9 @@ interface Event {
 export default function Events() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showMembersOnlyModal, setShowMembersOnlyModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -40,8 +45,29 @@ export default function Events() {
       }
     };
 
+    const checkAuthStatus = async () => {
+      try {
+        const response = await fetch("/api/user");
+        setIsLoggedIn(response.ok);
+      } catch {
+        setIsLoggedIn(false);
+      }
+    };
+
     fetchEvents();
+    checkAuthStatus();
   }, []);
+
+  const handleEventClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    event: Event
+  ) => {
+    if (event.visibility === "MEMBERS_ONLY" && !isLoggedIn) {
+      e.preventDefault();
+      setSelectedEvent(event);
+      setShowMembersOnlyModal(true);
+    }
+  };
 
   if (loading) {
     return (
@@ -97,6 +123,7 @@ export default function Events() {
               <Link
                 key={event.id}
                 href={`/events/${event.id}`}
+                onClick={(e) => handleEventClick(e, event)}
                 className="group bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
               >
                 <div className="relative h-48">
@@ -106,6 +133,14 @@ export default function Events() {
                     fill
                     className="object-cover"
                   />
+                  {event.visibility === "MEMBERS_ONLY" && (
+                    <div className="absolute top-3 right-3 z-10">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-full shadow-lg">
+                        <Lock className="h-4 w-4" />
+                        Members Only
+                      </span>
+                    </div>
+                  )}
                   {event.status !== "UPCOMING" && (
                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                       <span className="text-white text-lg font-semibold">
@@ -174,6 +209,13 @@ export default function Events() {
           )}
         </div>
       </div>
+
+      {/* Members Only Modal */}
+      <MembersOnlyModal
+        isOpen={showMembersOnlyModal}
+        onClose={() => setShowMembersOnlyModal(false)}
+        eventTitle={selectedEvent?.title}
+      />
     </main>
   );
 }

@@ -12,6 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import MembersOnlyModal from "@/components/events/MembersOnlyModal";
 
 interface Event {
   id: string;
@@ -25,6 +26,7 @@ interface Event {
   isPaid: boolean;
   price?: number;
   status: string;
+  visibility: string;
 }
 
 interface AttendeeForm {
@@ -45,6 +47,7 @@ export default function EventDetails() {
   ]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [showMembersOnlyModal, setShowMembersOnlyModal] = useState(false);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -56,6 +59,16 @@ export default function EventDetails() {
         setAttendees(
           Array(1).fill({ firstName: "", lastName: "", email: "", phone: "" })
         );
+
+        // Check if event is members-only and user is not logged in
+        if (data.visibility === "MEMBERS_ONLY") {
+          const authResponse = await fetch("/api/user");
+          const isAuthenticated = authResponse.ok;
+
+          if (!isAuthenticated) {
+            setShowMembersOnlyModal(true);
+          }
+        }
       } catch (error) {
         console.error("Error fetching event:", error);
         setError("Failed to load event details");
@@ -437,6 +450,13 @@ export default function EventDetails() {
           </div>
         </div>
       </div>
+
+      {/* Members Only Modal */}
+      <MembersOnlyModal
+        isOpen={showMembersOnlyModal}
+        onClose={() => setShowMembersOnlyModal(false)}
+        eventTitle={event?.title}
+      />
     </main>
   );
 }

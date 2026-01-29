@@ -41,7 +41,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     let userId: string | null = null;
     let userEmail: string | null = null;
     const session = (await cookies()).get('session');
-    
+
     if (session) {
       try {
         const decodedClaims = await adminAuth.verifySessionCookie(session.value, true);
@@ -56,6 +56,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         console.error("Auth error in ticket purchase:", authError || "Unknown auth error");
         // Continue without user authentication for guest purchases
       }
+    }
+
+    // Check if event is members-only and user is not logged in
+    if (event.visibility === 'MEMBERS_ONLY' && !userId) {
+      return NextResponse.json(
+        { error: 'This is a members-only event. Please log in to purchase tickets.' },
+        { status: 401 }
+      );
     }
 
     // For paid events, create a Stripe checkout session
