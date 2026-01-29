@@ -14,7 +14,8 @@ import {
   CreditCard,
   Heart,
   Plus,
-  History
+  History,
+  Vote
 } from "lucide-react";
 import { checkMembershipAndRedirect } from "@/utils/membershipCheck";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -346,6 +347,16 @@ export default function WelfareDashboard() {
                       <Users className="h-5 w-5 mr-2" />
                       Manage Beneficiaries
                     </Link>
+
+                    {welfareStatus?.paymentStatus === 'PAID' && welfareStatus.status === 'ACTIVE' && (
+                      <Link
+                        href="/dashboard/welfare/voting"
+                        className="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700"
+                      >
+                        <Vote className="h-5 w-5 mr-2" />
+                        Welfare Voting
+                      </Link>
+                    )}
 
                     <Link
                       href="/welfare"
