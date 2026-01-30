@@ -172,6 +172,7 @@ export default function Home() {
                   width={624}
                   className="w-full min-w-[280px] max-w-[624px] rounded-lg"
                   alt="Kitwek Victoria community"
+                  priority
                 />
               </div>
             </div>

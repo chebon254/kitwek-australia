@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const revalidate = 120; // Revalidate every 2 minutes
+
 export async function GET() {
   try {
     const campaigns = await prisma.votingCampaign.findMany({
