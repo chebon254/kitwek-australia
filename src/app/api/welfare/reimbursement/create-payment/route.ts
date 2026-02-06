@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 import { STRIPE_CONFIG } from "@/lib/stripe-config";
 
-export async function POST(request: Request) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function POST(_request: Request) {
   try {
     const session = (await cookies()).get('session');
     if (!session) {

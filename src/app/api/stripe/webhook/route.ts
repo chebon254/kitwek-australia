@@ -118,8 +118,7 @@ export async function POST(request: Request) {
           });
         }
       } else if (type === "welfare_reimbursement") {
-        const { userId, reimbursementId } = session.metadata as {
-          userId: string;
+        const { reimbursementId } = session.metadata as {
           reimbursementId: string;
         };
 
