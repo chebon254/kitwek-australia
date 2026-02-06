@@ -64,6 +64,10 @@ export default function WelfareDashboard() {
   const [welfareStatus, setWelfareStatus] = useState<WelfareStatus | null>(null);
   const [fundStats, setFundStats] = useState<FundStats | null>(null);
   const [familyMembersCount, setFamilyMembersCount] = useState(0);
+  const [reimbursementEligibility, setReimbursementEligibility] = useState<{
+    isEligible: boolean;
+    reimbursement: { amountDue: number; applicationName: string } | null;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -73,10 +77,11 @@ export default function WelfareDashboard() {
       if (!canAccess) return;
 
       try {
-        const [statusResponse, statsResponse, familyResponse] = await Promise.all([
+        const [statusResponse, statsResponse, familyResponse, eligibilityResponse] = await Promise.all([
           fetch('/api/welfare/status'),
           fetch('/api/welfare/stats'),
-          fetch('/api/welfare/immediate-family')
+          fetch('/api/welfare/immediate-family'),
+          fetch('/api/welfare/reimbursement/eligibility')
         ]);
 
         if (statusResponse.ok) {
@@ -93,6 +98,11 @@ export default function WelfareDashboard() {
           const familyData = await familyResponse.json();
           setFamilyMembersCount(familyData.count || 0);
         }
+
+        if (eligibilityResponse.ok) {
+          const eligibilityData = await eligibilityResponse.json();
+          setReimbursementEligibility(eligibilityData);
+        }
       } catch (error) {
         console.error('Error fetching welfare data:', error);
         setError('Failed to load welfare information');
@@ -107,14 +117,33 @@ export default function WelfareDashboard() {
   const getStatusBadge = (status: string) => {
     const badges = {
       PENDING: "bg-yellow-100 text-yellow-800 border-yellow-200",
-      PAID: "bg-green-100 text-green-800 border-green-200", 
+      PAID: "bg-green-100 text-green-800 border-green-200",
       ACTIVE: "bg-green-100 text-green-800 border-green-200",
       SUSPENDED: "bg-red-100 text-red-800 border-red-200",
       APPROVED: "bg-blue-100 text-blue-800 border-blue-200",
       REJECTED: "bg-red-100 text-red-800 border-red-200"
     };
-    
+
     return badges[status as keyof typeof badges] || "bg-gray-100 text-gray-800 border-gray-200";
+  };
+
+  const handleReimbursementPayment = async () => {
+    try {
+      const response = await fetch('/api/welfare/reimbursement/create-payment', {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        const { url } = await response.json();
+        window.location.href = url;
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to create payment session');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      alert('Failed to initiate payment');
+    }
   };
 
   if (loading) {
@@ -338,6 +367,16 @@ export default function WelfareDashboard() {
                         <Plus className="h-5 w-5 mr-2" />
                         Apply for Welfare
                       </Link>
+                    )}
+
+                    {reimbursementEligibility?.isEligible && (
+                      <button
+                        onClick={handleReimbursementPayment}
+                        className="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700"
+                      >
+                        <DollarSign className="h-5 w-5 mr-2" />
+                        Pay Reimbursement (AUD $19)
+                      </button>
                     )}
 
                     <Link

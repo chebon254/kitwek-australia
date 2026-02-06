@@ -1,2 +1,2 @@
--- AlterTable
-ALTER TABLE `Event` ADD COLUMN `visibility` VARCHAR(191) NOT NULL DEFAULT 'PUBLIC';
+-- Add event visibility field (already applied to database)
+SELECT 1;

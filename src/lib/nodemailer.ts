@@ -1071,3 +1071,107 @@ export const sendInactiveWelfareReminderEmail = async (
     ],
   });
 };
+
+export const sendReimbursementConfirmationEmail = async (
+  email: string,
+  name: string,
+  reimbursement: {
+    amountPaid: number;
+    application: {
+      deceasedName: string;
+      applicationType: string;
+    };
+  }
+) => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            background-color: #10b981;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+          }
+          .content {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0 0 8px 8px;
+          }
+          .payment-box {
+            background-color: #d1fae5;
+            border: 2px solid #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+          }
+          .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>✅ Reimbursement Payment Confirmed</h1>
+          </div>
+          <div class="content">
+            <h2>Dear ${name},</h2>
+            <p>Thank you for your reimbursement payment of <strong>AUD $${reimbursement.amountPaid.toFixed(2)}</strong>.</p>
+            <p>This payment contributes to replenishing the welfare fund following the payout for <strong>${reimbursement.application.deceasedName}</strong>.</p>
+
+            <div class="payment-box">
+              <h3 style="margin-top: 0; color: #065f46;">Payment Details</h3>
+              <div class="detail-row">
+                <span><strong>Amount Paid:</strong></span>
+                <span>AUD $${reimbursement.amountPaid.toFixed(2)}</span>
+              </div>
+              <div class="detail-row">
+                <span><strong>Application Type:</strong></span>
+                <span>${reimbursement.application.applicationType === 'MEMBER_DEATH' ? 'Member Death' : 'Family Death'}</span>
+              </div>
+              <div class="detail-row">
+                <span><strong>Beneficiary:</strong></span>
+                <span>${reimbursement.application.deceasedName}</span>
+              </div>
+              <div class="detail-row" style="border-bottom: none;">
+                <span><strong>Payment Date:</strong></span>
+                <span>${new Date().toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              </div>
+            </div>
+
+            <p style="background-color: #dbeafe; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 4px; margin: 20px 0;">
+              <strong>ℹ️ About Reimbursements:</strong> When the welfare fund makes a payout to support a member or their family, active members contribute a small reimbursement to maintain the fund's sustainability. Your contribution helps us continue supporting our community.
+            </p>
+
+            <p>Thank you for being part of our caring community and supporting fellow members in their time of need.</p>
+            <p>Best regards,<br>The Kitwek Victoria Welfare Department</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  await transporter.sendMail({
+    from: process.env.SMTP_USER,
+    to: email,
+    subject: "✅ Welfare Reimbursement Payment Confirmed - Kitwek Victoria",
+    html,
+  });
+};

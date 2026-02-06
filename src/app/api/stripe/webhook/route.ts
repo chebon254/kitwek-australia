@@ -8,8 +8,10 @@ import {
   sendMembershipConfirmationEmail,
   sendSubscriptionConfirmationEmail,
   sendWelfareRegistrationConfirmationEmail,
+  sendReimbursementConfirmationEmail,
 } from "@/lib/nodemailer";
 import { generateMemberNumber } from "@/lib/memberNumber";
+import { calculateStripeFee } from "@/lib/stripe-fees";
 import type Stripe from "stripe";
 
 export async function POST(request: Request) {
@@ -40,7 +42,8 @@ export async function POST(request: Request) {
           | "subscription"
           | "ticket"
           | "donation"
-          | "welfare_registration";
+          | "welfare_registration"
+          | "welfare_reimbursement";
       };
 
       if (type === "welfare_registration") {
@@ -78,7 +81,10 @@ export async function POST(request: Request) {
           );
         }
 
-        // Update welfare fund statistics
+        // Calculate fees for $100 registration
+        const { grossAmount, stripeFee, netAmount } = calculateStripeFee(100);
+
+        // Update welfare fund statistics with fee tracking
         const welfareStats = await prisma.welfareFund.findFirst({
           orderBy: { createdAt: "desc" },
         });
@@ -94,7 +100,10 @@ export async function POST(request: Request) {
             where: { id: welfareStats.id },
             data: {
               activeMembers,
-              totalAmount: activeMembers * 200,
+              totalGrossAmount: { increment: grossAmount },
+              totalStripeFees: { increment: stripeFee },
+              totalRegistrationFees: { increment: netAmount },
+              totalAmount: { increment: netAmount },
               isOperational,
               launchDate:
                 !welfareStats.launchDate && isOperational
@@ -107,6 +116,64 @@ export async function POST(request: Request) {
               lastUpdated: new Date(),
             },
           });
+        }
+      } else if (type === "welfare_reimbursement") {
+        const { userId, reimbursementId } = session.metadata as {
+          userId: string;
+          reimbursementId: string;
+        };
+
+        // Calculate fees for $19 reimbursement
+        const { grossAmount, stripeFee, netAmount } = calculateStripeFee(19);
+
+        // Update reimbursement record
+        const reimbursement = await prisma.welfareReimbursement.update({
+          where: { id: reimbursementId },
+          data: {
+            status: "PAID",
+            amountPaid: grossAmount,
+            stripeFee: stripeFee,
+            netAmount: netAmount,
+            stripePaymentId: session.payment_intent as string,
+            paidAt: new Date(),
+          },
+          include: {
+            application: true,
+            user: true,
+          },
+        });
+
+        // Update welfare fund with reimbursement contribution
+        const welfareStats = await prisma.welfareFund.findFirst({
+          orderBy: { createdAt: "desc" },
+        });
+
+        if (welfareStats) {
+          await prisma.welfareFund.update({
+            where: { id: welfareStats.id },
+            data: {
+              totalGrossAmount: { increment: grossAmount },
+              totalStripeFees: { increment: stripeFee },
+              totalReimbursementPaid: { increment: grossAmount },
+              totalReimbursementFees: { increment: stripeFee },
+              totalAmount: { increment: netAmount },
+              lastUpdated: new Date(),
+            },
+          });
+        }
+
+        // Send confirmation email
+        if (reimbursement.user && session.customer_details?.email) {
+          try {
+            await sendReimbursementConfirmationEmail(
+              session.customer_details.email,
+              session.customer_details.name || 'Member',
+              reimbursement
+            );
+          } catch (emailError) {
+            console.error("Failed to send reimbursement confirmation email:", emailError);
+            // Don't fail the webhook if email fails
+          }
         }
       } else if (type === "membership") {
         const user = await prisma.user.update({

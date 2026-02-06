@@ -12,6 +12,10 @@ export const STRIPE_CONFIG = {
       name: 'Kitwek Victoria Welfare Registration',
       description: 'One-time welfare fund registration fee'
     },
+    welfare_reimbursement: {
+      name: 'Kitwek Victoria Welfare Reimbursement',
+      description: 'Reimbursement contribution for welfare fund'
+    },
     donation: {
       getName: (campaignName: string) => `Donation to ${campaignName}`,
       description: 'One-time donation'
