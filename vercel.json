@@ -8,5 +8,16 @@
       "path": "/api/cron/inactive-welfare-reminder",
       "schedule": "0 9 * * 1"
     }
-  ]
+  ],
+  "functions": {
+    "app/(dashboard)/dashboard/welfare/page.tsx": {
+      "maxDuration": 30
+    },
+    "app/api/welfare/**": {
+      "maxDuration": 30
+    },
+    "app/api/stripe/webhook/route.ts": {
+      "maxDuration": 30
+    }
+  }
 }
