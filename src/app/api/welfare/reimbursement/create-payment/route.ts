@@ -73,7 +73,9 @@ export async function POST(_request: Request) {
       });
     }
 
-    // Create Stripe checkout session for AUD $19
+    // Create Stripe checkout session for the calculated reimbursement amount
+    const amountInCents = Math.round(pendingReimbursement.amountDue * 100);
+
     const checkoutSession = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       mode: "payment",
@@ -86,7 +88,7 @@ export async function POST(_request: Request) {
               name: STRIPE_CONFIG.products.welfare_reimbursement.name,
               description: `Reimbursement for ${pendingReimbursement.application.deceasedName} welfare payout`,
             },
-            unit_amount: 1900, // $19.00 in cents
+            unit_amount: amountInCents,
           },
           quantity: 1,
         },

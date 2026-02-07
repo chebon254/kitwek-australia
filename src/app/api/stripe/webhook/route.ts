@@ -122,8 +122,11 @@ export async function POST(request: Request) {
           reimbursementId: string;
         };
 
-        // Calculate fees for $19 reimbursement
-        const { grossAmount, stripeFee, netAmount } = calculateStripeFee(19);
+        // Get the actual amount paid from Stripe session
+        const amountPaid = (session.amount_total || 0) / 100; // Convert cents to dollars
+
+        // Calculate fees based on actual amount paid
+        const { grossAmount, stripeFee, netAmount } = calculateStripeFee(amountPaid);
 
         // Update reimbursement record
         const reimbursement = await prisma.welfareReimbursement.update({

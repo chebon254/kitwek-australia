@@ -369,13 +369,13 @@ export default function WelfareDashboard() {
                       </Link>
                     )}
 
-                    {reimbursementEligibility?.isEligible && (
+                    {reimbursementEligibility?.isEligible && reimbursementEligibility?.reimbursement && (
                       <button
                         onClick={handleReimbursementPayment}
                         className="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700"
                       >
                         <DollarSign className="h-5 w-5 mr-2" />
-                        Pay Reimbursement (AUD $19)
+                        Pay Reimbursement (AUD ${reimbursementEligibility.reimbursement.amountDue.toFixed(2)})
                       </button>
                     )}
 
