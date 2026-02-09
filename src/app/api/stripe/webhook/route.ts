@@ -140,7 +140,17 @@ export async function POST(request: Request) {
             paidAt: new Date(),
           },
           include: {
-            application: true,
+            application: {
+              include: {
+                user: {
+                  select: {
+                    firstName: true,
+                    lastName: true,
+                    username: true,
+                  },
+                },
+              },
+            },
             user: true,
           },
         });

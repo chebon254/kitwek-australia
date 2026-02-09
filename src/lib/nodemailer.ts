@@ -1080,9 +1080,19 @@ export const sendReimbursementConfirmationEmail = async (
     application: {
       deceasedName: string;
       applicationType: string;
+      user?: {
+        firstName?: string | null;
+        lastName?: string | null;
+        username?: string | null;
+      };
     };
   }
 ) => {
+  // Get applicant name (the person who applied for and received the benefit)
+  const applicantName = reimbursement.application.user?.firstName && reimbursement.application.user?.lastName
+    ? `${reimbursement.application.user.firstName} ${reimbursement.application.user.lastName}`
+    : reimbursement.application.user?.username || 'N/A';
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -1148,7 +1158,7 @@ export const sendReimbursementConfirmationEmail = async (
               </div>
               <div class="detail-row">
                 <span><strong>Beneficiary:</strong></span>
-                <span>${reimbursement.application.deceasedName}</span>
+                <span>${applicantName}</span>
               </div>
               <div class="detail-row" style="border-bottom: none;">
                 <span><strong>Payment Date:</strong></span>
