@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { adminAuth } from '@/lib/firebase-admin';
 import { prisma } from '@/lib/prisma';
 
-export const revalidate = 180; // Revalidate every 3 minutes
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
