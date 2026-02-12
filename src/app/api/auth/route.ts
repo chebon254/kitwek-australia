@@ -7,7 +7,24 @@ import { generateMemberNumber } from "@/lib/memberNumber";
 
 export async function POST(request: Request) {
   try {
-    const { idToken, username } = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (error) {
+      return NextResponse.json(
+        { error: "Invalid request body" },
+        { status: 400 }
+      );
+    }
+
+    const { idToken, username } = body;
+
+    if (!idToken) {
+      return NextResponse.json(
+        { error: "ID token is required" },
+        { status: 400 }
+      );
+    }
 
     // Verify the Firebase ID token
     const decodedToken = await adminAuth.verifyIdToken(idToken);
@@ -91,6 +108,7 @@ export async function POST(request: Request) {
       maxAge: expiresIn,
       httpOnly: true,
       secure: true,
+      sameSite: 'lax', // Allow cookie to work with OAuth redirects
     });
 
     return NextResponse.json({ status: "success", user });

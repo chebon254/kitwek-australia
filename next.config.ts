@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  devIndicators: {
+    appIsrStatus: false,
+  },
+  allowedDevOrigins: ['https://humane-properly-bug.ngrok-free.app'],
   images: {
     remotePatterns: [
       {

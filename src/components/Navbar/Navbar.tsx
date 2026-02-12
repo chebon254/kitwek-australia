@@ -265,7 +265,7 @@ export default function Navbar({ className }: NavbarProps) {
                       {user ? (
                         <>
                           <Link
-                            href="/dashboard/profile"
+                            href="/dashboard"
                             className="text-center text-3xl font-semibold text-black hover:bg-gray-100 py-4"
                             onClick={() => setIsOpen(false)}
                           >

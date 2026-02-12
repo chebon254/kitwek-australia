@@ -204,6 +204,7 @@ function SignIn() {
                       width={20}
                       height={20}
                       className="mr-2"
+                      style={{ width: 'auto', height: '20px' }}
                     />
                     <span>Google</span>
                   </>
@@ -225,6 +226,7 @@ function SignIn() {
                       width={20}
                       height={20}
                       className="mr-2"
+                      style={{ width: 'auto', height: '20px' }}
                     />
                     <span>Apple</span>
                   </>
