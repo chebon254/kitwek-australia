@@ -79,6 +79,9 @@ export async function POST(request: Request) {
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
         payment_method_types: ["card"],
+        payment_intent_data: {
+          statement_descriptor_suffix: "DONATION", // Max 22 chars
+        },
         line_items: [
           {
             price_data: {
@@ -215,6 +218,9 @@ export async function POST(request: Request) {
         customer: stripeCustomerId,
         mode: "payment",
         payment_method_types: ["card"],
+        payment_intent_data: {
+          statement_descriptor_suffix: "WELFARE REG", // Max 22 chars
+        },
         line_items: [
           {
             price_data: {
@@ -246,6 +252,9 @@ export async function POST(request: Request) {
         customer: stripeCustomerId,
         mode: "payment",
         payment_method_types: ["card"],
+        payment_intent_data: {
+          statement_descriptor_suffix: "MEMBERSHIP", // Max 22 chars
+        },
         line_items: [
           {
             price: MEMBERSHIP_PRICE,
@@ -306,6 +315,16 @@ export async function POST(request: Request) {
         customer: stripeCustomerId,
         mode: "subscription",
         payment_method_types: ["card"],
+        subscription_data: {
+          metadata: {
+            userId: user.id,
+            planName,
+            billingCycle,
+          },
+        },
+        payment_intent_data: {
+          statement_descriptor_suffix: "PREMIUM SUB", // Max 22 chars
+        },
         line_items: [
           {
             price: priceId,

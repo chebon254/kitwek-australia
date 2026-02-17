@@ -71,6 +71,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       const params: Stripe.Checkout.SessionCreateParams = {
         mode: 'payment',
         payment_method_types: ['card'],
+        payment_intent_data: {
+          statement_descriptor_suffix: 'EVENT TICKET', // Max 22 chars
+        },
         line_items: [
           {
             price_data: {

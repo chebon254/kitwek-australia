@@ -94,6 +94,9 @@ export async function POST() {
       customer: stripeCustomerId,
       mode: 'payment',
       payment_method_types: ['card'],
+      payment_intent_data: {
+        statement_descriptor_suffix: 'WELFARE REG', // Max 22 chars
+      },
       line_items: [
         {
           price_data: {

@@ -80,6 +80,9 @@ export async function POST(_request: Request) {
       customer: stripeCustomerId,
       mode: "payment",
       payment_method_types: ["card"],
+      payment_intent_data: {
+        statement_descriptor_suffix: "WELFARE REIMB", // Max 22 chars
+      },
       line_items: [
         {
           price_data: {
