@@ -35,24 +35,43 @@ export async function POST(request: Request) {
     const email = decodedToken.email;
     const uid = decodedToken.uid;
 
-    // First, check if user exists by Firebase UID
+    // Primary lookup by email (authoritative from Firebase JWT)
     let user = await prisma.user.findUnique({
-      where: { id: uid },
+      where: { email },
     });
 
-    // If no user found by UID, check by email
+    // Fallback: check by Firebase UID (handles accounts created before email-first flow)
     if (!user) {
-      user = await prisma.user.findUnique({
-        where: { email },
+      const userByUid = await prisma.user.findUnique({
+        where: { id: uid },
       });
+      // Only use UID result if the email matches - prevents returning wrong user
+      // when Firebase UIDs were incorrectly assigned during member number transfers
+      if (userByUid && userByUid.email === email) {
+        user = userByUid;
+      }
     }
 
-    // If user exists but IDs don't match, update the ID
+    // If user exists but DB id doesn't match Firebase UID, sync it
     if (user && user.id !== uid) {
-      user = await prisma.user.update({
-        where: { email },
-        data: { id: uid },
-      });
+      try {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { id: uid },
+        });
+      } catch (idUpdateError) {
+        // Another record already has this UID (leftover from a transfer)
+        // Remove the stale UID from the other record first, then retry
+        console.warn("UID conflict detected, resolving:", idUpdateError);
+        await prisma.user.updateMany({
+          where: { id: uid, NOT: { email } },
+          data: { id: `legacy_${uid}_${Date.now()}` },
+        });
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { id: uid },
+        });
+      }
     }
 
     // If user exists and is revoked, return error
