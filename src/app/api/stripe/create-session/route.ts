@@ -322,9 +322,6 @@ export async function POST(request: Request) {
             billingCycle,
           },
         },
-        payment_intent_data: {
-          statement_descriptor_suffix: "PREMIUM SUB", // Max 22 chars
-        },
         line_items: [
           {
             price: priceId,
