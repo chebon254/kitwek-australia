@@ -54,9 +54,10 @@ export async function POST(request: Request) {
 
     // If user exists but DB id doesn't match Firebase UID, sync it
     if (user && user.id !== uid) {
+      const oldId = user.id;
       try {
         user = await prisma.user.update({
-          where: { id: user.id },
+          where: { id: oldId },
           data: { id: uid },
         });
       } catch (idUpdateError) {
@@ -68,10 +69,21 @@ export async function POST(request: Request) {
           data: { id: `legacy_${uid}_${Date.now()}` },
         });
         user = await prisma.user.update({
-          where: { id: user.id },
+          where: { id: oldId },
           data: { id: uid },
         });
       }
+
+      // Also update all FK references so related tables stay consistent
+      await Promise.all([
+        prisma.$executeRaw`UPDATE WelfareRegistration SET userId = ${uid} WHERE userId = ${oldId}`,
+        prisma.$executeRaw`UPDATE WelfareReimbursement SET userId = ${uid} WHERE userId = ${oldId}`,
+        prisma.$executeRaw`UPDATE WelfareApplication SET userId = ${uid} WHERE userId = ${oldId}`,
+        prisma.$executeRaw`UPDATE ImmediateFamily SET userId = ${uid} WHERE userId = ${oldId}`,
+        prisma.$executeRaw`UPDATE Ticket SET userId = ${uid} WHERE userId = ${oldId}`,
+        prisma.$executeRaw`UPDATE Vote SET userId = ${uid} WHERE userId = ${oldId}`,
+        prisma.$executeRaw`UPDATE WelfareVote SET userId = ${uid} WHERE userId = ${oldId}`,
+      ]);
     }
 
     // If user exists and is revoked, return error
